@@ -1,7 +1,7 @@
 plugins {
     id "java"
     id "com.diffplug.spotless" version "6.2.1"
-    id "edu.wpi.first.GradleRIO" version "2022.4.1"
+    id "edu.wpi.first.GradleRIO" version "2023.1.1"
     id "net.ltgt.errorprone"
 }
 
@@ -75,11 +75,6 @@ dependencies {
     nativeRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.desktop)
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
-
-    implementation "com.github.robototes.2910Common:common:6b57211"
-    implementation "com.github.robototes.2910Common:robot:6b57211"
-
-    implementation "com.github.robototes:swerve-lib:994f2d4"
 
     implementation "com.github.Oblarg:Oblog:4.0.9"
     testImplementation "junit:junit:4.12"
