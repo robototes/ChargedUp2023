@@ -1,6 +1,7 @@
-package frc.team2412.robot.subsytems;
+package frc.team2412.robot.subsystems;
 
 import frc.team2412.robot.Hardware;
+import frc.team2412.robot.sim.PhysicsSim;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
@@ -217,13 +218,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
                 new SwerveModulePosition(moduleDriveMotors[0].getSelectedSensorPosition(),
-                        new Rotation2d(moduleEncoders[0].getAbsolutePosition() - moduleOffsets[0].getDegrees())),
+                        Rotation2d.fromRadians(moduleAngleMotors[0].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
                 new SwerveModulePosition(moduleDriveMotors[1].getSelectedSensorPosition(),
-                        new Rotation2d(moduleEncoders[1].getAbsolutePosition() - moduleOffsets[1].getDegrees())),
+                        Rotation2d.fromRadians(moduleAngleMotors[1].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
                 new SwerveModulePosition(moduleDriveMotors[2].getSelectedSensorPosition(),
-                        new Rotation2d(moduleEncoders[2].getAbsolutePosition() - moduleOffsets[2].getDegrees())),
+                        Rotation2d.fromRadians(moduleAngleMotors[2].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
                 new SwerveModulePosition(moduleDriveMotors[3].getSelectedSensorPosition(),
-                        new Rotation2d(moduleEncoders[3].getAbsolutePosition() - moduleOffsets[3].getDegrees())),
+                        Rotation2d.fromRadians(moduleAngleMotors[3].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
         };
     }
 
@@ -242,6 +243,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     public Rotation2d getGyroRotation2d() {
         return Rotation2d.fromDegrees(-gyroscope.getAngle());
+    }
+
+    public void simInit(PhysicsSim sim) {
+        for (int i=0; i < moduleDriveMotors.length; i++) {
+            sim.addTalonFX(moduleDriveMotors[i], 2, 20000);
+            sim.addTalonFX(moduleAngleMotors[i], 2, 20000);
+        }
     }
 
     @Override

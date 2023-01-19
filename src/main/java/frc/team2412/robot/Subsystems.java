@@ -2,9 +2,9 @@ package frc.team2412.robot;
 
 import static frc.team2412.robot.Subsystems.SubsystemConstants.*;
 
-import frc.team2412.robot.subsytems.ArmSubsystem;
-import frc.team2412.robot.subsytems.DrivebaseSubsystem;
-import frc.team2412.robot.subsytems.IntakeSubsystem;
+import frc.team2412.robot.subsystems.ArmSubsystem;
+import frc.team2412.robot.subsystems.DrivebaseSubsystem;
+import frc.team2412.robot.subsystems.IntakeSubsystem;
 
 public class Subsystems {
     public static class SubsystemConstants {

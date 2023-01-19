@@ -184,6 +184,9 @@ public class Robot extends TimedRobot {
     @Override
     public void simulationInit() {
         PhysicsSim sim = PhysicsSim.getInstance();
+        if (Subsystems.SubsystemConstants.DRIVEBASE_ENABLED) {
+            subsystems.drivebaseSubsystem.simInit(sim);
+        }
     }
 
     @Override
