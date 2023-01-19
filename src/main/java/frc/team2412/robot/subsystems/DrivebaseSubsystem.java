@@ -45,7 +45,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	// per
 	// tick
 	private static final double driveVelocityCoefficient =
-			(ticksPerRotation / (Math.PI * wheelDiameterMeters)) * driveReductionL1; // ticks per meter per 100 ms
+			(ticksPerRotation / (Math.PI * wheelDiameterMeters))
+					* driveReductionL1; // ticks per meter per 100 ms
 
 	private WPI_TalonFX[] moduleDriveMotors = {
 		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
@@ -84,7 +85,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	};
 
 	SwerveDriveKinematics kinematics =
-			new SwerveDriveKinematics(moduleLocations[0], moduleLocations[1], moduleLocations[2], moduleLocations[3]);
+			new SwerveDriveKinematics(
+					moduleLocations[0], moduleLocations[1], moduleLocations[2], moduleLocations[3]);
 
 	private AHRS gyroscope;
 
@@ -95,7 +97,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		gyroscope = new AHRS(SerialPort.Port.kMXP);
 
 		odometry =
-				new SwerveDriveOdometry(kinematics, Rotation2d.fromDegrees(gyroscope.getYaw()), getModulePositions());
+				new SwerveDriveOdometry(
+						kinematics, Rotation2d.fromDegrees(gyroscope.getYaw()), getModulePositions());
 		pose = odometry.getPoseMeters();
 
 		// configure encoders offsets
@@ -159,10 +162,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void drive(double forward, double strafe, Rotation2d rotation, boolean fieldOriented) {
 		SwerveModuleState[] moduleStates = getModuleStates(new ChassisSpeeds(0, 0, 0));
 		if (fieldOriented) {
-			moduleStates = getModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
-					forward, -strafe, rotation.getRadians() * 100, getGyroRotation2d()));
+			moduleStates =
+					getModuleStates(
+							ChassisSpeeds.fromFieldRelativeSpeeds(
+									forward, -strafe, rotation.getRadians() * 100, getGyroRotation2d()));
 		} else {
-			moduleStates = getModuleStates(new ChassisSpeeds(forward, -strafe, rotation.getRadians() * 100));
+			moduleStates =
+					getModuleStates(new ChassisSpeeds(forward, -strafe, rotation.getRadians() * 100));
 		}
 		drive(moduleStates);
 	}
@@ -187,14 +193,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			// meters/100ms * raw sensor units conversion
 			// System.out.println(states[i].speedMetersPerSecond);
 			moduleDriveMotors[i].set(
-					TalonFXControlMode.Velocity, ((states[i].speedMetersPerSecond) / 10) * driveVelocityCoefficient);
+					TalonFXControlMode.Velocity,
+					((states[i].speedMetersPerSecond) / 10) * driveVelocityCoefficient);
 			// System.out.println((states[i].speedMetersPerSecond/10) *
 			// driveVelocityCoefficient);
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
 			moduleAngleMotors[i].set(
 					TalonFXControlMode.Position,
-					states[i].angle.getRadians() * steerPositionCoefficient); // steerpositioncoefficient is maybe fixed
+					states[i].angle.getRadians()
+							* steerPositionCoefficient); // steerpositioncoefficient is maybe fixed
 			// moduleAngleMotors[i].set(TalonFXControlMode.Position, 1000);
 			// System.out.println(states[i].angle.getRadians() * steerPositionCoefficient);
 			// System.out.println("Module number " + i + " has encoder position: " +
@@ -208,8 +216,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	/**
 	 * @param speeds
-	 * @return Array with modules with front left at [0], front right at [1], back
-	 *         left at [2], back right at [3]
+	 * @return Array with modules with front left at [0], front right at [1], back left at [2], back
+	 *     right at [3]
 	 */
 	public SwerveModuleState[] getModuleStates(ChassisSpeeds speeds) {
 		return kinematics.toSwerveModuleStates(speeds);

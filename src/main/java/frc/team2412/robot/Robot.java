@@ -17,9 +17,7 @@ import frc.team2412.robot.util.MACAddress;
 import io.github.oblarg.oblog.Logger;
 
 public class Robot extends TimedRobot {
-	/**
-	 * Singleton Stuff
-	 */
+	/** Singleton Stuff */
 	private static Robot instance = null;
 
 	enum RobotType {
@@ -43,7 +41,8 @@ public class Robot extends TimedRobot {
 	private Thread controlAuto;
 
 	protected Robot(RobotType type) {
-		System.out.println("Robot type: " + (type.equals(RobotType.AUTOMATED_TEST) ? "AutomatedTest" : "Competition"));
+		System.out.println(
+				"Robot type: " + (type.equals(RobotType.AUTOMATED_TEST) ? "AutomatedTest" : "Competition"));
 		instance = this;
 		PDP = new PowerDistribution(Hardware.PDP_ID, ModuleType.kRev);
 		robotType = type;
@@ -79,7 +78,8 @@ public class Robot extends TimedRobot {
 					// noinspection AssignmentToCatchBlockParameter
 					throwable = cause;
 				}
-				DriverStation.reportError("Unhandled exception: " + throwable.toString(), throwable.getStackTrace());
+				DriverStation.reportError(
+						"Unhandled exception: " + throwable.toString(), throwable.getStackTrace());
 
 				try {
 					sleep(2000);
@@ -106,41 +106,45 @@ public class Robot extends TimedRobot {
 		}
 
 		CommandScheduler.getInstance()
-				.onCommandInitialize(command -> System.out.println("Command initialized: " + command.getName()));
+				.onCommandInitialize(
+						command -> System.out.println("Command initialized: " + command.getName()));
 		CommandScheduler.getInstance()
-				.onCommandInterrupt(command -> System.out.println("Command interrupted: " + command.getName()));
+				.onCommandInterrupt(
+						command -> System.out.println("Command interrupted: " + command.getName()));
 		CommandScheduler.getInstance()
 				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
 
 		if (robotType.equals(RobotType.AUTOMATED_TEST)) {
-			controlAuto = new Thread(() -> {
-				System.out.println("Waiting two seconds for robot to finish startup");
-				try {
-					sleep(2000);
-				} catch (InterruptedException ignored) {
-				}
+			controlAuto =
+					new Thread(
+							() -> {
+								System.out.println("Waiting two seconds for robot to finish startup");
+								try {
+									sleep(2000);
+								} catch (InterruptedException ignored) {
+								}
 
-				System.out.println("Enabling autonomous mode and waiting 10 seconds");
-				DriverStationDataJNI.setAutonomous(true);
-				DriverStationDataJNI.setEnabled(true);
+								System.out.println("Enabling autonomous mode and waiting 10 seconds");
+								DriverStationDataJNI.setAutonomous(true);
+								DriverStationDataJNI.setEnabled(true);
 
-				try {
-					sleep(10000);
-				} catch (InterruptedException ignored) {
-				}
+								try {
+									sleep(10000);
+								} catch (InterruptedException ignored) {
+								}
 
-				System.out.println("Disabling robot and waiting two seconds");
-				DriverStationDataJNI.setEnabled(false);
+								System.out.println("Disabling robot and waiting two seconds");
+								DriverStationDataJNI.setEnabled(false);
 
-				try {
-					sleep(2000);
-				} catch (InterruptedException ignored) {
-				}
+								try {
+									sleep(2000);
+								} catch (InterruptedException ignored) {
+								}
 
-				System.out.println("Ending competition");
-				suppressExitWarning(true);
-				endCompetition();
-			});
+								System.out.println("Ending competition");
+								suppressExitWarning(true);
+								endCompetition();
+							});
 			controlAuto.start();
 		}
 	}

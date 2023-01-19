@@ -18,7 +18,8 @@ public class Hardware {
 			DRIVEBASE_FRONT_RIGHT_ENCODER_PORT = 6,
 			DRIVEBASE_BACK_LEFT_ENCODER_PORT = 9,
 			DRIVEBASE_BACK_RIGHT_ENCODER_PORT = 12;
-	public static final Rotation2d DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET = Rotation2d.fromDegrees(0); // TODO: find these
+	public static final Rotation2d DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET =
+			Rotation2d.fromDegrees(0); // TODO: find these
 	public static final Rotation2d DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET = Rotation2d.fromDegrees(0);
 	public static final Rotation2d DRIVEBASE_BACK_LEFT_ENCODER_OFFSET = Rotation2d.fromDegrees(0);
 	public static final Rotation2d DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET = Rotation2d.fromDegrees(0);
@@ -27,8 +28,9 @@ public class Hardware {
 	public static final double GEAR_RATIO;
 
 	static {
-		GEAR_RATIO = Robot.getInstance().isCompetition()
-				? 0 // TBD
-				: 8.14; // L1 drive ratio
+		GEAR_RATIO =
+				Robot.getInstance().isCompetition()
+						? 0 // TBD
+						: 8.14; // L1 drive ratio
 	}
 }
