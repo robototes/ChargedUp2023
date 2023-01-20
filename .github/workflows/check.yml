@@ -1,15 +1,21 @@
 name: Gradle Check
 on: [push, pull_request]
+
 jobs:
-  gradle:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+
+      - uses: actions/setup-java@v2
         with:
           distribution: temurin
           java-version: 19
-      - name: Set Up Gradle
-        uses: gradle/gradle-build-action@v2
-      - name: Gradle Check
-        run: ./gradlew check --no-daemon
+          cache: gradle
+
+      - name: Check
+        run: ./gradlew check
+
+      - name: Automated Sim Test
+        run: ./gradlew simulateJavaDebug -PautomatedTest=true
