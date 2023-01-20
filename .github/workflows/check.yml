@@ -17,5 +17,6 @@ jobs:
       - name: Check
         run: ./gradlew check
 
-      - name: Automated Sim Test
-        run: ./gradlew simulateJavaDebug -PautomatedTest=true
+      # TODO: enable automated testing after it's implemented in the Java code
+      #- name: Automated Sim Test
+      #  run: ./gradlew simulateJavaDebug -PautomatedTest=true
