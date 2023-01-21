@@ -17,7 +17,11 @@ public class Hardware {
     public static final Rotation2d DRIVEBASE_BACK_LEFT_ENCODER_OFFSET = Rotation2d.fromDegrees(0);
     public static final Rotation2d DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET = Rotation2d.fromDegrees(0);
     public static final int GYRO_PORT = 13;
-
+    // Arm devices are from range 20 - 29
+    public static final int ARM_MOTOR = 20, WRIST_MOTOR = 21;
+    public static final AbsoluteEncoder encoderArm = new AbsoluteEncoder(0,1);
+    public static final AbsoluteEncoder encoderJoint = hardwareMap.get("encoderVirtualJoint");
+    public static final AbsoluteEncoder encoderWrist = hardwareMap.get("encoderWrist");
     public static final double GEAR_RATIO;
 
     static {
