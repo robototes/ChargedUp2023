@@ -218,13 +218,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
                 new SwerveModulePosition(moduleDriveMotors[0].getSelectedSensorPosition(),
-                        Rotation2d.fromRadians(moduleAngleMotors[0].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
+                        Rotation2d.fromRadians(
+                                moduleAngleMotors[0].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
                 new SwerveModulePosition(moduleDriveMotors[1].getSelectedSensorPosition(),
-                        Rotation2d.fromRadians(moduleAngleMotors[1].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
+                        Rotation2d.fromRadians(
+                                moduleAngleMotors[1].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
                 new SwerveModulePosition(moduleDriveMotors[2].getSelectedSensorPosition(),
-                        Rotation2d.fromRadians(moduleAngleMotors[2].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
+                        Rotation2d.fromRadians(
+                                moduleAngleMotors[2].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
                 new SwerveModulePosition(moduleDriveMotors[3].getSelectedSensorPosition(),
-                        Rotation2d.fromRadians(moduleAngleMotors[3].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
+                        Rotation2d.fromRadians(
+                                moduleAngleMotors[3].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
         };
     }
 
@@ -246,7 +250,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
     }
 
     public void simInit(PhysicsSim sim) {
-        for (int i=0; i < moduleDriveMotors.length; i++) {
+        for (int i = 0; i < moduleDriveMotors.length; i++) {
             sim.addTalonFX(moduleDriveMotors[i], 2, 20000);
             sim.addTalonFX(moduleAngleMotors[i], 2, 20000);
         }
