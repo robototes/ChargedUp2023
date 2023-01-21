@@ -4,6 +4,13 @@
       "open": false
     },
     "transitory": {
+      "LiveWindow": {
+        "Ungrouped": {
+          "PowerDistribution[1]": {
+            "open": true
+          }
+        }
+      },
       "SmartDashboard": {
         "Field": {
           "open": true
@@ -13,10 +20,21 @@
     },
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/Field": "Field2d"
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/PPSwerveControllerCommand_field": "Field2d"
     },
     "windows": {
+      "/FMSInfo": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/Field": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/PPSwerveControllerCommand_field": {
         "window": {
           "visible": true
         }

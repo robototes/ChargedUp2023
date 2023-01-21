@@ -28,7 +28,7 @@ public class DriveCommand extends CommandBase {
 	public void execute() {
 		double x = deadbandCorrection(-forward.getAsDouble());
 		double y = deadbandCorrection(strafe.getAsDouble());
-		double rot = deadbandCorrection(-rotation.getAsDouble()) / 2;
+		double rot = deadbandCorrection(-rotation.getAsDouble());
 		drivebaseSubsystem.drive(x, y, Rotation2d.fromDegrees(rot), true);
 	}
 
