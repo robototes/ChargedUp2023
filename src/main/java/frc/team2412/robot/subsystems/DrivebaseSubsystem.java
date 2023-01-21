@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.sim.PhysicsSim;
+import frc.team2412.robot.util.ModuleUtil;
 
 public class DrivebaseSubsystem extends SubsystemBase {
 
@@ -93,6 +95,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private Field2d field = new Field2d();
 
+	private final PIDController[] turningPIDController = new PIDController[4];
+
 	public DrivebaseSubsystem() {
 		gyroscope = new AHRS(SerialPort.Port.kMXP);
 
@@ -133,10 +137,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.config_kD(talonFXLoopNumber, 1.0, canTimeoutMS);
 			steeringMotor.setSelectedSensorPosition(
 					getModuleAngles()[i].times(((ticksPerRotation / 360) * steerReduction)).getDegrees());
+
+			turningPIDController[i] = new PIDController(1, 0, 0);
+			turningPIDController[i].enableContinuousInput(-Math.PI, Math.PI);
 		}
 
 		// configure shuffleboard
-
 		SmartDashboard.putData("Field", field);
 	}
 
@@ -177,7 +183,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 */
 	public void drive(SwerveModuleState[] states) {
 		for (int i = 0; i < states.length; i++) {
-			states[i] = SwerveModuleState.optimize(states[i], getModuleAngles()[i]);
+			states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
+			// optimizeStates(states);
 		}
 
 		// Set motor speeds and angles
@@ -217,9 +224,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		return positions;
 	}
 
-	/**
-	 * Returns the module angles using encoders
-	 */
+	/** Returns the module angles using encoders */
 	public Rotation2d[] getModuleAngles() {
 		Rotation2d[] rotations = new Rotation2d[4];
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
@@ -230,9 +235,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		return rotations;
 	}
 
-	/**
-	 * Returns the kinematics
-	 */
+	/** Returns the kinematics */
 	public SwerveDriveKinematics getKinematics() {
 		return kinematics;
 	}
@@ -254,16 +257,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		gyroscope.setAngleAdjustment(-angle.getDegrees());
 	}
 
-	/**
-	 * Returns a Rotation2d containing the robot's rotation
-	 */
+	/** Returns a Rotation2d containing the robot's rotation */
 	public Rotation2d getGyroRotation2d() {
 		return Rotation2d.fromDegrees(-gyroscope.getAngle());
 	}
 
-	/**
-	 * Returns the robot's pose
-	 */
+	/** Returns the robot's pose */
 	public Pose2d getPose() {
 		return pose;
 	}
