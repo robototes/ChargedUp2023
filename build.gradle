@@ -101,7 +101,6 @@ jar {
 	manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
 	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
-jar.dependsOn(spotlessApply);
 
 // Configure jar and deploy tasks
 deployArtifact.jarTask = jar
@@ -127,3 +126,6 @@ spotless {
 		trimTrailingWhitespace();
 	}
 }
+tasks.named("build") { dependsOn("spotlessApply") }
+tasks.named("check") { dependsOn("spotlessApply") }
+tasks.named("deploy") { dependsOn("spotlessApply") }

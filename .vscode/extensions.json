@@ -3,7 +3,6 @@
 		"editorconfig.editorconfig",
 		"vscjava.vscode-java-pack",
 		"github.vscode-pull-request-github",
-		"eamodio.gitlens",
 		"vscjava.vscode-gradle",
 		"gruntfuggly.todo-tree",
 		"wpilibsuite.vscode-wpilib",
