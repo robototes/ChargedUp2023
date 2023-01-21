@@ -77,10 +77,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     // 2ft x 2ft for practice bot
     private final Translation2d[] moduleLocations = {
-            new Translation2d(Units.feetToMeters(1), Units.feetToMeters(1)), // front left
-            new Translation2d(Units.feetToMeters(1), Units.feetToMeters(-1)), // front right
-            new Translation2d(Units.feetToMeters(-1), Units.feetToMeters(1)), // back left
-            new Translation2d(Units.feetToMeters(-1), Units.feetToMeters(-1)) // back right
+            new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(8.5)), // front left
+            new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(-8.5)), // front right
+            new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(8.5)), // back left
+            new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(-8.5)) // back right
     };
 
     SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
@@ -137,10 +137,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
             // canTimeoutMS);
             // steeringMotor.configPeakOutputReverse(-maxSteeringSpeed,
             // canTimeoutMS);
-
-            steeringMotor
-                    .setSelectedSensorPosition((moduleEncoders[i].getAbsolutePosition() - moduleOffsets[i].getDegrees())
-                            * ((ticksPerRotation / 360) * steerReduction));
+            steeringMotor.setSelectedSensorPosition(getModuleAngles()[i].times(((ticksPerRotation / 360) * steerReduction)).getDegrees());
         }
 
         // configure shuffleboard
@@ -160,8 +157,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
         SwerveModuleState[] moduleStates = getModuleStates(new ChassisSpeeds(0, 0, 0));
         if (fieldOriented) {
             moduleStates = getModuleStates(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(forward, -strafe, rotation.getRadians() * 100,
-                            getGyroRotation2d()));
+                ChassisSpeeds.fromFieldRelativeSpeeds(forward, -strafe, rotation.getRadians() * 100, getGyroRotation2d())
+            );
         } else {
             moduleStates = getModuleStates(new ChassisSpeeds(forward, -strafe, rotation.getRadians() * 100));
         }
@@ -173,8 +170,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
         drive(moduleStates);
     }
 
-    public void zeroGyroAngle() {
-        gyroscope.setAngleAdjustment(gyroscope.getAngle());
+    public void resetGyroAngle() {
+        resetGyroAngle(Rotation2d.fromDegrees(gyroscope.getYaw()));
+    }
+
+    public void resetGyroAngle(Rotation2d angle) {
+        gyroscope.setAngleAdjustment(-angle.getDegrees());
     }
 
     /**
@@ -183,6 +184,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
      * @param states
      */
     public void drive(SwerveModuleState[] states) {
+        for (int i = 0; i < states.length; i++) {
+            states[i] = SwerveModuleState.optimize(states[i], getModuleAngles()[i]);
+        }
+
         // Set motor speeds and angles
         for (int i = 0; i < moduleDriveMotors.length; i++) {
             // meters/100ms * raw sensor units conversion
@@ -217,14 +222,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
-                new SwerveModulePosition(moduleDriveMotors[0].getSelectedSensorPosition(),
-                        Rotation2d.fromRadians(moduleAngleMotors[0].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
-                new SwerveModulePosition(moduleDriveMotors[1].getSelectedSensorPosition(),
-                        Rotation2d.fromRadians(moduleAngleMotors[1].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
-                new SwerveModulePosition(moduleDriveMotors[2].getSelectedSensorPosition(),
-                        Rotation2d.fromRadians(moduleAngleMotors[2].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
-                new SwerveModulePosition(moduleDriveMotors[3].getSelectedSensorPosition(),
-                        Rotation2d.fromRadians(moduleAngleMotors[3].getSelectedSensorPosition() * (1/steerPositionCoefficient))),
+                new SwerveModulePosition(-moduleDriveMotors[0].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
+                        Rotation2d.fromRadians(
+                                moduleAngleMotors[0].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
+                new SwerveModulePosition(-moduleDriveMotors[1].getSelectedSensorPosition() * (1 / driveVelocityCoefficient), 
+                        Rotation2d.fromRadians(
+                                moduleAngleMotors[1].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
+                new SwerveModulePosition(-moduleDriveMotors[2].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
+                        Rotation2d.fromRadians(
+                                moduleAngleMotors[2].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
+                new SwerveModulePosition(-moduleDriveMotors[3].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
+                        Rotation2d.fromRadians(
+                                moduleAngleMotors[3].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
         };
     }
 
@@ -237,6 +246,23 @@ public class DrivebaseSubsystem extends SubsystemBase {
         this.pose = pose;
     }
 
+    public void resetPose() {
+        System.out.println("me 12 hours before my shift: " + gyroscope.getAngle());
+        resetGyroAngle();
+        resetPose(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+        System.out.println("me 12 hours after my shift: " + gyroscope.getAngle());
+        System.out.println("my shift: " + gyroscope.getAngleAdjustment());
+        
+    }
+
+    public Rotation2d[] getModuleAngles() {
+        Rotation2d[] rotations = new Rotation2d[4];
+        for (int i = 0; i < moduleAngleMotors.length; i++) {
+            rotations[i] = Rotation2d.fromDegrees((moduleEncoders[i].getAbsolutePosition() - moduleOffsets[i].getDegrees()));
+        }
+        return rotations;
+    }
+
     public SwerveDriveKinematics getKinematics() {
         return kinematics;
     }
@@ -246,8 +272,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
     }
 
     public void simInit(PhysicsSim sim) {
-        for (int i=0; i < moduleDriveMotors.length; i++) {
-            sim.addTalonFX(moduleDriveMotors[i], 2, 20000);
+        for (int i = 0; i < moduleDriveMotors.length; i++) {
+            sim.addTalonFX(moduleDriveMotors[i], 2, 20000, true);
             sim.addTalonFX(moduleAngleMotors[i], 2, 20000);
         }
     }

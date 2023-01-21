@@ -3,6 +3,8 @@ package frc.team2412.robot;
 import static frc.team2412.robot.Controls.ControlConstants.*;
 
 import frc.team2412.robot.commands.DriveCommand;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -27,6 +29,9 @@ public class Controls {
     }
 
     public void bindDrivebaseControls() {
-        CommandScheduler.getInstance().setDefaultCommand(s.drivebaseSubsystem, new DriveCommand(s.drivebaseSubsystem, driveController::getLeftY, driveController::getLeftX, driveController::getRightX));
+        CommandScheduler.getInstance().setDefaultCommand(s.drivebaseSubsystem, new DriveCommand(s.drivebaseSubsystem,
+                driveController::getLeftY, driveController::getLeftX, driveController::getRightX));
+        driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
+        driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
     }
 }

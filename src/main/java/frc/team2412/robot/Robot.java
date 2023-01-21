@@ -2,6 +2,12 @@ package frc.team2412.robot;
 
 import static java.lang.Thread.sleep;
 
+import java.util.HashMap;
+
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
+import com.pathplanner.lib.server.PathPlannerServer;
+
 import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -11,7 +17,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.team2412.robot.commands.PathPlannerTestCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import io.github.oblarg.oblog.Logger;
@@ -40,6 +48,8 @@ public class Robot extends TimedRobot {
     final private RobotType robotType;
 
     private Thread controlAuto;
+
+    public static SwerveAutoBuilder autoBuilder;
 
     protected Robot(RobotType type) {
         System.out.println("Robot type: " + (type.equals(RobotType.AUTOMATED_TEST) ? "AutomatedTest" : "Competition"));
@@ -148,6 +158,21 @@ public class Robot extends TimedRobot {
             });
             controlAuto.start();
         }
+
+        PathPlannerServer.startServer(5811);
+
+        autoBuilder = new SwerveAutoBuilder(
+            subsystems.drivebaseSubsystem::getPose, // Pose2d supplier
+            subsystems.drivebaseSubsystem::resetPose, // Pose2d consumer, used to reset odometry at the beginning of auto
+            subsystems.drivebaseSubsystem.getKinematics(), // SwerveDriveKinematics
+            new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+            new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+            subsystems.drivebaseSubsystem::drive, // Module states consumer used to output to the drive subsystem
+            new HashMap<String, Command>(),
+            true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+            subsystems.drivebaseSubsystem // The drive subsystem. Used to properly set the requirements of path following commands
+        );
+
     }
 
     @Override
@@ -164,6 +189,8 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         Shuffleboard.startRecording();
+
+        new PathPlannerTestCommand(subsystems.drivebaseSubsystem).schedule();
     }
 
     @Override
