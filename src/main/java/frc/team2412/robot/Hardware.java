@@ -25,6 +25,9 @@ public class Hardware {
 	public static final Rotation2d DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET = Rotation2d.fromDegrees(0);
 	public static final int GYRO_PORT = 13;
 
+	// Cameras
+	public static final String PHOTON_CAM = "Integrated_Webcam";
+
 	public static final double GEAR_RATIO;
 
 	static {
