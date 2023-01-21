@@ -135,9 +135,7 @@ public class ArmSubsystem extends SubsystemBase {
 	public double getShoulderAngle() {
 		return shoulderEncoder.getDistance(); //bad ?
 	}
-<<<<<<< Updated upstream
-}
-=======
+
 	public double getElbowAngle() {
 		return elbowEncoder.getDistance(); //bad ?
 	}
@@ -145,9 +143,7 @@ public class ArmSubsystem extends SubsystemBase {
 		return wristEncoder.getDistance(); //bad ?
 	}
 
-
 	//public void driveArmToValue(double targetAngle) {
 	//armMotor.changeAngle();
 	//}
 }
->>>>>>> Stashed changes
