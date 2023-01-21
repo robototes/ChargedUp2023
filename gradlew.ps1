@@ -37,32 +37,32 @@ $DEFAULT_JVM_OPTS = "-Xms64m" + " " + "-Xmx64m"
 
 # Find java.exe
 if (! $env:JAVA_HOME) {
-  $JAVA_EXE = "java.exe"
-  $p = '$JAVA_EXE -version >NUL 2>&1'
-  if($p.ExitCode) {
-    Write-Output "`n"
-    Write-Output "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH."
-    Write-Output "`n"
-    Write-Output "Please set the JAVA_HOME variable in your environment to match the"
-    Write-Output "location of your Java installation."
-    exit 1
-  }
+$JAVA_EXE = "java.exe"
+$p = '$JAVA_EXE -version >NUL 2>&1'
+if($p.ExitCode) {
+	Write-Output "`n"
+	Write-Output "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH."
+	Write-Output "`n"
+	Write-Output "Please set the JAVA_HOME variable in your environment to match the"
+	Write-Output "location of your Java installation."
+	exit 1
+}
 } else {
-  $JAVA_EXE="$env:JAVA_HOME/bin/java.exe"
-  if (-not (Test-Path -Path $JAVA_EXE -PathType Leaf)) {
-    Write-Output "`n"
-    Write-Output "ERROR: JAVA_HOME is set to an invalid directory: $env:JAVA_HOME"
-    Write-Output "`n"
-    Write-Output "Please set the JAVA_HOME variable in your environment to match the"
-    Write-Output "location of your Java installation."
-    exit 1
-  }
+$JAVA_EXE="$env:JAVA_HOME/bin/java.exe"
+if (-not (Test-Path -Path $JAVA_EXE -PathType Leaf)) {
+	Write-Output "`n"
+	Write-Output "ERROR: JAVA_HOME is set to an invalid directory: $env:JAVA_HOME"
+	Write-Output "`n"
+	Write-Output "Please set the JAVA_HOME variable in your environment to match the"
+	Write-Output "location of your Java installation."
+	exit 1
+}
 }
 
 # Include command line arguments
 $CMD_LINE_ARGS = ""
 foreach ($element in $args) {
-  $CMD_LINE_ARGS += "$element "
+$CMD_LINE_ARGS += "$element "
 }
 
 # Setup the CLASSPATH
