@@ -232,19 +232,19 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public SwerveModulePosition[] getModulePositions() {
 		return new SwerveModulePosition[] {
 			new SwerveModulePosition(
-					-moduleDriveMotors[0].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
+					moduleDriveMotors[0].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
 					Rotation2d.fromRadians(
 							moduleAngleMotors[0].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
 			new SwerveModulePosition(
-					-moduleDriveMotors[1].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
+					moduleDriveMotors[1].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
 					Rotation2d.fromRadians(
 							moduleAngleMotors[1].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
 			new SwerveModulePosition(
-					-moduleDriveMotors[2].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
+					moduleDriveMotors[2].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
 					Rotation2d.fromRadians(
 							moduleAngleMotors[2].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
 			new SwerveModulePosition(
-					-moduleDriveMotors[3].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
+					moduleDriveMotors[3].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
 					Rotation2d.fromRadians(
 							moduleAngleMotors[3].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
 		};

@@ -20,13 +20,15 @@ public class DriveCommand extends CommandBase {
 		this.forward = forward;
 		this.strafe = strafe;
 		this.rotation = rotation;
+
+		addRequirements(drivebaseSubsystem);
 	}
 
 	@Override
 	public void execute() {
 		double x = deadbandCorrection(-forward.getAsDouble());
 		double y = deadbandCorrection(strafe.getAsDouble());
-		double rot = deadbandCorrection(rotation.getAsDouble()) / 2;
+		double rot = deadbandCorrection(-rotation.getAsDouble()) / 2;
 		drivebaseSubsystem.drive(x, y, Rotation2d.fromDegrees(rot), true);
 	}
 
