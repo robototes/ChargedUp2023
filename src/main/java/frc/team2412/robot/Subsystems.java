@@ -5,17 +5,20 @@ import static frc.team2412.robot.Subsystems.SubsystemConstants.*;
 import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
+import frc.team2412.robot.subsystems.VisionSubsystem;
 
 public class Subsystems {
 	public static class SubsystemConstants {
 		public static final boolean DRIVEBASE_ENABLED = true;
 		public static final boolean ARM_ENABLED = false;
 		public static final boolean INTAKE_ENABLED = false;
+		public static final boolean VISION_ENABLED = true;
 	}
 
 	public DrivebaseSubsystem drivebaseSubsystem;
 	public ArmSubsystem armSubsystem;
 	public IntakeSubsystem intakeSubsystem;
+	public VisionSubsystem visionSubsystem;
 
 	public Subsystems() {
 		boolean comp = Robot.getInstance().isCompetition();
@@ -31,6 +34,9 @@ public class Subsystems {
 		}
 		if (INTAKE_ENABLED) {
 			intakeSubsystem = new IntakeSubsystem();
+		}
+		if (VISION_ENABLED) {
+			visionSubsystem = new VisionSubsystem();
 		}
 	}
 }

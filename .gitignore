@@ -109,6 +109,7 @@ Temporary Items
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+.factorypath
 
 ### Windows ###
 # Windows thumbnail cache files
