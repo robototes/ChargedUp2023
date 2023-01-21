@@ -1,0 +1,22 @@
+name: Gradle Check
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 19
+          cache: gradle
+
+      - name: Check
+        run: ./gradlew check
+
+      # TODO: enable automated testing after it's implemented in the Java code
+      #- name: Automated Sim Test
+      #  run: ./gradlew simulateJavaDebug -PautomatedTest=true
