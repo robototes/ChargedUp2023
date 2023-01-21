@@ -101,6 +101,7 @@ jar {
 	manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
 	duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
+jar.dependsOn(spotlessApply);
 
 // Configure jar and deploy tasks
 deployArtifact.jarTask = jar
