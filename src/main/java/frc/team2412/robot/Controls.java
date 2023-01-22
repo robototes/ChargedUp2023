@@ -5,7 +5,7 @@ import static frc.team2412.robot.Controls.ControlConstants.*;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.team2412.robot.commands.DriveCommand;
+import frc.team2412.robot.commands.drivebase.DriveCommand;
 
 public class Controls {
 	public static class ControlConstants {

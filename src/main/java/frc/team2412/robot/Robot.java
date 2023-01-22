@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.team2412.robot.commands.PathPlannerTestCommand;
+import frc.team2412.robot.commands.autonomous.PathPlannerTestCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import io.github.oblarg.oblog.Logger;
@@ -33,7 +33,8 @@ public class Robot extends TimedRobot {
 	}
 
 	public static Robot getInstance() {
-		if (instance == null) instance = new Robot();
+		if (instance == null)
+			instance = new Robot();
 		return instance;
 	}
 
@@ -68,8 +69,10 @@ public class Robot extends TimedRobot {
 	public static final MACAddress PRACTICE_ADDRESS = MACAddress.of(0x28, 0x40, 0x82);
 
 	private static RobotType getTypeFromAddress() {
-		if (PRACTICE_ADDRESS.exists()) return RobotType.DRIVEBASE;
-		else return RobotType.COMPETITION;
+		if (PRACTICE_ADDRESS.exists())
+			return RobotType.DRIVEBASE;
+		else
+			return RobotType.COMPETITION;
 	}
 
 	@Override
@@ -123,68 +126,65 @@ public class Robot extends TimedRobot {
 				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
 
 		if (robotType.equals(RobotType.AUTOMATED_TEST)) {
-			controlAuto =
-					new Thread(
-							() -> {
-								System.out.println("Waiting two seconds for robot to finish startup");
-								try {
-									sleep(2000);
-								} catch (InterruptedException ignored) {
-								}
+			controlAuto = new Thread(
+					() -> {
+						System.out.println("Waiting two seconds for robot to finish startup");
+						try {
+							sleep(2000);
+						} catch (InterruptedException ignored) {
+						}
 
-								System.out.println("Enabling autonomous mode and waiting 10 seconds");
-								DriverStationDataJNI.setAutonomous(true);
-								DriverStationDataJNI.setEnabled(true);
+						System.out.println("Enabling autonomous mode and waiting 10 seconds");
+						DriverStationDataJNI.setAutonomous(true);
+						DriverStationDataJNI.setEnabled(true);
 
-								try {
-									sleep(10000);
-								} catch (InterruptedException ignored) {
-								}
+						try {
+							sleep(10000);
+						} catch (InterruptedException ignored) {
+						}
 
-								System.out.println("Disabling robot and waiting two seconds");
-								DriverStationDataJNI.setEnabled(false);
+						System.out.println("Disabling robot and waiting two seconds");
+						DriverStationDataJNI.setEnabled(false);
 
-								try {
-									sleep(2000);
-								} catch (InterruptedException ignored) {
-								}
+						try {
+							sleep(2000);
+						} catch (InterruptedException ignored) {
+						}
 
-								System.out.println("Ending competition");
-								suppressExitWarning(true);
-								endCompetition();
-							});
+						System.out.println("Ending competition");
+						suppressExitWarning(true);
+						endCompetition();
+					});
 			controlAuto.start();
 		}
 
 		PathPlannerServer.startServer(5811);
 
-		autoBuilder =
-				new SwerveAutoBuilder(
-						subsystems.drivebaseSubsystem::getPose, // Pose2d supplier
-						subsystems.drivebaseSubsystem
-								::resetPose, // Pose2d consumer, used to reset odometry at the beginning of auto
-						subsystems.drivebaseSubsystem.getKinematics(), // SwerveDriveKinematics
-						new PIDConstants(
-								5.0, 0.0,
-								0.0), // PID constants to correct for translation error (used to create the X and Y
-						// PID controllers)
-						new PIDConstants(
-								0.5, 0.0,
-								0.0), // PID constants to correct for rotation error (used to create the rotation
-						// controller)
-						subsystems.drivebaseSubsystem
-								::drive, // Module states consumer used to output to the drive subsystem
-						new HashMap<String, Command>(),
-						true, // Should the path be automatically mirrored depending on alliance color.
-						// Optional, defaults to true
-						subsystems
-								.drivebaseSubsystem // The drive subsystem. Used to properly set the requirements of
-						// path following commands
-						);
+		autoBuilder = new SwerveAutoBuilder(
+				subsystems.drivebaseSubsystem::getPose, // Pose2d supplier
+				subsystems.drivebaseSubsystem::resetPose, // Pose2d consumer, used to reset odometry at the beginning of
+															// auto
+				subsystems.drivebaseSubsystem.getKinematics(), // SwerveDriveKinematics
+				new PIDConstants(
+						5.0, 0.0,
+						0.0), // PID constants to correct for translation error (used to create the X and Y
+				// PID controllers)
+				new PIDConstants(
+						0.5, 0.0,
+						0.0), // PID constants to correct for rotation error (used to create the rotation
+				// controller)
+				subsystems.drivebaseSubsystem::drive, // Module states consumer used to output to the drive subsystem
+				new HashMap<String, Command>(),
+				true, // Should the path be automatically mirrored depending on alliance color.
+				// Optional, defaults to true
+				subsystems.drivebaseSubsystem // The drive subsystem. Used to properly set the requirements of
+		// path following commands
+		);
 	}
 
 	@Override
-	public void testInit() {}
+	public void testInit() {
+	}
 
 	@Override
 	public void robotPeriodic() {

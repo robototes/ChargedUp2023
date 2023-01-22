@@ -1,4 +1,4 @@
-package frc.team2412.robot.commands;
+package frc.team2412.robot.commands.autonomous;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -19,8 +19,7 @@ public class PathPlannerTestCommand extends CommandBase {
 
 	@Override
 	public void initialize() {
-		List<PathPlannerTrajectory> pathGroup =
-				PathPlanner.loadPathGroup("FullAuto", new PathConstraints(1, 0.3));
+		List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("FullAuto", new PathConstraints(1, 0.3));
 
 		Command fullAuto = Robot.autoBuilder.fullAuto(pathGroup);
 
