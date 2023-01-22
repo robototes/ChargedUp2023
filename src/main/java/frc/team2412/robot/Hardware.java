@@ -19,10 +19,13 @@ public class Hardware {
 			DRIVEBASE_BACK_LEFT_ENCODER_PORT = 9,
 			DRIVEBASE_BACK_RIGHT_ENCODER_PORT = 12;
 	public static final Rotation2d DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET =
-			Rotation2d.fromDegrees(0); // TODO: find these
-	public static final Rotation2d DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET = Rotation2d.fromDegrees(0);
-	public static final Rotation2d DRIVEBASE_BACK_LEFT_ENCODER_OFFSET = Rotation2d.fromDegrees(0);
-	public static final Rotation2d DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET = Rotation2d.fromDegrees(0);
+			Rotation2d.fromDegrees(337.236);
+	public static final Rotation2d DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET =
+			Rotation2d.fromDegrees(251.982);
+	public static final Rotation2d DRIVEBASE_BACK_LEFT_ENCODER_OFFSET =
+			Rotation2d.fromDegrees(205.839);
+	public static final Rotation2d DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET =
+			Rotation2d.fromDegrees(311.396);
 	public static final int GYRO_PORT = 13;
 
 	public static final double GEAR_RATIO;
