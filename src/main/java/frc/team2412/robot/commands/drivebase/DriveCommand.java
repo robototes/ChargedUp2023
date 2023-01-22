@@ -16,22 +16,25 @@ public class DriveCommand extends CommandBase {
 	private final DoubleSupplier rotation;
 
 	// shuffleboard
-	private GenericEntry driveSpeedEntry = Shuffleboard.getTab("Drivebase")
-			.addPersistent("Drive Speed", 1)
-			.withSize(2, 1)
-			.withWidget(BuiltInWidgets.kNumberSlider)
-			.withProperties(Map.of("Min", 0, "Max", 5))
-			.getEntry();
-	private GenericEntry rotationSpeedEntry = Shuffleboard.getTab("Drivebase")
-			.addPersistent("Rotation Speed", 1)
-			.withSize(2, 1)
-			.withWidget(BuiltInWidgets.kNumberSlider)
-			.withProperties(Map.of("Min", 0, "Max", 5))
-			.getEntry();
-	private GenericEntry fieldOrientedEntry = Shuffleboard.getTab("Drivebase")
-			.addPersistent("Field Oriented", true)
-			.withWidget(BuiltInWidgets.kToggleSwitch)
-			.getEntry();
+	private GenericEntry driveSpeedEntry =
+			Shuffleboard.getTab("Drivebase")
+					.addPersistent("Drive Speed", 1)
+					.withSize(2, 1)
+					.withWidget(BuiltInWidgets.kNumberSlider)
+					.withProperties(Map.of("Min", 0, "Max", 5))
+					.getEntry();
+	private GenericEntry rotationSpeedEntry =
+			Shuffleboard.getTab("Drivebase")
+					.addPersistent("Rotation Speed", 1)
+					.withSize(2, 1)
+					.withWidget(BuiltInWidgets.kNumberSlider)
+					.withProperties(Map.of("Min", 0, "Max", 5))
+					.getEntry();
+	private GenericEntry fieldOrientedEntry =
+			Shuffleboard.getTab("Drivebase")
+					.addPersistent("Field Oriented", true)
+					.withWidget(BuiltInWidgets.kToggleSwitch)
+					.getEntry();
 
 	public DriveCommand(
 			DrivebaseSubsystem drivebaseSubsystem,

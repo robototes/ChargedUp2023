@@ -19,7 +19,8 @@ public class PathPlannerTestCommand extends CommandBase {
 
 	@Override
 	public void initialize() {
-		List<PathPlannerTrajectory> pathGroup = PathPlanner.loadPathGroup("FullAuto", new PathConstraints(1, 0.3));
+		List<PathPlannerTrajectory> pathGroup =
+				PathPlanner.loadPathGroup("FullAuto", new PathConstraints(1, 0.3));
 
 		Command fullAuto = Robot.autoBuilder.fullAuto(pathGroup);
 

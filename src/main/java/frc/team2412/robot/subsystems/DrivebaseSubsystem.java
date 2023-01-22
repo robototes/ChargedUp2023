@@ -35,53 +35,56 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	// raw sensor unit per meter driven = ticks/ perimeter
 
 	// units: raw sensor units
-	private static final double steerPositionCoefficient = (ticksPerRotation / (2 * Math.PI)) * steerReduction; // radians
+	private static final double steerPositionCoefficient =
+			(ticksPerRotation / (2 * Math.PI)) * steerReduction; // radians
 	// per
 	// tick
-	private static final double driveVelocityCoefficient = (ticksPerRotation / (Math.PI * wheelDiameterMeters))
-			* driveReductionL1; // ticks per meter per 100 ms
+	private static final double driveVelocityCoefficient =
+			(ticksPerRotation / (Math.PI * wheelDiameterMeters))
+					* driveReductionL1; // ticks per meter per 100 ms
 
 	private static final int talonFXLoopNumber = 0;
 	private static final int canTimeoutMS = 20;
 
 	private WPI_TalonFX[] moduleDriveMotors = {
-			new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
-			new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_RIGHT_DRIVE_MOTOR),
-			new WPI_TalonFX(Hardware.DRIVEBASE_BACK_LEFT_DRIVE_MOTOR),
-			new WPI_TalonFX(Hardware.DRIVEBASE_BACK_RIGHT_DRIVE_MOTOR)
+		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
+		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_RIGHT_DRIVE_MOTOR),
+		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_LEFT_DRIVE_MOTOR),
+		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_RIGHT_DRIVE_MOTOR)
 	};
 
 	private WPI_TalonFX[] moduleAngleMotors = {
-			new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_LEFT_ANGLE_MOTOR),
-			new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_RIGHT_ANGLE_MOTOR),
-			new WPI_TalonFX(Hardware.DRIVEBASE_BACK_LEFT_ANGLE_MOTOR),
-			new WPI_TalonFX(Hardware.DRIVEBASE_BACK_RIGHT_ANGLE_MOTOR)
+		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_LEFT_ANGLE_MOTOR),
+		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_RIGHT_ANGLE_MOTOR),
+		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_LEFT_ANGLE_MOTOR),
+		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_RIGHT_ANGLE_MOTOR)
 	};
 
 	private WPI_CANCoder[] moduleEncoders = {
-			new WPI_CANCoder(Hardware.DRIVEBASE_FRONT_LEFT_ENCODER_PORT),
-			new WPI_CANCoder(Hardware.DRIVEBASE_FRONT_RIGHT_ENCODER_PORT),
-			new WPI_CANCoder(Hardware.DRIVEBASE_BACK_LEFT_ENCODER_PORT),
-			new WPI_CANCoder(Hardware.DRIVEBASE_BACK_RIGHT_ENCODER_PORT)
+		new WPI_CANCoder(Hardware.DRIVEBASE_FRONT_LEFT_ENCODER_PORT),
+		new WPI_CANCoder(Hardware.DRIVEBASE_FRONT_RIGHT_ENCODER_PORT),
+		new WPI_CANCoder(Hardware.DRIVEBASE_BACK_LEFT_ENCODER_PORT),
+		new WPI_CANCoder(Hardware.DRIVEBASE_BACK_RIGHT_ENCODER_PORT)
 	};
 
 	private Rotation2d[] moduleOffsets = {
-			Hardware.DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET,
-			Hardware.DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET,
-			Hardware.DRIVEBASE_BACK_LEFT_ENCODER_OFFSET,
-			Hardware.DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET
+		Hardware.DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET,
+		Hardware.DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET,
+		Hardware.DRIVEBASE_BACK_LEFT_ENCODER_OFFSET,
+		Hardware.DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET
 	};
 
 	// 2ft x 2ft for practice bot
 	private final Translation2d[] moduleLocations = {
-			new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(8.5)), // front left
-			new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(-8.5)), // front right
-			new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(8.5)), // back left
-			new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(-8.5)) // back right
+		new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(8.5)), // front left
+		new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(-8.5)), // front right
+		new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(8.5)), // back left
+		new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(-8.5)) // back right
 	};
 
-	SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-			moduleLocations[0], moduleLocations[1], moduleLocations[2], moduleLocations[3]);
+	SwerveDriveKinematics kinematics =
+			new SwerveDriveKinematics(
+					moduleLocations[0], moduleLocations[1], moduleLocations[2], moduleLocations[3]);
 
 	private AHRS gyroscope;
 
@@ -93,8 +96,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public DrivebaseSubsystem() {
 		gyroscope = new AHRS(SerialPort.Port.kMXP);
 
-		odometry = new SwerveDriveOdometry(
-				kinematics, Rotation2d.fromDegrees(gyroscope.getYaw()), getModulePositions());
+		odometry =
+				new SwerveDriveOdometry(
+						kinematics, Rotation2d.fromDegrees(gyroscope.getYaw()), getModulePositions());
 		pose = odometry.getPoseMeters();
 
 		// configure encoders offsets
@@ -146,14 +150,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void drive(double forward, double strafe, Rotation2d rotation, boolean fieldOriented) {
 		SwerveModuleState[] moduleStates = getModuleStates(new ChassisSpeeds(0, 0, 0));
 		if (fieldOriented) {
-			moduleStates = getModuleStates(
-					ChassisSpeeds.fromFieldRelativeSpeeds(
-							forward,
-							-strafe,
-							rotation.getRadians(),
-							getGyroRotation2d()));
+			moduleStates =
+					getModuleStates(
+							ChassisSpeeds.fromFieldRelativeSpeeds(
+									forward, -strafe, rotation.getRadians(), getGyroRotation2d()));
 		} else {
-			moduleStates = getModuleStates(new ChassisSpeeds(forward, -strafe, rotation.getRadians() * 100));
+			moduleStates =
+					getModuleStates(new ChassisSpeeds(forward, -strafe, rotation.getRadians() * 100));
 		}
 		drive(moduleStates);
 	}
@@ -189,9 +192,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	/**
 	 * @param speeds
-	 * @return Array with modules with front left at [0], front right at [1], back
-	 *         left at [2], back
-	 *         right at [3]
+	 * @return Array with modules with front left at [0], front right at [1], back left at [2], back
+	 *     right at [3]
 	 */
 	public SwerveModuleState[] getModuleStates(ChassisSpeeds speeds) {
 		return kinematics.toSwerveModuleStates(speeds);
@@ -201,11 +203,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		SwerveModulePosition[] positions = new SwerveModulePosition[4];
 
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			positions[i] = new SwerveModulePosition(
-					moduleDriveMotors[i].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
-					Rotation2d.fromRadians(
-							moduleAngleMotors[i].getSelectedSensorPosition()
-									* (1 / steerPositionCoefficient)));
+			positions[i] =
+					new SwerveModulePosition(
+							moduleDriveMotors[i].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
+							Rotation2d.fromRadians(
+									moduleAngleMotors[i].getSelectedSensorPosition()
+											* (1 / steerPositionCoefficient)));
 		}
 
 		return positions;
@@ -215,8 +218,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public Rotation2d[] getModuleAngles() {
 		Rotation2d[] rotations = new Rotation2d[4];
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
-			rotations[i] = Rotation2d.fromDegrees(
-					(moduleEncoders[i].getAbsolutePosition() - moduleOffsets[i].getDegrees()));
+			rotations[i] =
+					Rotation2d.fromDegrees(
+							(moduleEncoders[i].getAbsolutePosition() - moduleOffsets[i].getDegrees()));
 		}
 		return rotations;
 	}
@@ -227,8 +231,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	}
 
 	/**
-	 * Resets the gyroscope's angle to 0 After this is called, the radio (on bonk)
-	 * will be the robot's
+	 * Resets the gyroscope's angle to 0 After this is called, the radio (on bonk) will be the robot's
 	 * new global forward
 	 */
 	public void resetGyroAngle() {
@@ -266,8 +269,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	/**
 	 * Reset's the robot's pose to (0, 0) with rotation of 0. <br>
-	 * </br>
-	 * Also resets the gyroscope
+	 * </br> Also resets the gyroscope
 	 */
 	public void resetPose() {
 		resetGyroAngle();

@@ -4,7 +4,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public class ModuleUtil {
-    // shamelessly stolen from https://github.com/Team364/BaseFalconSwerve/blob/main/src/main/java/frc/lib/util/CTREModuleState.java
+	// shamelessly stolen from
+	// https://github.com/Team364/BaseFalconSwerve/blob/main/src/main/java/frc/lib/util/CTREModuleState.java
 
 	/**
 	 * Minimize the change in heading the desired swerve module state would require by potentially
