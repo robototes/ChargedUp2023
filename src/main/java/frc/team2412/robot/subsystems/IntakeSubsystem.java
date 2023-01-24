@@ -2,6 +2,7 @@ package frc.team2412.robot.subsystems;
 
 import static frc.team2412.robot.Hardware.*;
 import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.*;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -22,7 +23,19 @@ public class IntakeSubsystem extends SubsystemBase {
 
         // enums
         public static enum GamePieceType {
+            CUBE, CONE, NONE;
+
+            /*
+             * for reference hi cammy eggy
+             * String example;
+             *
+             * GamePieceType(String example) {
+             * this.example = example;
+             * }
+             */
+
         }
+
         // public final cone;
         // public final cube;
         // public final nothing;
@@ -41,8 +54,9 @@ public class IntakeSubsystem extends SubsystemBase {
         // colorSensor = new ColorSensorV3(INTAKE_COLOR_SENSOR); //to find I2C port
         // distanceSensor = new ();
 
-        // motor.setIdleMode(kBrake);
-    }
+        motor1.setIdleMode(IdleMode.kBrake);
+        motor2.setIdleMode(IdleMode.kBrake);
+    }   
 
     // METHODS
     public void setSpeed(double speed) {
@@ -73,9 +87,16 @@ public class IntakeSubsystem extends SubsystemBase {
 
     }
 
-    // public GamePieceType detectType() {
-    // return INTAKE_TYPE;
-    // }
+    public GamePieceType detectType() {
+        // if () {
+        //     return GamePieceType.CUBE; 
+        // }
+        // else if () {
+        //     return GamePieceType.CONE; 
+        // }
+
+        return GamePieceType.NONE;
+    }
 
     public boolean isSecured() {
         return false;
