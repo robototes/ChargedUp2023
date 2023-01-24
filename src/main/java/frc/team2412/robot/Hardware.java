@@ -35,8 +35,6 @@ public class Hardware {
 			ELBOW_ENCODER_PORT_B = 3,
 			WRIST_ENCODER_PORT_A = 4,
 			WRIST_ENCODER_PORT_B = 5;
-	// public static final AbsoluteEncoder encoderJoint = hardwareMap.get("encoderVirtualJoint");
-	// public static final AbsoluteEncoder encoderWrist = hardwareMap.get("encoderWrist");
 	public static final double GEAR_RATIO;
 
 	static {
