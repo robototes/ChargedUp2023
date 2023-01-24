@@ -3,8 +3,9 @@ package frc.team2412.robot;
 import static frc.team2412.robot.Controls.ControlConstants.*;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.team2412.robot.commands.DriveCommand;
+import frc.team2412.robot.commands.drivebase.DriveCommand;
 
 public class Controls {
 	public static class ControlConstants {
@@ -34,5 +35,7 @@ public class Controls {
 								driveController::getLeftY,
 								driveController::getLeftX,
 								driveController::getRightX));
+		driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
+		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 	}
 }

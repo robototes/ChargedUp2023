@@ -21,19 +21,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.sim.PhysicsSim;
+import frc.team2412.robot.util.ModuleUtil;
 
 public class DrivebaseSubsystem extends SubsystemBase {
 
-	private static final double ticksPerRotation = 2048.0;
-	private static final double wheelDiameterMeters = 0.0762; // 3 inches
+	private static final double ticksPerRotation = 2048.0; // for the talonfx
+	private static final double wheelDiameterMeters = 0.0889; // 3.5 inches
 	private static final double driveReductionL1 = 8.14; // verified
 	private static final double steerReduction = (32.0 / 15.0) * (60.0 / 10.0); // verified, 12.8
-
-	private static final int talonFXLoopNumber = 0;
-	private static final double maxSteeringSpeed = 1.0;
-	private static final int canTimeoutMS = 20;
-
-	private Field2d field = new Field2d();
 
 	// position units is one rotation / 2048
 	// extrapolate this to meters using wheel perimeter (pi * wheel diameter)
@@ -47,6 +42,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private static final double driveVelocityCoefficient =
 			(ticksPerRotation / (Math.PI * wheelDiameterMeters))
 					* driveReductionL1; // ticks per meter per 100 ms
+
+	private static final int talonFXLoopNumber = 0;
+	private static final int canTimeoutMS = 20;
 
 	private WPI_TalonFX[] moduleDriveMotors = {
 		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
@@ -78,10 +76,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	// 2ft x 2ft for practice bot
 	private final Translation2d[] moduleLocations = {
-		new Translation2d(Units.feetToMeters(1), Units.feetToMeters(1)), // front left
-		new Translation2d(Units.feetToMeters(1), Units.feetToMeters(-1)), // front right
-		new Translation2d(Units.feetToMeters(-1), Units.feetToMeters(1)), // back left
-		new Translation2d(Units.feetToMeters(-1), Units.feetToMeters(-1)) // back right
+		new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(8.5)), // front left
+		new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(-8.5)), // front right
+		new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(8.5)), // back left
+		new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(-8.5)) // back right
 	};
 
 	SwerveDriveKinematics kinematics =
@@ -92,6 +90,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private SwerveDriveOdometry odometry;
 	private Pose2d pose;
+
+	private Field2d field = new Field2d();
 
 	public DrivebaseSubsystem() {
 		gyroscope = new AHRS(SerialPort.Port.kMXP);
@@ -127,27 +127,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.configFactoryDefault();
 			steeringMotor.configSelectedFeedbackSensor(
 					TalonFXFeedbackDevice.IntegratedSensor, talonFXLoopNumber, canTimeoutMS);
-			// Make the integrated encoder count forever (don't wrap), since it doesn't work
-			// properly with continuous mode
-			// We account for this manually (unfortunately)
-			// steeringMotor.configFeedbackNotContinuous(true, canTimeoutMS);
 			// Configure PID values
 			steeringMotor.config_kP(talonFXLoopNumber, 0.15, canTimeoutMS);
 			steeringMotor.config_kI(talonFXLoopNumber, 0.00, canTimeoutMS);
 			steeringMotor.config_kD(talonFXLoopNumber, 1.0, canTimeoutMS);
-			// Limit steering module speed
-			// steeringMotor.configPeakOutputForward(maxSteeringSpeed,
-			// canTimeoutMS);
-			// steeringMotor.configPeakOutputReverse(-maxSteeringSpeed,
-			// canTimeoutMS);
-
 			steeringMotor.setSelectedSensorPosition(
-					(moduleEncoders[i].getAbsolutePosition() - moduleOffsets[i].getDegrees())
-							* ((ticksPerRotation / 360) * steerReduction));
+					getModuleAngles()[i].times(((ticksPerRotation / 360) * steerReduction)).getDegrees());
 		}
 
 		// configure shuffleboard
-
 		SmartDashboard.putData("Field", field);
 	}
 
@@ -165,7 +153,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			moduleStates =
 					getModuleStates(
 							ChassisSpeeds.fromFieldRelativeSpeeds(
-									forward, -strafe, rotation.getRadians() * 100, getGyroRotation2d()));
+									forward, -strafe, rotation.getRadians(), getGyroRotation2d()));
 		} else {
 			moduleStates =
 					getModuleStates(new ChassisSpeeds(forward, -strafe, rotation.getRadians() * 100));
@@ -178,39 +166,27 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		drive(moduleStates);
 	}
 
-	public void zeroGyroAngle() {
-		gyroscope.setAngleAdjustment(gyroscope.getAngle());
-	}
-
 	/**
 	 * Drives the robot using states
 	 *
 	 * @param states
 	 */
 	public void drive(SwerveModuleState[] states) {
+		for (int i = 0; i < states.length; i++) {
+			states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
+			// optimizeStates(states);
+		}
+
 		// Set motor speeds and angles
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			// meters/100ms * raw sensor units conversion
-			// System.out.println(states[i].speedMetersPerSecond);
 			moduleDriveMotors[i].set(
 					TalonFXControlMode.Velocity,
 					((states[i].speedMetersPerSecond) / 10) * driveVelocityCoefficient);
-			// System.out.println((states[i].speedMetersPerSecond/10) *
-			// driveVelocityCoefficient);
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
 			moduleAngleMotors[i].set(
-					TalonFXControlMode.Position,
-					states[i].angle.getRadians()
-							* steerPositionCoefficient); // steerpositioncoefficient is maybe fixed
-			// moduleAngleMotors[i].set(TalonFXControlMode.Position, 1000);
-			// System.out.println(states[i].angle.getRadians() * steerPositionCoefficient);
-			// System.out.println("Module number " + i + " has encoder position: " +
-			// moduleEncoders[i].getAbsolutePosition() + " and sensor position: " +
-			// moduleAngleMotors[i].getSelectedSensorPosition() * ((360/ticksPerRotation) *
-			// steerReduction));
-			// System.out.println("Module number" + i + " position: " +
-			// moduleEncoders[i].getAbsolutePosition());
+					TalonFXControlMode.Position, states[i].angle.getRadians() * steerPositionCoefficient);
 		}
 	}
 
@@ -224,46 +200,85 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	}
 
 	public SwerveModulePosition[] getModulePositions() {
-		return new SwerveModulePosition[] {
-			new SwerveModulePosition(
-					moduleDriveMotors[0].getSelectedSensorPosition(),
-					Rotation2d.fromRadians(
-							moduleAngleMotors[0].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
-			new SwerveModulePosition(
-					moduleDriveMotors[1].getSelectedSensorPosition(),
-					Rotation2d.fromRadians(
-							moduleAngleMotors[1].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
-			new SwerveModulePosition(
-					moduleDriveMotors[2].getSelectedSensorPosition(),
-					Rotation2d.fromRadians(
-							moduleAngleMotors[2].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
-			new SwerveModulePosition(
-					moduleDriveMotors[3].getSelectedSensorPosition(),
-					Rotation2d.fromRadians(
-							moduleAngleMotors[3].getSelectedSensorPosition() * (1 / steerPositionCoefficient))),
-		};
+		SwerveModulePosition[] positions = new SwerveModulePosition[4];
+
+		for (int i = 0; i < moduleDriveMotors.length; i++) {
+			positions[i] =
+					new SwerveModulePosition(
+							moduleDriveMotors[i].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
+							Rotation2d.fromRadians(
+									moduleAngleMotors[i].getSelectedSensorPosition()
+											* (1 / steerPositionCoefficient)));
+		}
+
+		return positions;
 	}
 
+	/** Returns the module angles using encoders */
+	public Rotation2d[] getModuleAngles() {
+		Rotation2d[] rotations = new Rotation2d[4];
+		for (int i = 0; i < moduleAngleMotors.length; i++) {
+			rotations[i] =
+					Rotation2d.fromDegrees(
+							(moduleEncoders[i].getAbsolutePosition() - moduleOffsets[i].getDegrees()));
+		}
+		return rotations;
+	}
+
+	/** Returns the kinematics */
+	public SwerveDriveKinematics getKinematics() {
+		return kinematics;
+	}
+
+	/**
+	 * Resets the gyroscope's angle to 0 After this is called, the radio (on bonk) will be the robot's
+	 * new global forward
+	 */
+	public void resetGyroAngle() {
+		resetGyroAngle(Rotation2d.fromDegrees(gyroscope.getYaw()));
+	}
+
+	/**
+	 * Resets the robot's forward to the new angle relative to the radio (on bonk)
+	 *
+	 * @param angle The new forward
+	 */
+	public void resetGyroAngle(Rotation2d angle) {
+		gyroscope.setAngleAdjustment(-angle.getDegrees());
+	}
+
+	/** Returns a Rotation2d containing the robot's rotation */
+	public Rotation2d getGyroRotation2d() {
+		return Rotation2d.fromDegrees(-gyroscope.getAngle());
+	}
+
+	/** Returns the robot's pose */
 	public Pose2d getPose() {
 		return pose;
 	}
 
+	/**
+	 * Set's the robot's pose to the provided pose
+	 *
+	 * @param pose the new pose
+	 */
 	public void resetPose(Pose2d pose) {
 		odometry.resetPosition(pose.getRotation(), getModulePositions(), pose);
 		this.pose = pose;
 	}
 
-	public SwerveDriveKinematics getKinematics() {
-		return kinematics;
-	}
-
-	public Rotation2d getGyroRotation2d() {
-		return Rotation2d.fromDegrees(-gyroscope.getAngle());
+	/**
+	 * Reset's the robot's pose to (0, 0) with rotation of 0. <br>
+	 * </br> Also resets the gyroscope
+	 */
+	public void resetPose() {
+		resetGyroAngle();
+		resetPose(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
 	}
 
 	public void simInit(PhysicsSim sim) {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			sim.addTalonFX(moduleDriveMotors[i], 2, 20000);
+			sim.addTalonFX(moduleDriveMotors[i], 2, 20000, true);
 			sim.addTalonFX(moduleAngleMotors[i], 2, 20000);
 		}
 	}
