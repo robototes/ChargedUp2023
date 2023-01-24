@@ -1,89 +1,87 @@
 package frc.team2412.robot.subsystems;
 
-import frc.team2412.robot.Hardware;
+import static frc.team2412.robot.Hardware.*;
 import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.*;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
-
-import com.revrobotics.ColorSensorV3;
-import com.revrobotics.ColorMatchResult;
-import com.revrobotics.ColorMatch;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class IntakeSubsystem extends SubsystemBase {
     // CONSTANTS
     public static class IntakeConstants {
-        //speeds
-        public static final double INTAKE_IN_SPEED;
-        public static final double INTAKE_OUT_SPEED;
-            
-        public static final double INTAKE_CUBE_DISTANCE;
-        public static final double INTAKE_CONE_DISTANCE;
-        public static final double INTAKE_CUBE_COLOR;
-        public static final double INTAKE_CONE_COLOR;
+        // speeds
+        public static final double INTAKE_IN_SPEED = 0.5;
+        public static final double INTAKE_OUT_SPEED = 0.3;
+
+        public static final double INTAKE_CUBE_DISTANCE = 0;
+        public static final double INTAKE_CONE_DISTANCE = 0;
+        public static final double INTAKE_CUBE_COLOR = 0;
+        public static final double INTAKE_CONE_COLOR = 141;
 
         // enums
-        public static enum GamePieceType {}
+        public static enum GamePieceType {
+        }
         // public final cone;
         // public final cube;
         // public final nothing;
-        
+
     }
 
-    private final CANSparkMax motor;
-    private final ColorSensorV3 colorSensor;
-    // private final distancecSensorIDK distanceSensor;
+    private final CANSparkMax motor1;
+    private final CANSparkMax motor2;
+    // private final ColorSensorV3 colorSensor;
+    // private final distanceSensorIDK distanceSensor;
 
     // CONSTRUCTOR
     public IntakeSubsystem() {
-        //motor = new CANSparkMax(INTAKE_MOTOR , MotorType.kBrushless);
-        //colorSensor = new ColorSensorV3(0); //to find I2C port
-        //distanceSensor = new ();
+        motor1 = new CANSparkMax(INTAKE_MOTOR_1, MotorType.kBrushless);
+        motor2 = new CANSparkMax(INTAKE_MOTOR_2, MotorType.kBrushless);
+        // colorSensor = new ColorSensorV3(INTAKE_COLOR_SENSOR); //to find I2C port
+        // distanceSensor = new ();
 
-
-        //motor.setIdleMode(kBrake);
+        // motor.setIdleMode(kBrake);
     }
 
     // METHODS
     public void setSpeed(double speed) {
-        //motor.setSpeed(speed);
+        setSpeed(speed, speed);
+    }
+
+    public void setSpeed(double firstSpeed, double secondSpeed) {
+        motor1.set(firstSpeed);
+        motor2.set(secondSpeed);
     }
 
     public double getSpeed() {
-        return motor.get();
+        return motor1.get();
     }
 
     public void intakeIn() {
         setSpeed(INTAKE_IN_SPEED);
 
     }
-    
+
     public void intakeOut() {
         setSpeed(INTAKE_OUT_SPEED);
 
     }
-    
+
     public void intakeStop() {
         setSpeed(0);
 
     }
-    
+
     // public GamePieceType detectType() {
-    //     return INTAKE_TYPE;
+    // return INTAKE_TYPE;
     // }
-    
+
     public boolean isSecured() {
-        return false; 
+        return false;
     }
-    
+
     public void ledStrip(boolean buttonPressed) {
     }
-   
-}
 
+}
