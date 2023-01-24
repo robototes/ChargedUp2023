@@ -4,6 +4,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public final class AutomatedTestMain {
 	public static void main(String[] args) {
-		RobotBase.startRobot(RobotTest::getInstance);
+		RobotBase.startRobot(AutomatedTestRobot::getInstance);
 	}
 }

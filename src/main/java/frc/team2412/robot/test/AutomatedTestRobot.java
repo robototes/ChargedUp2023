@@ -4,7 +4,7 @@ import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.team2412.robot.Robot;
 
-public class RobotTest extends Robot {
+public class AutomatedTestRobot extends Robot {
 	private static void sleep(long durationMillis) {
 		try {
 			Thread.sleep(durationMillis);
@@ -13,14 +13,14 @@ public class RobotTest extends Robot {
 		}
 	}
 
-	private static RobotTest instance = null;
+	private static AutomatedTestRobot instance = null;
 
-	public static RobotTest getInstance() {
-		if (instance == null) instance = new RobotTest();
+	public static AutomatedTestRobot getInstance() {
+		if (instance == null) instance = new AutomatedTestRobot();
 		return instance;
 	}
 
-	private RobotTest() {
+	private AutomatedTestRobot() {
 		System.out.println("Robot type: Automated test");
 	}
 
