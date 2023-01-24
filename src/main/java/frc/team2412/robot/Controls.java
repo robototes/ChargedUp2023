@@ -34,7 +34,8 @@ public class Controls {
 								s.drivebaseSubsystem,
 								driveController::getLeftY,
 								driveController::getLeftX,
-								driveController::getRightX));
+								driveController::getRightX,
+								driveController::getRightTriggerAxis));
 		driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 	}

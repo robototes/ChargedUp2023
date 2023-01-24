@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.ModuleUtil;
+import frc.team2412.robot.util.PFFController;
 
 public class DrivebaseSubsystem extends SubsystemBase {
 
@@ -45,6 +46,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private static final int talonFXLoopNumber = 0;
 	private static final int canTimeoutMS = 20;
+
+	private static PFFController<Double> balanceController;
+
+	private static final double tipF = 0.01;
+	private static final double tipP = 0.05;
+	private static final double tipTolerance = 5;
 
 	private WPI_TalonFX[] moduleDriveMotors = {
 		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
@@ -101,6 +108,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						kinematics, Rotation2d.fromDegrees(gyroscope.getYaw()), getModulePositions());
 		pose = odometry.getPoseMeters();
 
+		balanceController =
+				PFFController.ofDouble(tipF, tipP)
+						.setTargetPosition((double) gyroscope.getRoll())
+						.setTargetPositionTolerance(tipTolerance);
+
 		// configure encoders offsets
 		for (int i = 0; i < moduleEncoders.length; i++) {
 			moduleEncoders[i].configFactoryDefault();
@@ -148,21 +160,32 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * @param fieldOriented
 	 */
 	public void drive(double forward, double strafe, Rotation2d rotation, boolean fieldOriented) {
-		SwerveModuleState[] moduleStates = getModuleStates(new ChassisSpeeds(0, 0, 0));
-		if (fieldOriented) {
-			moduleStates =
-					getModuleStates(
-							ChassisSpeeds.fromFieldRelativeSpeeds(
-									forward, -strafe, rotation.getRadians(), getGyroRotation2d()));
-		} else {
-			moduleStates =
-					getModuleStates(new ChassisSpeeds(forward, -strafe, rotation.getRadians() * 100));
+		if (true) { // if auto balancing enabled
+			forward += balanceController.update((double) gyroscope.getRoll());
 		}
-		drive(moduleStates);
+
+		ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
+
+		if (fieldOriented) {
+			chassisSpeeds =
+					ChassisSpeeds.fromFieldRelativeSpeeds(
+							forward, -strafe, rotation.getRadians(), getGyroRotation2d());
+		} else {
+			chassisSpeeds = new ChassisSpeeds(forward, -strafe, rotation.getRadians());
+		}
+		drive(chassisSpeeds);
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] moduleStates = getModuleStates(chassisSpeeds);
+		if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
+				&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
+				&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
+			moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+			moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+			moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+			moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+		}
 		drive(moduleStates);
 	}
 
@@ -174,7 +197,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void drive(SwerveModuleState[] states) {
 		for (int i = 0; i < states.length; i++) {
 			states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
-			// optimizeStates(states);
 		}
 
 		// Set motor speeds and angles

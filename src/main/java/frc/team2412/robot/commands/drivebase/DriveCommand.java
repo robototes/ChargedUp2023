@@ -14,6 +14,7 @@ public class DriveCommand extends CommandBase {
 	private final DoubleSupplier forward;
 	private final DoubleSupplier strafe;
 	private final DoubleSupplier rotation;
+	private final DoubleSupplier speedLimiter;
 
 	// shuffleboard
 	private GenericEntry driveSpeedEntry =
@@ -40,24 +41,29 @@ public class DriveCommand extends CommandBase {
 			DrivebaseSubsystem drivebaseSubsystem,
 			DoubleSupplier forward,
 			DoubleSupplier strafe,
-			DoubleSupplier rotation) {
+			DoubleSupplier rotation,
+			DoubleSupplier speedLimiter) {
 		this.drivebaseSubsystem = drivebaseSubsystem;
 		this.forward = forward;
 		this.strafe = strafe;
 		this.rotation = rotation;
+		this.speedLimiter = speedLimiter;
 
 		addRequirements(drivebaseSubsystem);
 	}
 
 	@Override
 	public void execute() {
+		double driveSpeedModifier =
+				driveSpeedEntry.getDouble(1.0) * (1 - (speedLimiter.getAsDouble() * 0.7));
+
 		double x = deadbandCorrection(-forward.getAsDouble());
 		double y = deadbandCorrection(strafe.getAsDouble());
 		double rot = deadbandCorrection(-rotation.getAsDouble());
 		drivebaseSubsystem.drive(
-				x * driveSpeedEntry.getDouble(1.0),
-				y * driveSpeedEntry.getDouble(1.0),
-				Rotation2d.fromDegrees(rot * rotationSpeedEntry.getDouble(1.0)),
+				x * driveSpeedModifier,
+				y * driveSpeedModifier,
+				Rotation2d.fromRotations(rot * rotationSpeedEntry.getDouble(1.0)),
 				fieldOrientedEntry.getBoolean(true));
 	}
 
