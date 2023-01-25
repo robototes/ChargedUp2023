@@ -101,9 +101,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						kinematics, Rotation2d.fromDegrees(gyroscope.getYaw()), getModulePositions());
 		pose = odometry.getPoseMeters();
 
-		Object o = null;
-		o.notify();
-
 		// configure encoders offsets
 		for (int i = 0; i < moduleEncoders.length; i++) {
 			moduleEncoders[i].configFactoryDefault();
