@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.team2412.robot.commands.autonomous.PathPlannerTestCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
@@ -130,18 +129,6 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		Shuffleboard.startRecording();
 
-		Commands.waitSeconds(1)
-				.andThen(
-						Commands.runOnce(
-								() -> {
-									try {
-										int x = 1;
-										x /= 0;
-									} catch (Exception e) {
-										throw new RuntimeException("Code crash!", e);
-									}
-								}))
-				.schedule();
 		new PathPlannerTestCommand(subsystems.drivebaseSubsystem).schedule();
 	}
 
