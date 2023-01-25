@@ -26,28 +26,6 @@ public class VisionSubsystem extends SubsystemBase {
 	 */
 	private static final AprilTagFieldLayout fieldLayout;
 
-	public VisionSubsystem() {
-		var instance = NetworkTableInstance.getDefault();
-		if (RobotBase.isSimulation()) {
-			instance.stopServer();
-			instance.startClient4("localhost");
-		}
-		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
-		latResult = photonCamera.getLatestResult();
-		instance.addListener(
-				instance.getTable("photonvision").getSubTable(Hardware.PHOTON_CAM).getEntry("rawBytes"),
-				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-				(notif) -> {
-					latResult = photonCamera.getLatestResult();
-					cameraPose = null; // New data, invalidate camera pose
-				});
-	}
-
-	@Log
-	public boolean hasTargets() {
-		return latResult.hasTargets();
-	}
-
 	static {
 		/*
 		 * This code runs when the class is initialized (same time as normal variable initializers).
@@ -63,6 +41,32 @@ public class VisionSubsystem extends SubsystemBase {
 			temp = null;
 		}
 		fieldLayout = temp;
+	}
+
+	public VisionSubsystem() {
+		var instance = NetworkTableInstance.getDefault();
+
+		// Connect to photonvision server
+		// Only in sim because normally photonvision connects to robot
+		if (RobotBase.isSimulation()) {
+			instance.stopServer();
+			instance.startClient4("localhost");
+		}
+
+		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
+		latResult = photonCamera.getLatestResult();
+		instance.addListener(
+				instance.getTable("photonvision").getSubTable(Hardware.PHOTON_CAM).getEntry("rawBytes"),
+				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
+				(notif) -> {
+					latResult = photonCamera.getLatestResult();
+					cameraPose = null; // New data, invalidate camera pose
+				});
+	}
+
+	@Log
+	public boolean hasTargets() {
+		return latResult.hasTargets();
 	}
 
 	/**
