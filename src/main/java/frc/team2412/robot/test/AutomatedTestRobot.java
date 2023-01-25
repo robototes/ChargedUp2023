@@ -35,9 +35,6 @@ public class AutomatedTestRobot extends Robot {
 			}
 			DriverStation.reportError(
 					"Unhandled exception: " + throwable.toString(), throwable.getStackTrace());
-			// Sleep was added to original code in
-			// https://github.com/robototes/RapidReact2022/pull/43/commits/e9e81bcae76dabe08b6f2d24eb56b55378012565
-			// sleep(2000);
 			System.exit(-1);
 		}
 	}
