@@ -13,8 +13,16 @@ repositories {
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
-def ROBOT_MAIN_CLASS = (project.hasProperty('automatedTest') ? Boolean.valueOf(project.getProperty('automatedTest')) : false) ?
-		"frc.team2412.robot.AutomatedTestMain" : "frc.team2412.robot.Main"
+def getProjectBooleanProperty(String name, boolean defaultValue = false) {
+	if (!project.hasProperty(name)) {
+		return defaultValue
+	}
+	// Note that this is equivalent to 'true'.equalsIgnoreCase(project.getProperty(name))
+	// Values that are not "true" or "false" (including null) are treated as false
+	return Boolean.parseBoolean(project.getProperty(name))
+}
+
+def ROBOT_MAIN_CLASS = getProjectBooleanProperty('automatedTest') ? "frc.team2412.robot.test.AutomatedTestMain" : "frc.team2412.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
@@ -88,7 +96,7 @@ tasks.withType(JavaCompile).configureEach {
 
 // Simulation configuration (e.g. environment variables).
 
-if (!project.hasProperty('automatedTest') || !Boolean.valueOf(project.getProperty('automatedTest'))) {
+if (!getProjectBooleanProperty('automatedTest')) {
 	wpi.sim.addGui().defaultEnabled = true
 	wpi.sim.addDriverstation()
 }
