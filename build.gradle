@@ -134,5 +134,6 @@ spotless {
 		trimTrailingWhitespace();
 	}
 }
-tasks.named("build") { dependsOn("spotlessApply") }
-tasks.named("deploy") { dependsOn("spotlessApply") }
+tasks.named("build") { finalizedBy("spotlessApply") }
+tasks.named("deploy") { finalizedBy("spotlessApply") }
+spotlessCheck.mustRunAfter(compileJava);
