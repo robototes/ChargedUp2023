@@ -135,5 +135,4 @@ spotless {
 	}
 }
 tasks.named("build") { dependsOn("spotlessApply") }
-tasks.named("check") { dependsOn("spotlessApply") }
 tasks.named("deploy") { dependsOn("spotlessApply") }
