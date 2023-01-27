@@ -42,34 +42,26 @@ public class IntakeSubsystem extends SubsystemBase {
 
     }
 
-    private final CANSparkMax motor1;
-    private final CANSparkMax motor2;
+    private final CANSparkMax motor;
     // private final ColorSensorV3 colorSensor;
     // private final distanceSensorIDK distanceSensor;
 
     // CONSTRUCTOR
     public IntakeSubsystem() {
-        motor1 = new CANSparkMax(INTAKE_MOTOR_1, MotorType.kBrushless);
-        motor2 = new CANSparkMax(INTAKE_MOTOR_2, MotorType.kBrushless);
+        motor = new CANSparkMax(INTAKE_MOTOR_1, MotorType.kBrushless);
         // colorSensor = new ColorSensorV3(INTAKE_COLOR_SENSOR); //to find I2C port
         // distanceSensor = new ();
 
-        motor1.setIdleMode(IdleMode.kBrake);
-        motor2.setIdleMode(IdleMode.kBrake);
+        motor.setIdleMode(IdleMode.kBrake);
     }   
 
     // METHODS
     public void setSpeed(double speed) {
-        setSpeed(speed, speed);
-    }
-
-    public void setSpeed(double firstSpeed, double secondSpeed) {
-        motor1.set(firstSpeed);
-        motor2.set(secondSpeed);
+        motor.set(speed);
     }
 
     public double getSpeed() {
-        return motor1.get();
+        return motor.get();
     }
 
     public void intakeIn() {
@@ -103,6 +95,10 @@ public class IntakeSubsystem extends SubsystemBase {
     } 
 
     public void ledStrip(boolean buttonPressed) {
+    }
+
+    public void rumble() {
+
     }
 
 }

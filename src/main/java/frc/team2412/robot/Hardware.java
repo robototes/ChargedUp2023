@@ -19,8 +19,7 @@ public class Hardware {
     public static final int GYRO_PORT = 13;
 
     // Intake devices are ports 30-39
-    public static final int INTAKE_MOTOR_1 = 30,
-            INTAKE_MOTOR_2 = 31;
+    public static final int INTAKE_MOTOR_1 = 30;
 
     public static final int INTAKE_LED_STRIP = 6, INTAKE_DISTANCE_SENSOR = 7, INTAKE_COLOR_SENSOR = 8;
 
