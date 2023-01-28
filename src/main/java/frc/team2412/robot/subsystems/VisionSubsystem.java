@@ -36,8 +36,8 @@ public class VisionSubsystem extends SubsystemBase {
 
 		try {
 			temp = AprilTagFieldLayout.loadFromResource(AprilTagFields.kDefaultField.m_resourceFile);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException err) {
+			err.printStackTrace();
 			temp = null;
 		}
 		fieldLayout = temp;
@@ -58,10 +58,12 @@ public class VisionSubsystem extends SubsystemBase {
 		instance.addListener(
 				instance.getTable("photonvision").getSubTable(Hardware.PHOTON_CAM).getEntry("rawBytes"),
 				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-				(notif) -> {
-					latResult = photonCamera.getLatestResult();
-					cameraPose = null; // New data, invalidate camera pose
-				});
+				this::updateEvent);
+	}
+
+	public void updateEvent(NetworkTableEvent event) {
+		latResult = photonCamera.getLatestResult();
+		cameraPose = null; // New data, invalidate camera pose
 	}
 
 	@Log
