@@ -4,7 +4,10 @@ import static frc.team2412.robot.Hardware.*;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.*;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -14,28 +17,61 @@ public class ArmSubsystem extends SubsystemBase {
 
 	public static class ArmConstants { // To find values later
 		// Mech problem basically
-		public static int armLength = 0;
-		public static int virtualBarLength = 0;
+		public static final int ARM_LENGTH = 0;
+		public static final int VIRTUAL_BAR_LENGTH = 0;
 
-		public static int Kp;
-		public static int Ki;
-		public static int Kd;
+		public static final int K_P = 0;
+		public static final int K_I = 0;
+		public static final int K_D = 0;
+
+		// Trapezoid hee hee
+		public static final int ARM_POS_TOLERANCE = 0;
+		public static final int WRIST_POS_TOLERANCE = 0;
+
+		public static final int ARM_VELOCITY_TOLERANCE = 0;
+		public static final int WRIST_VELOCITY_TOLERANCE = 0;
+
+		public static final double MAX_ARM_VELOCITY = 5;
+		public static final double MAX_ARM_ACCELERATION = 5;
+
+		public static final double MAX_WRIST_VELOCITY = 5;
+		public static final double MAX_WRIST_ACCELERATION = 5;
+
+		public static final Constraints ARM_CONSTRAINTS =
+				new Constraints(MAX_ARM_ACCELERATION, MAX_ARM_VELOCITY);
+		public static final Constraints WRIST_CONSTRAINTS =
+				new Constraints(MAX_WRIST_ACCELERATION, MAX_WRIST_VELOCITY);
 
 		// Arm Positions
+
+		public static final double HIGH_NODE_ARM_ANGLE = 56.99;
+		public static final double MIDDLE_NODE_ARM_ANGLE = 92;
+		public static final double LOW_GRAB_ARM_ANGLE = 0;
+		public static final double RETRACT_ARM_ANGLE = 169;
+		public static final double SUBSTATION_ARM_ANGLE = 80;
+
+		// find values later
+		public static final double HIGH_NODE_WRIST_ANGLE = 0;
+		public static final double MIDDLE_NODE_WRIST_ANGLE = 0;
+		public static final double LOW_GRAB_WRIST_ANGLE = 0;
+		public static final double RETRACT_WRIST_ANGLE = 90;
+		public static final double SUBSTATION_WRIST_ANGLE = 0;
+
+		// LIKELY DONT NEED
 		// Apparently, we wanted the node position to be in ticks.
 		// We need an inches to ticks converter.
-		public static double highCubeNodePos;
-		public static double highConeNodePos;
-		public static double middleCubeNodePos;
-		public static double middleConeNodePos;
-		public static double grabLowPos;
-		public static double securePos;
-		public static double substationPos;
+		public static final double HIGH_NODE_CUBE_POS = 0;
+		public static final double HIGH_NODE_CONE_POS = 0;
+		public static final double MIDDLE_NODE_CUBE_POS = 0;
+		public static final double MIDDLE_NODE_CONE_POS = 0;
+		public static final double GRAB_LOW_POS = 0;
+		public static final double RETRACT_POS = 0;
+		public static final double SUBSTATION_POS = 0;
 
-		public static double ticksToInches = 42 / 360; // Maybe wrong?
+		public static final double TICKS_TO_INCHES = 42 / 360; // Maybe wrong?
 
-		public static int armAngleLimit = 20; // to find values later
-		public static int wristAngleLimit = 20; // to find values later
+		public static final int ARM_ANGLE_LIMIT = 20; // to find values later
+		public static final int WRIST_ANGLE_LIMIT = 20; // to find values later
 	}
 
 	// Hardware
@@ -43,10 +79,12 @@ public class ArmSubsystem extends SubsystemBase {
 	private final CANSparkMax armMotor;
 	private final CANSparkMax wristMotor;
 
-	private final Encoder
-			shoulderEncoder; // unsure whether or not to use WPIlib Encoder class or rev Absolute Encoder.
+	private final Encoder shoulderEncoder;
 	private final Encoder elbowEncoder;
 	private final Encoder wristEncoder;
+
+	private final ProfiledPIDController armPID;
+	private final ProfiledPIDController wristPID;
 
 	// Constructor
 
@@ -57,71 +95,28 @@ public class ArmSubsystem extends SubsystemBase {
 		elbowEncoder = new Encoder(ELBOW_ENCODER_PORT_A, ELBOW_ENCODER_PORT_B);
 		wristEncoder = new Encoder(WRIST_ENCODER_PORT_A, WRIST_ENCODER_PORT_B);
 
-		// wristMotor.setZeroPower(CANSparkMax.BRAKE); bad?
+		armPID = new ProfiledPIDController(K_P, K_I, K_D, ARM_CONSTRAINTS);
+		wristPID = new ProfiledPIDController(K_P, K_I, K_D, WRIST_CONSTRAINTS);
+
+		armMotor.setIdleMode(IdleMode.kBrake);
+		wristMotor.setIdleMode(IdleMode.kBrake);
+		armPID.setTolerance(ARM_POS_TOLERANCE, ARM_VELOCITY_TOLERANCE);
+		wristPID.setTolerance(WRIST_POS_TOLERANCE, WRIST_VELOCITY_TOLERANCE);
+
+		elbowEncoder.reset();
+		elbowEncoder.reset();
 	}
 
 	// Methods
 
-	// public double getAbsArmPos() {
-	// return ((armLength * Math.cos(armAngle)) + virtualBarLength * Math.sin(virtualBarLength));
-	// }
-
 	public double getVerticalArmPos() {
-		return ((armLength * Math.sin(getShoulderAngle()))
-				+ (virtualBarLength * Math.sin(getElbowAngle())));
+		return ((ARM_LENGTH * Math.sin(getShoulderAngle()))
+				+ (VIRTUAL_BAR_LENGTH * Math.sin(getElbowAngle())));
 	}
 
 	public double getHorizontalArmPos() {
-		return ((armLength * Math.cos(getShoulderAngle()))
-				+ (virtualBarLength * Math.cos(getElbowAngle())));
-	}
-
-	/** */
-	// public double pidFrameWork(double distance) {
-	// 	//PID values
-	// 	double initialError = distance;
-	// 	double time = 0.0;
-	// 	double error = 0.0;
-	// 	double lastTime = 0.0;
-	// 	double maxI = 0.0;
-	// 	double lastError = 0.0;
-	// 	//Actual PID loop
-	// 	while (distance - error < 10) {
-	// 		//set error value
-	// 		error = distance - error;
-	// 		//Proportional constant
-	// 		P = Kp * error;
-	// 		//Integral constant
-	// 		I += Ki * (error * (time - lastTime));
-
-	// 		if (I > maxI) {
-	// 			I = maxI;
-	// 		} else if (I < -maxI) {
-	// 			I = -maxI;
-	// 		}
-	// 		//Derivative constant
-	// 		D = Kd * (error - lastError) * (time / lastTime);
-	// 		//PID
-	// 		double output = P + I + D;
-	// 		//Set preverror values
-	// 		lastError = error;
-	// 		lastTime = time;
-	// 		return output;
-	// 	}
-	// }
-
-	public void rotateArmTo(double targetAngle) {
-		if (targetAngle > armAngleLimit) {
-			return;
-		}
-		// rotate arm here
-	}
-
-	public void rotateHandTo(double targetAngle) {
-		if (targetAngle > wristAngleLimit) {
-			return;
-		}
-		// rotate wrist here
+		return ((ARM_LENGTH * Math.cos(getShoulderAngle()))
+				+ (VIRTUAL_BAR_LENGTH * Math.cos(getElbowAngle())));
 	}
 
 	/** Stops Arm */
@@ -129,24 +124,37 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor.stopMotor();
 	}
 
-	/** Stops hand ඞඞඞඞඞඞඞඞඞඞඞඞ */
 	public void stopWrist() {
 		wristMotor.stopMotor();
 	}
 
+	public void rotateArmTo(double targetAngle) {
+		armPID.setGoal(targetAngle);
+		armMotor.set(armPID.calculate(getShoulderAngle(), targetAngle));
+	}
+
+	public void rotateWristTo(double targetAngle) {
+		wristPID.setGoal(targetAngle);
+		wristMotor.set(armPID.calculate(getShoulderAngle(), targetAngle));
+	}
+
+	public boolean armIsAtGoal() {
+		return armPID.atGoal();
+	}
+
+	public boolean wristIsAtGoal() {
+		return wristPID.atGoal();
+	}
+
 	public double getShoulderAngle() {
-		return shoulderEncoder.getDistance(); // bad ?
+		return shoulderEncoder.getDistance();
 	}
 
 	public double getElbowAngle() {
-		return elbowEncoder.getDistance(); // bad ?
+		return elbowEncoder.getDistance();
 	}
 
 	public double getWristAngle() {
-		return wristEncoder.getDistance(); // bad ?
+		return wristEncoder.getDistance();
 	}
-
-	// public void driveArmToValue(double targetAngle) {
-	// armMotor.changeAngle();
-	// }
 }
