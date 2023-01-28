@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
@@ -40,7 +41,7 @@ public class VisionSubsystem extends SubsystemBase {
 		try {
 			temp = AprilTagFieldLayout.loadFromResource(AprilTagFields.kDefaultField.m_resourceFile);
 		} catch (IOException err) {
-			err.printStackTrace();
+			DriverStation.reportError("Could not load AprilTagFieldLayout! " + err, err.getStackTrace());
 			temp = null;
 		}
 		fieldLayout = temp;
