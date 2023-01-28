@@ -20,9 +20,12 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final int ARM_LENGTH = 0;
 		public static final int VIRTUAL_BAR_LENGTH = 0;
 
-		public static final int K_P = 0;
-		public static final int K_I = 0;
-		public static final int K_D = 0;
+		public static final int ARM_K_P = 0;
+		public static final int ARM_K_I = 0;
+		public static final int ARM_K_D = 0;
+		public static final int WRIST_K_P = 0;
+		public static final int WRIST_K_I = 0;
+		public static final int WRIST_K_D = 0;
 
 		// Trapezoid hee hee
 		public static final int ARM_POS_TOLERANCE = 0;
@@ -57,7 +60,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double RETRACT_WRIST_ANGLE = 90;
 		public static final double SUBSTATION_WRIST_ANGLE = 0;
 
-		// LIKELY DONT NEED
+		// TO DO: maybe?
 		// Apparently, we wanted the node position to be in ticks.
 		// We need an inches to ticks converter.
 		public static final double HIGH_NODE_CUBE_POS = 0;
@@ -88,13 +91,13 @@ public class ArmSubsystem extends SubsystemBase {
 	// Constructor
 
 	public ArmSubsystem() {
-		armMotor = new CANSparkMax(20, MotorType.kBrushless);
-		wristMotor = new CANSparkMax(21, MotorType.kBrushless);
+		armMotor = new CANSparkMax(ARM_MOTOR, MotorType.kBrushless);
+		wristMotor = new CANSparkMax(WRIST_MOTOR, MotorType.kBrushless);
 		shoulderEncoder = new Encoder(SHOULDER_ENCODER_PORT_A, SHOULDER_ENCODER_PORT_B);
 		wristEncoder = new Encoder(WRIST_ENCODER_PORT_A, WRIST_ENCODER_PORT_B);
 
-		armPID = new ProfiledPIDController(K_P, K_I, K_D, ARM_CONSTRAINTS);
-		wristPID = new ProfiledPIDController(K_P, K_I, K_D, WRIST_CONSTRAINTS);
+		armPID = new ProfiledPIDController(ARM_K_P, ARM_K_I, ARM_K_D, ARM_CONSTRAINTS);
+		wristPID = new ProfiledPIDController(WRIST_K_P, WRIST_K_I, WRIST_K_D, WRIST_CONSTRAINTS);
 
 		armMotor.setIdleMode(IdleMode.kBrake);
 		wristMotor.setIdleMode(IdleMode.kBrake);
@@ -128,13 +131,17 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	public void rotateArmTo(double targetAngle) {
-		armPID.setGoal(targetAngle);
-		armMotor.set(armPID.calculate(getShoulderAngle(), targetAngle));
+		if (getShoulderAngle() != targetAngle) {
+			armPID.setGoal(targetAngle);
+			armMotor.set(armPID.calculate(getShoulderAngle(), targetAngle));
+		}
 	}
 
 	public void rotateWristTo(double targetAngle) {
+		if (getWristAngle() != targetAngle) {
 		wristPID.setGoal(targetAngle);
 		wristMotor.set(armPID.calculate(getShoulderAngle(), targetAngle));
+		}
 	}
 
 	public boolean armIsAtGoal() {
