@@ -91,15 +91,18 @@ public class IntakeSubsystem extends SubsystemBase {
 		return false;
 	}
 
-	public void ledStrip(boolean buttonPressed) {
-		/*/if (GamePieceType detectType() == GamePieceType.CUBE){
-				return purple;
+	public void ledStrip(boolean coneButtonPressed, boolean cubeButtonPressed) {
+		/*/if (cubeBottonPressed){
+			return purple;
 		}
-		else if (GamePieceType detectType() == GamePieceType.CONE){
-				return orange;
+		else if (coneButtonPressed)){
+			return orange;
 		}
-		else {
-				return off;
+		else if (coneButtonPressed && cubeButtonPressed) {
+			return determine with drive team what they want, maybe got at 
+			charge station or what level we want to place game piece;
+		} else {
+			return off;
 		}/*/
 	}
 

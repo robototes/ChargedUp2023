@@ -35,11 +35,10 @@ public class Hardware {
 
 	public static final double GEAR_RATIO;
 
-        static {
-                GEAR_RATIO = Robot.getInstance().isCompetition()
-                        ? 0 // TBD
-                        : 8.14; // L1 drive ratio
-            }
-        
-        }
-        
+	static {
+		GEAR_RATIO =
+				Robot.getInstance().isCompetition()
+						? 0 // TBD
+						: 8.14; // L1 drive ratio
+	}
+}
