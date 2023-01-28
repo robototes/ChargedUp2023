@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.ModuleUtil;
+import java.util.function.BiConsumer;
 
 public class DrivebaseSubsystem extends SubsystemBase {
 
@@ -89,6 +90,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private AHRS gyroscope;
 
 	private SwerveDrivePoseEstimator poseEstimator;
+	public BiConsumer<Pose2d, Double> poseConsumer;
 	private Pose2d pose;
 
 	private Field2d field = new Field2d();
@@ -103,6 +105,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						getModulePositions(),
 						new Pose2d());
 		pose = poseEstimator.getEstimatedPosition();
+		poseConsumer = poseEstimator::addVisionMeasurement;
 
 		// configure encoders offsets
 		for (int i = 0; i < moduleEncoders.length; i++) {

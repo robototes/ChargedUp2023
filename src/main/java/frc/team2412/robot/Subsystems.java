@@ -25,6 +25,9 @@ public class Subsystems {
 
 		if (DRIVEBASE_ENABLED) {
 			drivebaseSubsystem = new DrivebaseSubsystem();
+			if (VISION_ENABLED) {
+				visionSubsystem = new VisionSubsystem(drivebaseSubsystem.poseConsumer);
+			}
 		}
 		if (!comp) {
 			return;
@@ -34,9 +37,6 @@ public class Subsystems {
 		}
 		if (INTAKE_ENABLED) {
 			intakeSubsystem = new IntakeSubsystem();
-		}
-		if (VISION_ENABLED) {
-			visionSubsystem = new VisionSubsystem();
 		}
 	}
 }

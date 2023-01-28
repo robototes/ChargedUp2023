@@ -2,6 +2,7 @@ package frc.team2412.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -12,6 +13,7 @@ import io.github.oblarg.oblog.annotations.Log;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -19,6 +21,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class VisionSubsystem extends SubsystemBase {
 	private PhotonCamera photonCamera;
 	private PhotonPipelineResult latResult;
+	private BiConsumer<Pose2d, Double> poseConsumer;
 	/** Null if invalid, Empty if no valid camera pose, otherwise contains the camera pose. */
 	private Optional<Pose3d> cameraPose = null;
 	/*
@@ -43,7 +46,9 @@ public class VisionSubsystem extends SubsystemBase {
 		fieldLayout = temp;
 	}
 
-	public VisionSubsystem() {
+	public VisionSubsystem(BiConsumer<Pose2d, Double> poseConsumer) {
+		this.poseConsumer = poseConsumer;
+
 		var instance = NetworkTableInstance.getDefault();
 
 		// Connect to photonvision server
@@ -64,6 +69,7 @@ public class VisionSubsystem extends SubsystemBase {
 	public void updateEvent(NetworkTableEvent event) {
 		latResult = photonCamera.getLatestResult();
 		cameraPose = null; // New data, invalidate camera pose
+		poseConsumer.accept(getCameraPose().toPose2d(), latResult.getTimestampSeconds());
 	}
 
 	@Log
