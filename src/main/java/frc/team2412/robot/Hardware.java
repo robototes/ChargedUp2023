@@ -34,12 +34,14 @@ public class Hardware {
 
 	// Cameras
 	public static final String PHOTON_CAM = "Integrated_Webcam";
-	// Rough measurements
+	// Rough measurements, origin is center of robot, +X is forward, +Y is left, +Z is up
 	public static final Transform3d ROBOT_TO_CAM =
 			new Transform3d(
 					new Translation3d(
-							Units.inchesToMeters(-8), Units.inchesToMeters(6), Units.inchesToMeters(30)),
-					new Rotation3d(0, 0, -0.25));
+							Units.inchesToMeters(-30.0 / 2 + 7), // 7 inches from back of robot, back is -half of length (30 in.)
+							Units.inchesToMeters(26.0 / 2 - 7), // 7 inches from left, left is +half of width (26 in.)
+							Units.inchesToMeters(30)), // 30 inches above the ground
+					new Rotation3d(0, 0, -0.25)); // Camera has a slight yaw, around -0.25 radians following right-hand rule (thumb points to +Z/up, fingers curl in positive rotation)
 	public static final Transform3d CAM_TO_ROBOT = ROBOT_TO_CAM.inverse();
 
 	// Arm devices are from range 20 - 29
