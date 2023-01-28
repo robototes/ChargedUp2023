@@ -106,6 +106,7 @@ Temporary Items
 .apdisk
 
 ### VisualStudioCode ###
+.factorypath
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
