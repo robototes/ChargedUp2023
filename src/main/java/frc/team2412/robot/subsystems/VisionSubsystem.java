@@ -23,8 +23,8 @@ public class VisionSubsystem extends SubsystemBase {
 	private PhotonCamera photonCamera;
 	private PhotonPipelineResult latResult;
 	private BiConsumer<Pose2d, Double> poseConsumer;
-	/** Null if invalid, Empty if no valid robot pose, otherwise contains the robot pose. */
-	private Optional<Pose3d> robotPose = null;
+	/** Null if no valid robot pose, otherwise contains the robot pose. */
+	private Pose3d robotPose = null;
 	/*
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
 	 */
@@ -69,7 +69,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 	public void updateEvent(NetworkTableEvent event) {
 		latResult = photonCamera.getLatestResult();
-		robotPose = null; // New data, invalidate robot pose
+		updatePoseCache();
 		poseConsumer.accept(getRobotPose().toPose2d(), latResult.getTimestampSeconds());
 	}
 
@@ -103,21 +103,21 @@ public class VisionSubsystem extends SubsystemBase {
 				.transformBy(Hardware.CAM_TO_ROBOT);
 	}
 
+	/** Updates the robot pose cache. */
+	private void updatePoseCache() {
+		if (!hasTargets()) {
+			robotPose = null;
+		} else {
+			robotPose = getRobotPoseUsingTarget(latResult.getBestTarget());
+		}
+	}
+
 	/**
 	 * Calculates the robot pose using the best target. Returns null if there is no valid pose.
 	 *
 	 * @return The calculated robot pose.
 	 */
 	public Pose3d getRobotPose() {
-		if (robotPose == null) {
-			// No cached value, calculate current robot pose if possible
-			if (!hasTargets()) {
-				robotPose = Optional.empty();
-			} else {
-				robotPose = Optional.ofNullable(getRobotPoseUsingTarget(latResult.getBestTarget()));
-			}
-		}
-		// Unwrap Optional, defaulting to null if it's empty
-		return robotPose.orElse(null);
+		return robotPose;
 	}
 }
