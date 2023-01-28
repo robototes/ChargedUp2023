@@ -1,6 +1,10 @@
 package frc.team2412.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 
 public class Hardware {
 	public static final int PDP_ID = 1;
@@ -30,6 +34,13 @@ public class Hardware {
 
 	// Cameras
 	public static final String PHOTON_CAM = "Integrated_Webcam";
+	// Rough measurements
+	public static final Transform3d ROBOT_TO_CAM =
+			new Transform3d(
+					new Translation3d(
+							Units.inchesToMeters(-8), Units.inchesToMeters(6), Units.inchesToMeters(30)),
+					new Rotation3d(0, 0, -0.25));
+	public static final Transform3d CAM_TO_ROBOT = ROBOT_TO_CAM.inverse();
 
 	// Arm devices are from range 20 - 29
 	public static final int ARM_MOTOR = 20, WRIST_MOTOR = 21;

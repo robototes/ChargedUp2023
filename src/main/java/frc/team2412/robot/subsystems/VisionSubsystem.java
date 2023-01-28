@@ -22,8 +22,8 @@ public class VisionSubsystem extends SubsystemBase {
 	private PhotonCamera photonCamera;
 	private PhotonPipelineResult latResult;
 	private BiConsumer<Pose2d, Double> poseConsumer;
-	/** Null if invalid, Empty if no valid camera pose, otherwise contains the camera pose. */
-	private Optional<Pose3d> cameraPose = null;
+	/** Null if invalid, Empty if no valid robot pose, otherwise contains the robot pose. */
+	private Optional<Pose3d> robotPose = null;
 	/*
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
 	 */
@@ -68,8 +68,8 @@ public class VisionSubsystem extends SubsystemBase {
 
 	public void updateEvent(NetworkTableEvent event) {
 		latResult = photonCamera.getLatestResult();
-		cameraPose = null; // New data, invalidate camera pose
-		poseConsumer.accept(getCameraPose().toPose2d(), latResult.getTimestampSeconds());
+		robotPose = null; // New data, invalidate robot pose
+		poseConsumer.accept(getRobotPose().toPose2d(), latResult.getTimestampSeconds());
 	}
 
 	@Log
@@ -78,15 +78,15 @@ public class VisionSubsystem extends SubsystemBase {
 	}
 
 	/**
-	 * Calculates the camera pose relative to the field, using the given target.
+	 * Calculates the robot pose relative to the field, using the given target.
 	 *
 	 * <p>Returns null if target is null or if no valid field pose could be found for the target
 	 * (either the target doesn't have an ID or we don't have a pose associated with the ID).
 	 *
-	 * @param target The target to use to calculate camera pose.
-	 * @return The calculated camera pose.
+	 * @param target The target to use to calculate robot pose.
+	 * @return The calculated robot pose.
 	 */
-	public static Pose3d getCameraPoseUsingTarget(PhotonTrackedTarget target) {
+	public static Pose3d getRobotPoseUsingTarget(PhotonTrackedTarget target) {
 		if (target == null) {
 			return null;
 		}
@@ -96,24 +96,27 @@ public class VisionSubsystem extends SubsystemBase {
 			return null;
 		}
 		// getBestCameraToTarget() shouldn't be null
-		return tagPose.get().transformBy(target.getBestCameraToTarget().inverse());
+		return tagPose
+				.get()
+				.transformBy(target.getBestCameraToTarget().inverse())
+				.transformBy(Hardware.CAM_TO_ROBOT);
 	}
 
 	/**
-	 * Calculates the camera pose using the best target. Returns null if there is no valid pose.
+	 * Calculates the robot pose using the best target. Returns null if there is no valid pose.
 	 *
-	 * @return The calculated camera pose.
+	 * @return The calculated robot pose.
 	 */
-	public Pose3d getCameraPose() {
-		if (cameraPose == null) {
-			// No cached value, calculate current camera pose if possible
+	public Pose3d getRobotPose() {
+		if (robotPose == null) {
+			// No cached value, calculate current robot pose if possible
 			if (!hasTargets()) {
-				cameraPose = Optional.empty();
+				robotPose = Optional.empty();
 			} else {
-				cameraPose = Optional.ofNullable(getCameraPoseUsingTarget(latResult.getBestTarget()));
+				robotPose = Optional.ofNullable(getRobotPoseUsingTarget(latResult.getBestTarget()));
 			}
 		}
 		// Unwrap Optional, defaulting to null if it's empty
-		return cameraPose.orElse(null);
+		return robotPose.orElse(null);
 	}
 }
