@@ -1,11 +1,8 @@
 package frc.team2412.robot;
 
-import static java.lang.Thread.sleep;
-
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
-import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -28,7 +25,6 @@ public class Robot extends TimedRobot {
 
 	enum RobotType {
 		COMPETITION,
-		AUTOMATED_TEST,
 		DRIVEBASE;
 	}
 
@@ -44,13 +40,9 @@ public class Robot extends TimedRobot {
 
 	private final RobotType robotType;
 
-	private Thread controlAuto;
-
 	public static SwerveAutoBuilder autoBuilder;
 
 	protected Robot(RobotType type) {
-		System.out.println(
-				"Robot type: " + (type.equals(RobotType.AUTOMATED_TEST) ? "AutomatedTest" : "Competition"));
 		instance = this;
 		PDP = new PowerDistribution(Hardware.PDP_ID, ModuleType.kRev);
 		robotType = type;
@@ -70,32 +62,6 @@ public class Robot extends TimedRobot {
 	private static RobotType getTypeFromAddress() {
 		if (PRACTICE_ADDRESS.exists()) return RobotType.DRIVEBASE;
 		else return RobotType.COMPETITION;
-	}
-
-	@Override
-	public void startCompetition() {
-		if (!robotType.equals(RobotType.AUTOMATED_TEST)) {
-			super.startCompetition();
-		} else {
-			try {
-				super.startCompetition();
-			} catch (Throwable throwable) {
-				Throwable cause = throwable.getCause();
-				if (cause != null) {
-					// We're about to exit, so overwriting the param is fine
-					// noinspection AssignmentToCatchBlockParameter
-					throwable = cause;
-				}
-				DriverStation.reportError(
-						"Unhandled exception: " + throwable.toString(), throwable.getStackTrace());
-
-				try {
-					sleep(2000);
-				} catch (InterruptedException ignored) {
-				}
-				java.lang.System.exit(-1);
-			}
-		}
 	}
 
 	@Override
@@ -121,40 +87,6 @@ public class Robot extends TimedRobot {
 						command -> System.out.println("Command interrupted: " + command.getName()));
 		CommandScheduler.getInstance()
 				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
-
-		if (robotType.equals(RobotType.AUTOMATED_TEST)) {
-			controlAuto =
-					new Thread(
-							() -> {
-								System.out.println("Waiting two seconds for robot to finish startup");
-								try {
-									sleep(2000);
-								} catch (InterruptedException ignored) {
-								}
-
-								System.out.println("Enabling autonomous mode and waiting 10 seconds");
-								DriverStationDataJNI.setAutonomous(true);
-								DriverStationDataJNI.setEnabled(true);
-
-								try {
-									sleep(10000);
-								} catch (InterruptedException ignored) {
-								}
-
-								System.out.println("Disabling robot and waiting two seconds");
-								DriverStationDataJNI.setEnabled(false);
-
-								try {
-									sleep(2000);
-								} catch (InterruptedException ignored) {
-								}
-
-								System.out.println("Ending competition");
-								suppressExitWarning(true);
-								endCompetition();
-							});
-			controlAuto.start();
-		}
 
 		PathPlannerServer.startServer(5811);
 
@@ -233,7 +165,7 @@ public class Robot extends TimedRobot {
 	}
 
 	public boolean isCompetition() {
-		return getRobotType() == RobotType.COMPETITION || getRobotType() == RobotType.AUTOMATED_TEST;
+		return getRobotType() == RobotType.COMPETITION;
 	}
 
 	@Override

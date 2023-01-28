@@ -6,7 +6,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,6 +21,5 @@ jobs:
       - name: Check
         run: ./gradlew check
 
-      # TODO: enable automated testing after it's implemented in the Java code
-      #- name: Automated Sim Test
-      #  run: ./gradlew simulateJavaDebug -PautomatedTest=true
+      - name: Automated Sim Test
+        run: ./gradlew simulateJavaDebug -PautomatedTest=true
