@@ -80,7 +80,6 @@ public class ArmSubsystem extends SubsystemBase {
 	private final CANSparkMax wristMotor;
 
 	private final Encoder shoulderEncoder;
-	private final Encoder elbowEncoder;
 	private final Encoder wristEncoder;
 
 	private final ProfiledPIDController armPID;
@@ -148,10 +147,6 @@ public class ArmSubsystem extends SubsystemBase {
 
 	public double getShoulderAngle() {
 		return shoulderEncoder.getDistance();
-	}
-
-	public double getElbowAngle() {
-		return elbowEncoder.getDistance();
 	}
 
 	public double getWristAngle() {
