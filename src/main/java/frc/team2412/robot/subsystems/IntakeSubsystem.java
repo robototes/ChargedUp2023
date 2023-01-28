@@ -91,20 +91,5 @@ public class IntakeSubsystem extends SubsystemBase {
 		return false;
 	}
 
-	public void ledStrip(boolean coneButtonPressed, boolean cubeButtonPressed) {
-		/*/if (cubeBottonPressed){
-			return purple;
-		}
-		else if (coneButtonPressed)){
-			return orange;
-		}
-		else if (coneButtonPressed && cubeButtonPressed) {
-			return determine with drive team what they want, maybe got at
-			charge station or what level we want to place game piece;
-		} else {
-			return off;
-		}/*/
-	}
-
 	public void rumble() {}
 }
