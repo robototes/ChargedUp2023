@@ -26,7 +26,7 @@ public class Subsystems {
 		if (DRIVEBASE_ENABLED) {
 			drivebaseSubsystem = new DrivebaseSubsystem();
 			if (VISION_ENABLED) {
-				visionSubsystem = new VisionSubsystem(drivebaseSubsystem.poseConsumer);
+				visionSubsystem = new VisionSubsystem(drivebaseSubsystem::addVisionMeasurement);
 			}
 		}
 		if (!comp) {
