@@ -91,7 +91,6 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor = new CANSparkMax(20, MotorType.kBrushless);
 		wristMotor = new CANSparkMax(21, MotorType.kBrushless);
 		shoulderEncoder = new Encoder(SHOULDER_ENCODER_PORT_A, SHOULDER_ENCODER_PORT_B);
-		elbowEncoder = new Encoder(ELBOW_ENCODER_PORT_A, ELBOW_ENCODER_PORT_B);
 		wristEncoder = new Encoder(WRIST_ENCODER_PORT_A, WRIST_ENCODER_PORT_B);
 
 		armPID = new ProfiledPIDController(K_P, K_I, K_D, ARM_CONSTRAINTS);
@@ -102,21 +101,22 @@ public class ArmSubsystem extends SubsystemBase {
 		armPID.setTolerance(ARM_POS_TOLERANCE, ARM_VELOCITY_TOLERANCE);
 		wristPID.setTolerance(WRIST_POS_TOLERANCE, WRIST_VELOCITY_TOLERANCE);
 
-		elbowEncoder.reset();
-		elbowEncoder.reset();
+		shoulderEncoder.reset();
+		wristEncoder.reset();
 	}
 
 	// Methods
 
-	public double getVerticalArmPos() {
-		return ((ARM_LENGTH * Math.sin(getShoulderAngle()))
-				+ (VIRTUAL_BAR_LENGTH * Math.sin(getElbowAngle())));
-	}
+	// might not need?
+	// public double getVerticalArmPos() {
+	// 	return ((ARM_LENGTH * Math.sin(getShoulderAngle()))
+	// 			+ (VIRTUAL_BAR_LENGTH * Math.sin(getElbowAngle())));
+	// }
 
-	public double getHorizontalArmPos() {
-		return ((ARM_LENGTH * Math.cos(getShoulderAngle()))
-				+ (VIRTUAL_BAR_LENGTH * Math.cos(getElbowAngle())));
-	}
+	// public double getHorizontalArmPos() {
+	// 	return ((ARM_LENGTH * Math.cos(getShoulderAngle()))
+	// 			+ (VIRTUAL_BAR_LENGTH * Math.cos(getElbowAngle())));
+	// }
 
 	/** Stops Arm */
 	public void stopArm() {
