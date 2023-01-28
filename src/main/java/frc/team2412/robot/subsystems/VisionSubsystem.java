@@ -23,7 +23,7 @@ public class VisionSubsystem extends SubsystemBase {
 	private PhotonCamera photonCamera;
 	private PhotonPipelineResult latResult;
 	private BiConsumer<Pose2d, Double> poseConsumer;
-	/** Null if no valid robot pose, otherwise contains the robot pose. */
+	/** Null if no known robot pose, otherwise the last calculated robot pose from vision data. */
 	private Pose3d robotPose = null;
 	/*
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
