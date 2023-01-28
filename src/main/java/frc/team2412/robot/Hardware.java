@@ -36,7 +36,7 @@ public class Hardware {
 			ELBOW_ENCODER_PORT_B = 3,
 			WRIST_ENCODER_PORT_A = 4,
 			WRIST_ENCODER_PORT_B = 5;
-  
+
 	// Intake devices are ports 30-39
 	public static final int INTAKE_MOTOR_1 = 30;
 

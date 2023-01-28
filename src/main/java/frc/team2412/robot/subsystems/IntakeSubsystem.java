@@ -99,7 +99,7 @@ public class IntakeSubsystem extends SubsystemBase {
 			return orange;
 		}
 		else if (coneButtonPressed && cubeButtonPressed) {
-			return determine with drive team what they want, maybe got at 
+			return determine with drive team what they want, maybe got at
 			charge station or what level we want to place game piece;
 		} else {
 			return off;
