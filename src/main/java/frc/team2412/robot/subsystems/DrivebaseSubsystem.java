@@ -159,9 +159,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * @param rotation
 	 * @param fieldOriented
 	 */
-	public void drive(double forward, double strafe, Rotation2d rotation, boolean fieldOriented) {
-		if (true) { // if auto balancing enabled
-			forward += balanceController.update((double) gyroscope.getRoll());
+	public void drive(
+			double forward,
+			double strafe,
+			Rotation2d rotation,
+			boolean fieldOriented,
+			boolean autoBalance) {
+		if (autoBalance) {
+			forward -= balanceController.update((double) gyroscope.getRoll());
 		}
 
 		ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);

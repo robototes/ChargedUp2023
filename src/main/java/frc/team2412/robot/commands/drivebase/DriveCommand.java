@@ -64,7 +64,8 @@ public class DriveCommand extends CommandBase {
 				x * driveSpeedModifier,
 				y * driveSpeedModifier,
 				Rotation2d.fromRotations(rot * rotationSpeedEntry.getDouble(1.0)),
-				fieldOrientedEntry.getBoolean(true));
+				fieldOrientedEntry.getBoolean(true),
+				false);
 	}
 
 	public double deadbandCorrection(double input) {

@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.team2412.robot.commands.autonomous.AutoBalanceCommand;
 import frc.team2412.robot.commands.autonomous.PathPlannerTestCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
@@ -197,7 +199,10 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		Shuffleboard.startRecording();
 
-		new PathPlannerTestCommand(subsystems.drivebaseSubsystem).schedule();
+		new SequentialCommandGroup(
+						PathPlannerTestCommand.getAutoCommand(),
+						new AutoBalanceCommand(subsystems.drivebaseSubsystem))
+				.schedule();
 	}
 
 	@Override
