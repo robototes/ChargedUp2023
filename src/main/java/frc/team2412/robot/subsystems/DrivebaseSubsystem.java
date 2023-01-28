@@ -269,7 +269,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	/**
 	 * Reset's the robot's pose to (0, 0) with rotation of 0. <br>
-	 * </br> Also resets the gyroscope
+	 * Also resets the gyroscope
 	 */
 	public void resetPose() {
 		resetGyroAngle();
