@@ -165,6 +165,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			Rotation2d rotation,
 			boolean fieldOriented,
 			boolean autoBalance) {
+		// Auto balancing will only be used in autonomous
 		if (autoBalance) {
 			forward -= balanceController.update((double) gyroscope.getRoll());
 		}

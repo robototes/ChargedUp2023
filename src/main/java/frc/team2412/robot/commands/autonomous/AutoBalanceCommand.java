@@ -16,8 +16,8 @@ public class AutoBalanceCommand extends CommandBase {
 	@Override
 	public void execute() {
 		// Run the auto balancing code until autonomous is finished
+		// This assumes that all auto paths will end on the charge platform
 		drivebaseSubsystem.drive(0, 0, new Rotation2d(), true, true);
-		System.out.println("test");
 	}
 
 	@Override

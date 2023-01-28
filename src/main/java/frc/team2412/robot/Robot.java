@@ -198,7 +198,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 		Shuffleboard.startRecording();
-
+		// Basic auto path that travels 1 meter, and then balances on the charge station
 		new SequentialCommandGroup(
 						PathPlannerTestCommand.getAutoCommand(),
 						new AutoBalanceCommand(subsystems.drivebaseSubsystem))
