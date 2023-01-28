@@ -70,7 +70,9 @@ public class VisionSubsystem extends SubsystemBase {
 	public void updateEvent(NetworkTableEvent event) {
 		latResult = photonCamera.getLatestResult();
 		updatePoseCache();
-		poseConsumer.accept(getRobotPose().toPose2d(), latResult.getTimestampSeconds());
+		if (robotPose != null) {
+			poseConsumer.accept(robotPose.toPose2d(), latResult.getTimestampSeconds());
+		}
 	}
 
 	@Log
@@ -88,7 +90,7 @@ public class VisionSubsystem extends SubsystemBase {
 	 * @return The calculated robot pose.
 	 */
 	public static Pose3d getRobotPoseUsingTarget(PhotonTrackedTarget target) {
-		if (target == null) {
+		if (target == null || fieldLayout == null) {
 			return null;
 		}
 		// If target doesn't have fiducial ID, value is -1 (which shouldn't be in the layout)
@@ -113,9 +115,9 @@ public class VisionSubsystem extends SubsystemBase {
 	}
 
 	/**
-	 * Calculates the robot pose using the best target. Returns null if there is no valid pose.
+	 * Calculates the robot pose using the best target. Returns null if there is no known robot pose.
 	 *
-	 * @return The calculated robot pose.
+	 * @return The calculated robot pose in meters.
 	 */
 	public Pose3d getRobotPose() {
 		return robotPose;
