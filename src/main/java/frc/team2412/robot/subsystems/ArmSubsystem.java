@@ -140,7 +140,7 @@ public class ArmSubsystem extends SubsystemBase {
 	public void rotateWristTo(double targetAngle) {
 		if (getWristAngle() != targetAngle) {
 		wristPID.setGoal(targetAngle);
-		wristMotor.set(armPID.calculate(getShoulderAngle(), targetAngle));
+		wristMotor.set(wristPID.calculate(getWristAngle(), targetAngle));
 		}
 	}
 
