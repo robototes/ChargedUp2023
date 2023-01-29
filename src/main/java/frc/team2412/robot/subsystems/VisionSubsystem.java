@@ -21,7 +21,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
 	private PhotonCamera photonCamera;
-	private PhotonPipelineResult latResult;
+	private PhotonPipelineResult latestResult;
 	private BiConsumer<Pose2d, Double> poseConsumer;
 	/** Null if no known robot pose, otherwise the last calculated robot pose from vision data. */
 	private Pose3d robotPose = null;
@@ -60,7 +60,7 @@ public class VisionSubsystem extends SubsystemBase {
 		}
 
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
-		latResult = photonCamera.getLatestResult();
+		latestResult = photonCamera.getLatestResult();
 		instance.addListener(
 				instance.getTable("photonvision").getSubTable(Hardware.PHOTON_CAM).getEntry("rawBytes"),
 				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
@@ -68,16 +68,16 @@ public class VisionSubsystem extends SubsystemBase {
 	}
 
 	public void updateEvent(NetworkTableEvent event) {
-		latResult = photonCamera.getLatestResult();
+		latestResult = photonCamera.getLatestResult();
 		updatePoseCache();
 		if (robotPose != null) {
-			poseConsumer.accept(robotPose.toPose2d(), latResult.getTimestampSeconds());
+			poseConsumer.accept(robotPose.toPose2d(), latestResult.getTimestampSeconds());
 		}
 	}
 
 	@Log
 	public boolean hasTargets() {
-		return latResult.hasTargets();
+		return latestResult.hasTargets();
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class VisionSubsystem extends SubsystemBase {
 		if (!hasTargets()) {
 			robotPose = null;
 		} else {
-			robotPose = getRobotPoseUsingTarget(latResult.getBestTarget());
+			robotPose = getRobotPoseUsingTarget(latestResult.getBestTarget());
 		}
 	}
 
