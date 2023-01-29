@@ -1,11 +1,6 @@
 package frc.team2412.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
-import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -20,16 +15,27 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
+import frc.team2412.robot.Robot;
 import frc.team2412.robot.sim.PhysicsSim;
-import frc.team2412.robot.util.ModuleUtil;
 import frc.team2412.robot.util.PFFController;
+import frc.team2412.robot.util.gyroscope.Gyroscope;
+import frc.team2412.robot.util.gyroscope.NavXGyro;
+import frc.team2412.robot.util.gyroscope.Pigeon2Gyro;
+import frc.team2412.robot.util.motorcontroller.BrushlessSparkMaxController;
+import frc.team2412.robot.util.motorcontroller.MotorController;
+import frc.team2412.robot.util.motorcontroller.MotorController.MotorControlMode;
+import frc.team2412.robot.util.motorcontroller.TalonFXController;
 
 public class DrivebaseSubsystem extends SubsystemBase {
 
-	private static final double ticksPerRotation = 2048.0; // for the talonfx
+	private static final double ticksPerRotation = Robot.getInstance().isCompetition() ? 1.0 : 2048.0;
 	private static final double wheelDiameterMeters = 0.0889; // 3.5 inches
-	private static final double driveReductionL1 = 8.14; // verified
-	private static final double steerReduction = (32.0 / 15.0) * (60.0 / 10.0); // verified, 12.8
+	private static final double driveReductionL1 =
+			Robot.getInstance().isCompetition() ? 6.75 : 8.14; // verified
+	private static final double steerReduction =
+			Robot.getInstance().isCompetition()
+					? 150 / 7
+					: (32.0 / 15.0) * (60.0 / 10.0); // verified, 12.8
 
 	// position units is one rotation / 2048
 	// extrapolate this to meters using wheel perimeter (pi * wheel diameter)
@@ -44,28 +50,42 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			(ticksPerRotation / (Math.PI * wheelDiameterMeters))
 					* driveReductionL1; // ticks per meter per 100 ms
 
-	private static final int talonFXLoopNumber = 0;
-	private static final int canTimeoutMS = 20;
-
+	// Balance controller is in degrees
 	private static PFFController<Double> balanceController;
 
 	private static final double tipF = 0.01;
 	private static final double tipP = 0.05;
 	private static final double tipTolerance = 5;
 
-	private WPI_TalonFX[] moduleDriveMotors = {
-		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_RIGHT_DRIVE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_LEFT_DRIVE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_RIGHT_DRIVE_MOTOR)
-	};
+	private MotorController[] moduleDriveMotors =
+			Robot.getInstance().isCompetition()
+					? new BrushlessSparkMaxController[] {
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_RIGHT_DRIVE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_BACK_LEFT_DRIVE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_BACK_RIGHT_DRIVE_MOTOR)
+					}
+					: new TalonFXController[] {
+						new TalonFXController(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_FRONT_RIGHT_DRIVE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_BACK_LEFT_DRIVE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_BACK_RIGHT_DRIVE_MOTOR)
+					};
 
-	private WPI_TalonFX[] moduleAngleMotors = {
-		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_LEFT_ANGLE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_RIGHT_ANGLE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_LEFT_ANGLE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_RIGHT_ANGLE_MOTOR)
-	};
+	private MotorController[] moduleAngleMotors =
+			Robot.getInstance().isCompetition()
+					? new BrushlessSparkMaxController[] {
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_LEFT_ANGLE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_RIGHT_ANGLE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_BACK_LEFT_ANGLE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_BACK_RIGHT_ANGLE_MOTOR)
+					}
+					: new TalonFXController[] {
+						new TalonFXController(Hardware.DRIVEBASE_FRONT_LEFT_ANGLE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_FRONT_RIGHT_ANGLE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_BACK_LEFT_ANGLE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_BACK_RIGHT_ANGLE_MOTOR)
+					};
 
 	private WPI_CANCoder[] moduleEncoders = {
 		new WPI_CANCoder(Hardware.DRIVEBASE_FRONT_LEFT_ENCODER_PORT),
@@ -93,7 +113,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			new SwerveDriveKinematics(
 					moduleLocations[0], moduleLocations[1], moduleLocations[2], moduleLocations[3]);
 
-	private AHRS gyroscope;
+	private Gyroscope gyroscope;
 
 	private SwerveDriveOdometry odometry;
 	private Pose2d pose;
@@ -101,16 +121,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private Field2d field = new Field2d();
 
 	public DrivebaseSubsystem() {
-		gyroscope = new AHRS(SerialPort.Port.kMXP);
+		gyroscope =
+				(Robot.getInstance().isCompetition())
+						? (new Pigeon2Gyro(13))
+						: (new NavXGyro(SerialPort.Port.kMXP));
 
-		odometry =
-				new SwerveDriveOdometry(
-						kinematics, Rotation2d.fromDegrees(gyroscope.getYaw()), getModulePositions());
+		odometry = new SwerveDriveOdometry(kinematics, gyroscope.getYaw(), getModulePositions());
 		pose = odometry.getPoseMeters();
 
 		balanceController =
 				PFFController.ofDouble(tipF, tipP)
-						.setTargetPosition((double) gyroscope.getRoll())
+						.setTargetPosition(gyroscope.getRawRoll().getDegrees())
 						.setTargetPositionTolerance(tipTolerance);
 
 		// configure encoders offsets
@@ -120,45 +141,35 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		// configure drive motors
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			WPI_TalonFX driveMotor = moduleDriveMotors[i];
-			driveMotor.setNeutralMode(NeutralMode.Brake);
-			driveMotor.setSensorPhase(true);
+			MotorController driveMotor = moduleDriveMotors[i];
+			driveMotor.setNeutralMode(MotorController.MotorNeutralMode.BRAKE);
+			driveMotor.setEncoderInverted(true);
 
-			driveMotor.configNeutralDeadband(0.01);
-			driveMotor.configSelectedFeedbackSensor(
-					TalonFXFeedbackDevice.IntegratedSensor, talonFXLoopNumber, canTimeoutMS);
+			// driveMotor.setPID(0.1, 0.001, 1023.0 / 20660.0);
+			driveMotor.setPID(0, 0, 0);
 
-			driveMotor.config_kP(talonFXLoopNumber, 0.1);
-			driveMotor.config_kI(talonFXLoopNumber, 0.001);
-			driveMotor.config_kD(talonFXLoopNumber, 1023.0 / 20660.0);
+			driveMotor.setControlMode(MotorControlMode.VELOCITY);
 		}
 
 		// configure angle motors
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
-			WPI_TalonFX steeringMotor = moduleAngleMotors[i];
+			MotorController steeringMotor = moduleAngleMotors[i];
 			steeringMotor.configFactoryDefault();
-			steeringMotor.configSelectedFeedbackSensor(
-					TalonFXFeedbackDevice.IntegratedSensor, talonFXLoopNumber, canTimeoutMS);
 			// Configure PID values
-			steeringMotor.config_kP(talonFXLoopNumber, 0.15, canTimeoutMS);
-			steeringMotor.config_kI(talonFXLoopNumber, 0.00, canTimeoutMS);
-			steeringMotor.config_kD(talonFXLoopNumber, 1.0, canTimeoutMS);
-			steeringMotor.setSelectedSensorPosition(
+			// TALON: steeringMotor.setPID(0.15, 0.00, 1.0);
+			steeringMotor.setPID(0.1, 0, 0);
+
+			steeringMotor.setIntegratedEncoderPosition(
 					getModuleAngles()[i].times(((ticksPerRotation / 360) * steerReduction)).getDegrees());
+
+			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
 
 		// configure shuffleboard
 		SmartDashboard.putData("Field", field);
 	}
 
-	/**
-	 * Drives the robot using forward, strafe, and rotation. Units in meters
-	 *
-	 * @param forward
-	 * @param strafe
-	 * @param rotation
-	 * @param fieldOriented
-	 */
+	/** Drives the robot using forward, strafe, and rotation. Units in meters */
 	public void drive(
 			double forward,
 			double strafe,
@@ -167,7 +178,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			boolean autoBalance) {
 		// Auto balancing will only be used in autonomous
 		if (autoBalance) {
-			forward -= balanceController.update((double) gyroscope.getRoll());
+			forward -= balanceController.update(gyroscope.getRawRoll().getDegrees());
 		}
 
 		ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
@@ -175,7 +186,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		if (fieldOriented) {
 			chassisSpeeds =
 					ChassisSpeeds.fromFieldRelativeSpeeds(
-							forward, -strafe, rotation.getRadians(), getGyroRotation2d());
+							forward, -strafe, rotation.getRadians(), gyroscope.getAngle());
 		} else {
 			chassisSpeeds = new ChassisSpeeds(forward, -strafe, rotation.getRadians());
 		}
@@ -195,31 +206,23 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		drive(moduleStates);
 	}
 
-	/**
-	 * Drives the robot using states
-	 *
-	 * @param states
-	 */
+	/** Drives the robot using states */
 	public void drive(SwerveModuleState[] states) {
 		for (int i = 0; i < states.length; i++) {
-			states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
+			// states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
 		}
 
 		// Set motor speeds and angles
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			// meters/100ms * raw sensor units conversion
-			moduleDriveMotors[i].set(
-					TalonFXControlMode.Velocity,
-					((states[i].speedMetersPerSecond) / 10) * driveVelocityCoefficient);
+			moduleDriveMotors[i].set(((states[i].speedMetersPerSecond) / 10) * driveVelocityCoefficient);
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
-			moduleAngleMotors[i].set(
-					TalonFXControlMode.Position, states[i].angle.getRadians() * steerPositionCoefficient);
+			moduleAngleMotors[i].set(states[i].angle.getRadians() * steerPositionCoefficient);
 		}
 	}
 
 	/**
-	 * @param speeds
 	 * @return Array with modules with front left at [0], front right at [1], back left at [2], back
 	 *     right at [3]
 	 */
@@ -231,11 +234,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		SwerveModulePosition[] positions = new SwerveModulePosition[4];
 
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
+			// TODO: make abstract class be able to return converted motor position
 			positions[i] =
 					new SwerveModulePosition(
-							moduleDriveMotors[i].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
+							moduleDriveMotors[i].getIntegratedEncoderPosition() * (1 / driveVelocityCoefficient),
 							Rotation2d.fromRadians(
-									moduleAngleMotors[i].getSelectedSensorPosition()
+									moduleAngleMotors[i].getIntegratedEncoderPosition()
 											* (1 / steerPositionCoefficient)));
 		}
 
@@ -263,7 +267,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * new global forward
 	 */
 	public void resetGyroAngle() {
-		resetGyroAngle(Rotation2d.fromDegrees(gyroscope.getYaw()));
+		resetGyroAngle(gyroscope.getYaw());
 	}
 
 	/**
@@ -272,12 +276,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * @param angle The new forward
 	 */
 	public void resetGyroAngle(Rotation2d angle) {
-		gyroscope.setAngleAdjustment(-angle.getDegrees());
-	}
-
-	/** Returns a Rotation2d containing the robot's rotation */
-	public Rotation2d getGyroRotation2d() {
-		return Rotation2d.fromDegrees(-gyroscope.getAngle());
+		gyroscope.setAngleAdjustment(angle.unaryMinus());
 	}
 
 	/** Returns the robot's pose */
@@ -306,14 +305,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void simInit(PhysicsSim sim) {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			sim.addTalonFX(moduleDriveMotors[i], 2, 20000, true);
-			sim.addTalonFX(moduleAngleMotors[i], 2, 20000);
+			// TODO: make work
+			// sim.addTalonFX(moduleDriveMotors[i], 2, 20000, true);
+			// sim.addTalonFX(moduleAngleMotors[i], 2, 20000);
 		}
 	}
 
 	@Override
 	public void periodic() {
-		pose = odometry.update(getGyroRotation2d(), getModulePositions());
+		pose = odometry.update(gyroscope.getAngle(), getModulePositions());
 		field.setRobotPose(pose);
+
+		System.out.println(moduleAngleMotors[0].getIntegratedEncoderPosition());
 	}
 }

@@ -3,6 +3,8 @@ package frc.team2412.robot;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class Hardware {
+	public static final int CAN_TIMEOUT_MS = 20;
+
 	public static final int PDP_ID = 1;
 
 	// Drive devices are from range 1-19
