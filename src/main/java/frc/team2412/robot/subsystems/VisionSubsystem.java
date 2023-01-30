@@ -62,7 +62,10 @@ public class VisionSubsystem extends SubsystemBase {
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
 		latestResult = photonCamera.getLatestResult();
 		networkTables.addListener(
-				networkTables.getTable("photonvision").getSubTable(Hardware.PHOTON_CAM).getEntry("rawBytes"),
+				networkTables
+						.getTable("photonvision")
+						.getSubTable(Hardware.PHOTON_CAM)
+						.getEntry("rawBytes"),
 				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
 				this::updateEvent);
 	}
