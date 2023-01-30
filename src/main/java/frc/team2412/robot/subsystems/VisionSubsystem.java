@@ -50,19 +50,19 @@ public class VisionSubsystem extends SubsystemBase {
 	public VisionSubsystem(BiConsumer<Pose2d, Double> poseConsumer) {
 		this.poseConsumer = poseConsumer;
 
-		var instance = NetworkTableInstance.getDefault();
+		var networkTables = NetworkTableInstance.getDefault();
 
 		// Connect to photonvision server
 		// Only in sim because normally photonvision connects to robot
 		if (RobotBase.isSimulation()) {
-			instance.stopServer();
-			instance.startClient4("localhost");
+			networkTables.stopServer();
+			networkTables.startClient4("localhost");
 		}
 
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
 		latestResult = photonCamera.getLatestResult();
-		instance.addListener(
-				instance.getTable("photonvision").getSubTable(Hardware.PHOTON_CAM).getEntry("rawBytes"),
+		networkTables.addListener(
+				networkTables.getTable("photonvision").getSubTable(Hardware.PHOTON_CAM).getEntry("rawBytes"),
 				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
 				this::updateEvent);
 	}
