@@ -37,6 +37,10 @@ public class Controls {
 		if (Subsystems.SubsystemConstants.DRIVEBASE_ENABLED) {
 			bindDrivebaseControls();
 		}
+
+		if (Subsystems.SubsystemConstants.INTAKE_ENABLED) {
+			bindIntakeControls();
+		}
 	}
 
 	public void bindDrivebaseControls() {

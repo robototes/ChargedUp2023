@@ -40,7 +40,7 @@ public class Hardware {
 	// Intake devices are ports 30-39
 	public static final int INTAKE_MOTOR_1 = 30;
 
-	public static final int INTAKE_LED_STRIP = 6, INTAKE_DISTANCE_SENSOR = 7, INTAKE_COLOR_SENSOR = 8;
+	public static final int INTAKE_DISTANCE_SENSOR = 6, INTAKE_COLOR_SENSOR = 7;
 
 	public static final double GEAR_RATIO;
 
