@@ -124,7 +124,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public DrivebaseSubsystem() {
 		gyroscope =
 				(Robot.getInstance().isCompetition())
-						? (new Pigeon2Gyro(13))
+						? (new Pigeon2Gyro(Hardware.GYRO_PORT))
 						: (new NavXGyro(SerialPort.Port.kMXP));
 
 		odometry = new SwerveDriveOdometry(kinematics, gyroscope.getYaw(), getModulePositions());
@@ -160,12 +160,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			// TALON: steeringMotor.setPID(0.15, 0.00, 1.0);
 			steeringMotor.setPID(0.1, 0, 0);
 
-			steeringMotor.setIntegratedEncoderPosition(
-					Robot.getInstance().isCompetition()
-							? getModuleAngles()[i].times((ticksPerRotation * steerReduction)).getRotations()
-							: getModuleAngles()[i]
-									.times(((ticksPerRotation / 360) * steerReduction))
-									.getDegrees());
+			steeringMotor.setIntegratedEncoderPosition(getModuleAngles()[i].getRadians() * steerPositionCoefficient);
 
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
@@ -240,15 +235,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			// TODO: make abstract class be able to return converted motor position
-			positions[i] =
-					Robot.getInstance().isCompetition()
-							? new SwerveModulePosition(
-									moduleDriveMotors[i].getIntegratedEncoderPosition()
-											* (1 / driveVelocityCoefficient),
-									Rotation2d.fromRotations(
-											moduleAngleMotors[i].getIntegratedEncoderPosition()
-													* (1 / steerPositionCoefficient)))
-							: new SwerveModulePosition(
+			positions[i] = new SwerveModulePosition(
 									moduleDriveMotors[i].getIntegratedEncoderPosition()
 											* (1 / driveVelocityCoefficient),
 									Rotation2d.fromRadians(
