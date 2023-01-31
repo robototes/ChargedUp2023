@@ -51,7 +51,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 					* driveReductionL1; // ticks per meter per 100 ms
 
 	// Balance controller is in degrees
-	private static PFFController<Double> balanceController;
+	private final PFFController<Double> balanceController;
 
 	private static final double tipF = 0.01;
 	private static final double tipP = 0.05;
@@ -123,9 +123,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public DrivebaseSubsystem() {
 		gyroscope =
-				(Robot.getInstance().isCompetition())
-						? (new Pigeon2Gyro(Hardware.GYRO_PORT))
-						: (new NavXGyro(SerialPort.Port.kMXP));
+				Robot.getInstance().isCompetition()
+						? new Pigeon2Gyro(Hardware.GYRO_PORT)
+						: new NavXGyro(SerialPort.Port.kMXP);
 
 		odometry = new SwerveDriveOdometry(kinematics, gyroscope.getYaw(), getModulePositions());
 		pose = odometry.getPoseMeters();
@@ -160,7 +160,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			// TALON: steeringMotor.setPID(0.15, 0.00, 1.0);
 			steeringMotor.setPID(0.1, 0, 0);
 
-			steeringMotor.setIntegratedEncoderPosition(getModuleAngles()[i].getRadians() * steerPositionCoefficient);
+			steeringMotor.setIntegratedEncoderPosition(
+					getModuleAngles()[i].getRadians() * steerPositionCoefficient);
 
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
@@ -215,7 +216,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		// Set motor speeds and angles
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			// meters/100ms * raw sensor units conversion
-			moduleDriveMotors[i].set(((states[i].speedMetersPerSecond) / 10) * driveVelocityCoefficient);
+			moduleDriveMotors[i].set((states[i].speedMetersPerSecond / 10) * driveVelocityCoefficient);
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
 			moduleAngleMotors[i].set(states[i].angle.getRadians() * steerPositionCoefficient);
@@ -223,8 +224,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	}
 
 	/**
-	 * @return Array with modules with front left at [0], front right at [1], back left at [2], back
-	 *     right at [3]
+	 * Array with modules with front left at [0], front right at [1], back left at [2], back right at
+	 * [3]
 	 */
 	public SwerveModuleState[] getModuleStates(ChassisSpeeds speeds) {
 		return kinematics.toSwerveModuleStates(speeds);
@@ -235,12 +236,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			// TODO: make abstract class be able to return converted motor position
-			positions[i] = new SwerveModulePosition(
-									moduleDriveMotors[i].getIntegratedEncoderPosition()
-											* (1 / driveVelocityCoefficient),
-									Rotation2d.fromRadians(
-											moduleAngleMotors[i].getIntegratedEncoderPosition()
-													* (1 / steerPositionCoefficient)));
+			positions[i] =
+					new SwerveModulePosition(
+							moduleDriveMotors[i].getIntegratedEncoderPosition() * (1 / driveVelocityCoefficient),
+							Rotation2d.fromRadians(
+									moduleAngleMotors[i].getIntegratedEncoderPosition()
+											* (1 / steerPositionCoefficient)));
 		}
 
 		return positions;

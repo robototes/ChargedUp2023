@@ -21,16 +21,16 @@ public class Hardware {
 			DRIVEBASE_BACK_LEFT_ENCODER_PORT = 9,
 			DRIVEBASE_BACK_RIGHT_ENCODER_PORT = 12;
 	// Offsets, first value is BONK and second value is competition robot
-	public static final Rotation2d[] DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET = {
+	public static Rotation2d[] DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET = {
 		Rotation2d.fromDegrees(337.236), Rotation2d.fromDegrees(248.55)
 	};
-	public static final Rotation2d[] DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET = {
+	public static Rotation2d[] DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET = {
 		Rotation2d.fromDegrees(251.982), Rotation2d.fromDegrees(10.89)
 	};
-	public static final Rotation2d[] DRIVEBASE_BACK_LEFT_ENCODER_OFFSET = {
+	public static Rotation2d[] DRIVEBASE_BACK_LEFT_ENCODER_OFFSET = {
 		Rotation2d.fromDegrees(205.839), Rotation2d.fromDegrees(338.8)
 	};
-	public static final Rotation2d[] DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET = {
+	public static Rotation2d[] DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET = {
 		Rotation2d.fromDegrees(311.396), Rotation2d.fromDegrees(28.125)
 	};
 	public static final int GYRO_PORT = 13;
