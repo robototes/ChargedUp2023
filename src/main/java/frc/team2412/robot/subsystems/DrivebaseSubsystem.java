@@ -94,11 +94,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		new WPI_CANCoder(Hardware.DRIVEBASE_BACK_RIGHT_ENCODER_PORT)
 	};
 
+	private final int botIndex = Robot.getInstance().isCompetition() ? 1 : 0;
 	private Rotation2d[] moduleOffsets = {
-		Hardware.DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET,
-		Hardware.DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET,
-		Hardware.DRIVEBASE_BACK_LEFT_ENCODER_OFFSET,
-		Hardware.DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET
+		Hardware.DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET[botIndex],
+		Hardware.DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET[botIndex],
+		Hardware.DRIVEBASE_BACK_LEFT_ENCODER_OFFSET[botIndex],
+		Hardware.DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET[botIndex]
 	};
 
 	// 2ft x 2ft for practice bot
@@ -160,7 +161,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.setPID(0.1, 0, 0);
 
 			steeringMotor.setIntegratedEncoderPosition(
-					getModuleAngles()[i].times(((ticksPerRotation / 360) * steerReduction)).getDegrees());
+					Robot.getInstance().isCompetition()
+							? getModuleAngles()[i].times((ticksPerRotation * steerReduction)).getRotations()
+							: getModuleAngles()[i]
+									.times(((ticksPerRotation / 360) * steerReduction))
+									.getDegrees());
 
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
@@ -195,14 +200,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] moduleStates = getModuleStates(chassisSpeeds);
-		if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
-				&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
-				&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
-			moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-			moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-			moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-			moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-		}
+		// if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
+		// 		&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
+		// 		&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
+		// 	moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+		// 	moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+		// 	moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+		// 	moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+		// }
 		drive(moduleStates);
 	}
 
@@ -236,11 +241,19 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			// TODO: make abstract class be able to return converted motor position
 			positions[i] =
-					new SwerveModulePosition(
-							moduleDriveMotors[i].getIntegratedEncoderPosition() * (1 / driveVelocityCoefficient),
-							Rotation2d.fromRadians(
-									moduleAngleMotors[i].getIntegratedEncoderPosition()
-											* (1 / steerPositionCoefficient)));
+					Robot.getInstance().isCompetition()
+							? new SwerveModulePosition(
+									moduleDriveMotors[i].getIntegratedEncoderPosition()
+											* (1 / driveVelocityCoefficient),
+									Rotation2d.fromRotations(
+											moduleAngleMotors[i].getIntegratedEncoderPosition()
+													* (1 / steerPositionCoefficient)))
+							: new SwerveModulePosition(
+									moduleDriveMotors[i].getIntegratedEncoderPosition()
+											* (1 / driveVelocityCoefficient),
+									Rotation2d.fromRadians(
+											moduleAngleMotors[i].getIntegratedEncoderPosition()
+													* (1 / steerPositionCoefficient)));
 		}
 
 		return positions;
@@ -316,6 +329,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		pose = odometry.update(gyroscope.getAngle(), getModulePositions());
 		field.setRobotPose(pose);
 
-		System.out.println(moduleAngleMotors[0].getIntegratedEncoderPosition());
+		System.out.println("module FL pos: " + moduleEncoders[0].getAbsolutePosition());
+		System.out.println("module FR pos: " + moduleEncoders[1].getAbsolutePosition());
+		System.out.println("module BL pos: " + moduleEncoders[2].getAbsolutePosition());
+		System.out.println("module BR pos: " + moduleEncoders[3].getAbsolutePosition());
 	}
 }

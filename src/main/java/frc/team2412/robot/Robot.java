@@ -170,7 +170,6 @@ public class Robot extends TimedRobot {
 	}
 
 	public boolean isCompetition() {
-		System.out.println("comp");
 		return getRobotType() == RobotType.COMPETITION;
 	}
 
