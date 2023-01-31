@@ -33,7 +33,7 @@ public class Hardware {
 	public static final int GYRO_PORT = 13;
 
 	// Cameras
-	public static final String PHOTON_CAM = "Integrated_Webcam";
+	public static final String PHOTON_CAM = "OV5647";
 	// Rough measurements, origin is center of robot, +X is forward, +Y is left, +Z is up
 	public static final Transform3d ROBOT_TO_CAM =
 			new Transform3d(
