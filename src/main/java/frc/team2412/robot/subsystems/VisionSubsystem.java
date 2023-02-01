@@ -9,16 +9,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.team2412.robot.Hardware;
 import io.github.oblarg.oblog.annotations.Log;
 import java.io.IOException;
 import java.util.EnumSet;
-import java.util.Optional;
 import java.util.function.BiConsumer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class VisionSubsystem extends SubsystemBase {
 	private BiConsumer<Pose2d, Double> poseConsumer;
@@ -30,7 +24,6 @@ public class VisionSubsystem extends SubsystemBase {
 	private static final AprilTagFieldLayout fieldLayout;
 
 	private static final NetworkTableInstance networkTables = NetworkTableInstance.getDefault();
-
 
 	static {
 		/*
@@ -52,8 +45,6 @@ public class VisionSubsystem extends SubsystemBase {
 	public VisionSubsystem(BiConsumer<Pose2d, Double> poseConsumer) {
 		this.poseConsumer = poseConsumer;
 
-
-
 		// // Connect to photonvision server
 		// // Only in sim because normally photonvision connects to robot
 		// if (RobotBase.isSimulation()) {
@@ -64,9 +55,7 @@ public class VisionSubsystem extends SubsystemBase {
 		System.out.println("test: " + NetworkTableInstance.getDefault().getTable("limelight"));
 
 		networkTables.addListener(
-				networkTables
-						.getTable("limelight")
-						.getEntry("targetpose_robotspace"),
+				networkTables.getTable("limelight").getEntry("targetpose_robotspace"),
 				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
 				this::updateEvent);
 	}
