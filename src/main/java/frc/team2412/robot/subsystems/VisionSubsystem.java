@@ -15,13 +15,12 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class VisionSubsystem extends SubsystemBase {
-	private PhotonCamera photonCamera;
-	private PhotonPipelineResult latestResult;
 	private BiConsumer<Pose2d, Double> poseConsumer;
 	/** Null if no known robot pose, otherwise the last calculated robot pose from vision data. */
 	private Pose3d robotPose = null;
@@ -29,6 +28,9 @@ public class VisionSubsystem extends SubsystemBase {
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
 	 */
 	private static final AprilTagFieldLayout fieldLayout;
+
+	private static final NetworkTableInstance networkTables = NetworkTableInstance.getDefault();
+
 
 	static {
 		/*
@@ -50,37 +52,35 @@ public class VisionSubsystem extends SubsystemBase {
 	public VisionSubsystem(BiConsumer<Pose2d, Double> poseConsumer) {
 		this.poseConsumer = poseConsumer;
 
-		var networkTables = NetworkTableInstance.getDefault();
 
-		// Connect to photonvision server
-		// Only in sim because normally photonvision connects to robot
-		if (RobotBase.isSimulation()) {
-			networkTables.stopServer();
-			networkTables.startClient4("localhost");
-		}
 
-		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
-		latestResult = photonCamera.getLatestResult();
+		// // Connect to photonvision server
+		// // Only in sim because normally photonvision connects to robot
+		// if (RobotBase.isSimulation()) {
+		// 	networkTables.stopServer();
+		// 	networkTables.startClient4("localhost");
+		// }
+
+		System.out.println("test: " + NetworkTableInstance.getDefault().getTable("limelight"));
+
 		networkTables.addListener(
 				networkTables
-						.getTable("photonvision")
-						.getSubTable(Hardware.PHOTON_CAM)
-						.getEntry("rawBytes"),
+						.getTable("limelight")
+						.getEntry("targetpose_robotspace"),
 				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
 				this::updateEvent);
 	}
 
 	public void updateEvent(NetworkTableEvent event) {
-		latestResult = photonCamera.getLatestResult();
-		updatePoseCache();
-		if (robotPose != null) {
-			poseConsumer.accept(robotPose.toPose2d(), latestResult.getTimestampSeconds());
-		}
+		double x = networkTables.getEntry("tx").getDouble(0);
+		double y = networkTables.getEntry("ty").getDouble(0);
+
+		System.out.println("x: " + x + "\ny: " + y);
 	}
 
 	@Log
 	public boolean hasTargets() {
-		return latestResult.hasTargets();
+		return networkTables.getEntry("tv").getInteger(0) == 1;
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class VisionSubsystem extends SubsystemBase {
 	 * @param target The target to use to calculate robot pose.
 	 * @return The calculated robot pose.
 	 */
-	public static Pose3d getRobotPoseUsingTarget(PhotonTrackedTarget target) {
+	/*public static Pose3d getRobotPoseUsingTarget(PhotonTrackedTarget target) {
 		if (target == null || fieldLayout == null) {
 			return null;
 		}
@@ -106,16 +106,16 @@ public class VisionSubsystem extends SubsystemBase {
 				.get()
 				.transformBy(target.getBestCameraToTarget().inverse())
 				.transformBy(Hardware.CAM_TO_ROBOT);
-	}
+	}*/
 
 	/** Updates the robot pose cache. */
-	private void updatePoseCache() {
+	/*private void updatePoseCache() {
 		if (!hasTargets()) {
 			robotPose = null;
 		} else {
 			robotPose = getRobotPoseUsingTarget(latestResult.getBestTarget());
 		}
-	}
+	}*/
 
 	/**
 	 * Calculates the robot pose using the best target. Returns null if there is no known robot pose.
