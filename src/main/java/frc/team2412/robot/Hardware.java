@@ -22,16 +22,16 @@ public class Hardware {
 			DRIVEBASE_BACK_RIGHT_ENCODER_PORT = 12;
 	// Offsets, first value is BONK and second value is competition robot
 	public static Rotation2d[] DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET = {
-		Rotation2d.fromDegrees(337.236), Rotation2d.fromDegrees(248.55)
+		Rotation2d.fromDegrees(337.236), Rotation2d.fromDegrees(291.796 + 90)
 	};
 	public static Rotation2d[] DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET = {
-		Rotation2d.fromDegrees(251.982), Rotation2d.fromDegrees(10.89)
+		Rotation2d.fromDegrees(251.982), Rotation2d.fromDegrees(163.388 + 90)
 	};
 	public static Rotation2d[] DRIVEBASE_BACK_LEFT_ENCODER_OFFSET = {
-		Rotation2d.fromDegrees(205.839), Rotation2d.fromDegrees(338.8)
+		Rotation2d.fromDegrees(205.839), Rotation2d.fromDegrees(201.796 + 90)
 	};
 	public static Rotation2d[] DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET = {
-		Rotation2d.fromDegrees(311.396), Rotation2d.fromDegrees(28.125)
+		Rotation2d.fromDegrees(311.396), Rotation2d.fromDegrees(152.841 + 90)
 	};
 	public static final int GYRO_PORT = 13;
 	// Arm devices are from range 20 - 29

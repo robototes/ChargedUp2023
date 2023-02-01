@@ -17,9 +17,6 @@ public class BrushlessSparkMaxController extends MotorController {
 		this.mode = mode;
 
 		useIntegratedEncoder();
-		motorPID.setPositionPIDWrappingEnabled(true);
-		motorPID.setPositionPIDWrappingMinInput(-587);
-		motorPID.setPositionPIDWrappingMinInput(587);
 	}
 
 	public BrushlessSparkMaxController(int id) {
@@ -55,6 +52,9 @@ public class BrushlessSparkMaxController extends MotorController {
 
 	@Override
 	public void set(double setpoint, MotorControlMode mode) {
+		if (mode == MotorControlMode.VELOCITY) {
+			setpoint = setpoint * 60; // rps to rpm
+		}
 		motorPID.setReference(setpoint, mode.getREV());
 	}
 
@@ -77,6 +77,7 @@ public class BrushlessSparkMaxController extends MotorController {
 		motorPID.setFeedbackDevice(sensor);
 	}
 
+	@Override
 	public void useIntegratedEncoder() {
 		setFeedbackDevice(motor.getEncoder());
 	}

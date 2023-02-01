@@ -51,6 +51,9 @@ public class TalonFXController extends MotorController {
 
 	@Override
 	public void set(double setpoint, MotorControlMode mode) {
+		if (mode == MotorControlMode.VELOCITY) {
+			setpoint = setpoint / 10; // seconds to 100ms
+		}
 		motor.set(mode.getCTRE(), setpoint);
 	}
 
@@ -68,4 +71,8 @@ public class TalonFXController extends MotorController {
 	public void setControlMode(MotorControlMode mode) {
 		this.mode = mode.getCTRE();
 	}
+
+	// talonfx does not need this but neo does
+	@Override
+	public void useIntegratedEncoder() {}
 }

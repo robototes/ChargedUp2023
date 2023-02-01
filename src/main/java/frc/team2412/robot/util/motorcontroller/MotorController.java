@@ -100,4 +100,6 @@ public abstract class MotorController {
 	public abstract double getIntegratedEncoderPosition();
 
 	public abstract void setControlMode(MotorControlMode mode);
+
+	public abstract void useIntegratedEncoder();
 }
