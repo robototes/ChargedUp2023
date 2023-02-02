@@ -4,10 +4,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import io.github.oblarg.oblog.annotations.Log;
 import java.io.IOException;
@@ -23,7 +23,8 @@ public class VisionSubsystem extends SubsystemBase {
 	 */
 	private static final AprilTagFieldLayout fieldLayout;
 
-	private static final NetworkTableInstance networkTables = NetworkTableInstance.getDefault();
+	private static final NetworkTableEntry targetPoseEntry =
+			NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace");
 
 	static {
 		/*
@@ -52,24 +53,18 @@ public class VisionSubsystem extends SubsystemBase {
 		// 	networkTables.startClient4("localhost");
 		// }
 
-		System.out.println("test: " + NetworkTableInstance.getDefault().getTable("limelight"));
-
-		networkTables.addListener(
-				networkTables.getTable("limelight").getEntry("targetpose_robotspace"),
-				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-				this::updateEvent);
+		NetworkTableInstance.getDefault()
+				.addListener(
+						targetPoseEntry, EnumSet.of(NetworkTableEvent.Kind.kValueAll), this::updateEvent);
 	}
 
 	public void updateEvent(NetworkTableEvent event) {
-		double x = networkTables.getEntry("tx").getDouble(0);
-		double y = networkTables.getEntry("ty").getDouble(0);
-
-		System.out.println("x: " + x + "\ny: " + y);
+		System.out.println(targetPoseEntry.getString("augh"));
 	}
 
 	@Log
 	public boolean hasTargets() {
-		return networkTables.getEntry("tv").getInteger(0) == 1;
+		return true;
 	}
 
 	/**
