@@ -72,6 +72,17 @@ public abstract class MotorController {
 			public ControlType getREV() {
 				return ControlType.kDutyCycle;
 			}
+		},
+		VOLTAGE {
+			@Override
+			public ControlMode getCTRE() {
+				return ControlMode.Velocity;
+			}
+
+			@Override
+			public ControlType getREV() {
+				return ControlType.kVelocity;
+			}
 		};
 
 		public ControlMode getCTRE() {
@@ -102,4 +113,8 @@ public abstract class MotorController {
 	public abstract void setControlMode(MotorControlMode mode);
 
 	public abstract void useIntegratedEncoder();
+
+	public abstract void setInverted(boolean inverted);
+
+	public abstract void setNominalVoltage(double voltage);
 }

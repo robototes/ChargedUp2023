@@ -54,6 +54,7 @@ public class DriveCommand extends CommandBase {
 
 	@Override
 	public void execute() {
+		// TODO: is this in units of m/s or percent of max speed?
 		double driveSpeedModifier =
 				driveSpeedEntry.getDouble(1.0) * (1 - (speedLimiter.getAsDouble() * 0.7));
 

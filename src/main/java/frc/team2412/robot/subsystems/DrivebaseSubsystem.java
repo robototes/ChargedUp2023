@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.Robot;
 import frc.team2412.robot.sim.PhysicsSim;
+import frc.team2412.robot.util.ModuleUtil;
 import frc.team2412.robot.util.PFFController;
 import frc.team2412.robot.util.gyroscope.Gyroscope;
 import frc.team2412.robot.util.gyroscope.NavXGyro;
@@ -31,6 +32,8 @@ import frc.team2412.robot.util.motorcontroller.TalonFXController;
 public class DrivebaseSubsystem extends SubsystemBase {
 
 	private static final boolean isComp = Robot.getInstance().isCompetition();
+
+	private static final double maxDriveSpeedMeters = 4.4196;
 
 	private static final double ticksPerRotation = isComp ? 1.0 : 2048.0;
 	private static final double wheelDiameterMeters = 0.0889; // 3.5 inches
@@ -150,7 +153,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			moduleEncoders[i].configSensorInitializationStrategy(
 					SensorInitializationStrategy.BootToAbsolutePosition);
 			if (isComp) {
-				moduleEncoders[i].configSensorDirection(true);
+				// moduleEncoders[i].configSensorDirection(true);
 			}
 		}
 
@@ -160,10 +163,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			driveMotor.setNeutralMode(MotorController.MotorNeutralMode.BRAKE);
 			driveMotor.setEncoderInverted(true);
 
-			// driveMotor.setPID(0.1, 0.001, 1023.0 / 20660.0);
-			driveMotor.setPID(0.0005, 0, 0.005);
+			// driveMotor.setNominalVoltage(12.0);
 
-			driveMotor.setControlMode(MotorControlMode.VELOCITY);
+			// driveMotor.setPID(0.1, 0.001, 1023.0 / 20660.0);
+			// driveMotor.setPID(0.0005, 0, 0.005);
+			driveMotor.setControlMode(MotorControlMode.VOLTAGE);
 		}
 
 		// configure angle motors
@@ -176,6 +180,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.setPID(0.15, 0, 0);
 
 			steeringMotor.useIntegratedEncoder();
+
+			if (isComp) {
+				steeringMotor.setInverted(true);
+			}
 
 			steeringMotor.setIntegratedEncoderPosition(
 					getModuleAngles()[i].getRadians() * steerPositionCoefficient); // verified
@@ -227,13 +235,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	/** Drives the robot using states */
 	public void drive(SwerveModuleState[] states) {
 		for (int i = 0; i < states.length; i++) {
-			// states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
+			if (!isComp) {
+				states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
+			}
 		}
 
 		// Set motor speeds and angles
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			// meters/100ms * raw sensor units conversion
-			moduleDriveMotors[i].set(states[i].speedMetersPerSecond * driveVelocityCoefficient);
+			moduleDriveMotors[i].set(states[i].speedMetersPerSecond / maxDriveSpeedMeters * 12);
+			if (i == 0) {
+				System.out.println(states[0].speedMetersPerSecond / maxDriveSpeedMeters * 12);
+			}
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
 			moduleAngleMotors[i].set(states[i].angle.getRadians() * steerPositionCoefficient);
@@ -252,7 +265,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		SwerveModulePosition[] positions = new SwerveModulePosition[4];
 
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			// TODO: make abstract class be able to return converted motor position
 			positions[i] =
 					new SwerveModulePosition(
 							moduleDriveMotors[i].getIntegratedEncoderPosition() * (1 / driveVelocityCoefficient),
@@ -334,12 +346,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		pose = odometry.update(gyroscope.getAngle(), getModulePositions());
 		field.setRobotPose(pose);
 
-		System.out.println("module FL pos: " + moduleEncoders[0].getAbsolutePosition());
-		System.out.println("module FR pos: " + moduleEncoders[1].getAbsolutePosition());
-		System.out.println("module BL pos: " + moduleEncoders[2].getAbsolutePosition());
-		System.out.println("module BR pos: " + moduleEncoders[3].getAbsolutePosition());
+		// System.out.println("module FL pos: " + moduleEncoders[0].getAbsolutePosition());
+		// System.out.println("module FR pos: " + moduleEncoders[1].getAbsolutePosition());
+		// System.out.println("module BL pos: " + moduleEncoders[2].getAbsolutePosition());
+		// System.out.println("module BR pos: " + moduleEncoders[3].getAbsolutePosition());
 
 		// System.out.println("set: " + getModuleAngles()[0].getRadians() * steerPositionCoefficient);
 		// System.out.println("get: " + moduleAngleMotors[0].getIntegratedEncoderPosition());
+
 	}
 }

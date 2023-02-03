@@ -75,4 +75,15 @@ public class TalonFXController extends MotorController {
 	// talonfx does not need this but neo does
 	@Override
 	public void useIntegratedEncoder() {}
+
+	@Override
+	public void setInverted(boolean inverted) {
+		motor.setInverted(inverted);
+	}
+
+	@Override
+	public void setNominalVoltage(double voltage) {
+		motor.enableVoltageCompensation(true);
+		motor.configVoltageCompSaturation(voltage);
+	}
 }
