@@ -156,7 +156,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
      * @param rotation
      * @param fieldOriented
      */
-    public void drive(double forward, double strafe, Rotation2d rotation, boolean fieldOriented) {
+    public void drive(double forward, double strafe, Rotation2d rotation, boolean fieldOriented, boolean autoBalance) {
         SwerveModuleState[] moduleStates = getModuleStates(new ChassisSpeeds(0, 0, 0));
         if (fieldOriented) {
             moduleStates = getModuleStates(
