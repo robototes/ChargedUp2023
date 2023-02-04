@@ -7,21 +7,48 @@ public class SetWristCommand extends CommandBase {
 
 	private ArmSubsystem armSubsystem;
 	private double targetAngle;
+	private WristPosition wristPosition;
 
-	public SetWristCommand(ArmSubsystem armSubsystem, double targetAngle) {
+	public static enum WristPosition {
+		RETRACT,
+		RETRACT_CUBE,
+		RETRACT_CONE,
+		PRESCORE,
+		SCORE;
+	}
+
+	public SetWristCommand(ArmSubsystem armSubsystem, WristPosition wristPosition) {
 		this.armSubsystem = armSubsystem;
-		this.targetAngle = targetAngle;
+		this.wristPosition = wristPosition;
 		addRequirements(armSubsystem);
 	}
 
 	@Override
-	public void execute() {
-		armSubsystem.rotateWristTo(targetAngle);
+	public void initialize() {
+
+		switch (wristPosition) {
+			case RETRACT_CUBE:
+				targetAngle = armSubsystem.getPosition().retractedWristAngle;
+				break;
+			case RETRACT_CONE:
+				targetAngle = armSubsystem.getPosition().retractedConeWristAngle;
+				break;
+
+			case PRESCORE:
+				targetAngle = armSubsystem.getPosition().prescoringWristAngle;
+				break;
+
+			case SCORE:
+				targetAngle = armSubsystem.getPosition().scoringWristAngle;
+				break;
+		}
+
+		armSubsystem.setWristGoal(targetAngle);
 	}
 
 	@Override
 	public void end(boolean interrupted) {
-		armSubsystem.stopWrist();
+		// armSubsystem.stopWrist();
 	}
 
 	@Override

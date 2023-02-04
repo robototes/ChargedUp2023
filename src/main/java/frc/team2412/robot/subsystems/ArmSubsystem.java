@@ -2,10 +2,12 @@ package frc.team2412.robot.subsystems;
 
 import static frc.team2412.robot.Hardware.*;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.*;
+import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.Encoder;
@@ -17,22 +19,33 @@ public class ArmSubsystem extends SubsystemBase {
 
 	public static class ArmConstants { // To find values later
 		// Mech problem basically
-		public static final int ARM_LENGTH = 0;
-		public static final int VIRTUAL_BAR_LENGTH = 0;
+		public static final double ARM_LENGTH = 0;
+		public static final double VIRTUAL_BAR_LENGTH = 0;
 
-		public static final int ARM_K_P = 0;
-		public static final int ARM_K_I = 0;
-		public static final int ARM_K_D = 0;
-		public static final int WRIST_K_P = 0;
-		public static final int WRIST_K_I = 0;
-		public static final int WRIST_K_D = 0;
+		// PID
+		public static final double ARM_K_P = 0;
+		public static final double ARM_K_I = 0;
+		public static final double ARM_K_D = 0;
+		public static final double WRIST_K_P = 0;
+		public static final double WRIST_K_I = 0;
+		public static final double WRIST_K_D = 0;
 
-		// Trapezoid hee hee
-		public static final int ARM_POS_TOLERANCE = 0;
-		public static final int WRIST_POS_TOLERANCE = 0;
+		// Feed Forward
+		public static final double ARM_K_A = 0;
+		public static final double ARM_K_G = 0;
+		public static final double ARM_K_S = 0;
+		public static final double ARM_K_V = 0;
+		public static final double WRIST_K_A = 0;
+		public static final double WRIST_K_G = 0;
+		public static final double WRIST_K_S = 0;
+		public static final double WRIST_K_V = 0;
 
-		public static final int ARM_VELOCITY_TOLERANCE = 0;
-		public static final int WRIST_VELOCITY_TOLERANCE = 0;
+		// Constraints
+		public static final double ARM_POS_TOLERANCE = 0.01;
+		public static final double WRIST_POS_TOLERANCE = 0.01;
+
+		public static final double ARM_VELOCITY_TOLERANCE = 0.2;
+		public static final double WRIST_VELOCITY_TOLERANCE = 0.2;
 
 		public static final double MAX_ARM_VELOCITY = 5;
 		public static final double MAX_ARM_ACCELERATION = 5;
@@ -47,20 +60,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// Arm Positions
 
-		public static final double HIGH_NODE_ARM_ANGLE = 56.99;
-		public static final double MIDDLE_NODE_ARM_ANGLE = 92;
-		public static final double LOW_GRAB_ARM_ANGLE = 0;
-		public static final double RETRACT_ARM_ANGLE = 169;
-		public static final double SUBSTATION_ARM_ANGLE = 80;
-
-		// find values later
-		public static final double HIGH_NODE_WRIST_ANGLE = 0;
-		public static final double MIDDLE_NODE_WRIST_ANGLE = 0;
-		public static final double LOW_GRAB_WRIST_ANGLE = 0;
-		public static final double RETRACT_WRIST_ANGLE = 90;
-		public static final double SUBSTATION_WRIST_ANGLE = 0;
-
-		// TO DO: maybe?
+		// TODO: maybe?
 		// Apparently, we wanted the node position to be in ticks.
 		// We need an inches to ticks converter.
 		public static final double HIGH_NODE_CUBE_POS = 0;
@@ -73,11 +73,48 @@ public class ArmSubsystem extends SubsystemBase {
 
 		public static final double TICKS_TO_INCHES = 42 / 360; // Maybe wrong?
 
-		public static final int ARM_ANGLE_LIMIT = 20; // to find values later
-		public static final int WRIST_ANGLE_LIMIT = 20; // to find values later
+		public static final double MIN_ARM_ANGLE = 56.9;
+		public static final double MAX_ARM_ANGLE = 170; // to find values later
+		public static final double WRIST_ANGLE_LIMIT = 20; // to find values later
+
+		// ENUM :(
+
+		/*
+		 * TODO:
+		 * Find arm and wrist angles (see onenote page)
+		 */
+		public static enum PositionType {
+			LOW(0, 0, 279.6, 0, 0),
+			MIDDLE(87.42, 0, 279.6, 0, 80.27),
+			HIGH(50, 0, 279.6, 0, 111),
+			SUBSTATION(80, 0, 279.6, 0, 0); // ?
+
+			public static enum wristAngle {}
+
+			public double armAngle;
+			public double retractedWristAngle;
+			public double retractedConeWristAngle;
+			public double prescoringWristAngle;
+			public double scoringWristAngle;
+
+			PositionType(
+					double armAngle,
+					double retractedWristAngle,
+					double retractedConeWristAngle,
+					double prescoringWristAngle,
+					double scoringWristAngle) {
+				this.armAngle = armAngle;
+				this.retractedWristAngle = retractedWristAngle;
+				this.retractedConeWristAngle = retractedConeWristAngle;
+				this.prescoringWristAngle = prescoringWristAngle;
+				this.scoringWristAngle = scoringWristAngle;
+			}
+		}
 	}
 
 	// Hardware
+
+	private PositionType currentPosition = LOW;
 
 	private final CANSparkMax armMotor;
 	private final CANSparkMax wristMotor;
@@ -88,16 +125,23 @@ public class ArmSubsystem extends SubsystemBase {
 	private final ProfiledPIDController armPID;
 	private final ProfiledPIDController wristPID;
 
+	private final ArmFeedforward armFeedforward;
+	private final ArmFeedforward wristFeedforward;
+
 	// Constructor
 
 	public ArmSubsystem() {
 		armMotor = new CANSparkMax(ARM_MOTOR, MotorType.kBrushless);
 		wristMotor = new CANSparkMax(WRIST_MOTOR, MotorType.kBrushless);
+
 		shoulderEncoder = new Encoder(SHOULDER_ENCODER_PORT_A, SHOULDER_ENCODER_PORT_B);
 		wristEncoder = new Encoder(WRIST_ENCODER_PORT_A, WRIST_ENCODER_PORT_B);
 
 		armPID = new ProfiledPIDController(ARM_K_P, ARM_K_I, ARM_K_D, ARM_CONSTRAINTS);
 		wristPID = new ProfiledPIDController(WRIST_K_P, WRIST_K_I, WRIST_K_D, WRIST_CONSTRAINTS);
+
+		armFeedforward = new ArmFeedforward(ARM_K_A, ARM_K_G, ARM_K_S, ARM_K_V);
+		wristFeedforward = new ArmFeedforward(WRIST_K_A, WRIST_K_G, WRIST_K_S, WRIST_K_V);
 
 		armMotor.setIdleMode(IdleMode.kBrake);
 		wristMotor.setIdleMode(IdleMode.kBrake);
@@ -110,17 +154,6 @@ public class ArmSubsystem extends SubsystemBase {
 
 	// Methods
 
-	// might not need?
-	// public double getVerticalArmPos() {
-	// 	return ((ARM_LENGTH * Math.sin(getShoulderAngle()))
-	// 			+ (VIRTUAL_BAR_LENGTH * Math.sin(getElbowAngle())));
-	// }
-
-	// public double getHorizontalArmPos() {
-	// 	return ((ARM_LENGTH * Math.cos(getShoulderAngle()))
-	// 			+ (VIRTUAL_BAR_LENGTH * Math.cos(getElbowAngle())));
-	// }
-
 	/** Stops Arm */
 	public void stopArm() {
 		armMotor.stopMotor();
@@ -130,18 +163,16 @@ public class ArmSubsystem extends SubsystemBase {
 		wristMotor.stopMotor();
 	}
 
-	public void rotateArmTo(double targetAngle) {
-		if (getShoulderAngle() != targetAngle) {
-			armPID.setGoal(targetAngle);
-			armMotor.set(armPID.calculate(getShoulderAngle(), targetAngle));
-		}
+	public void setPosition(PositionType position) {
+		currentPosition = position;
 	}
 
-	public void rotateWristTo(double targetAngle) {
-		if (getWristAngle() != targetAngle) {
-			wristPID.setGoal(targetAngle);
-			wristMotor.set(wristPID.calculate(getWristAngle(), targetAngle));
-		}
+	public void setArmGoal(double targetAngle) {
+		armPID.setGoal(targetAngle);
+	}
+
+	public void setWristGoal(double targetAngle) {
+		wristPID.setGoal(targetAngle);
 	}
 
 	public boolean armIsAtGoal() {
@@ -158,5 +189,36 @@ public class ArmSubsystem extends SubsystemBase {
 
 	public double getWristAngle() {
 		return wristEncoder.getDistance();
+	}
+
+	public PositionType getPosition() {
+		return currentPosition;
+	}
+
+	public double calculateArmPID() {
+		return armPID.calculate(shoulderEncoder.getDistance(), armPID.getGoal());
+	}
+
+	public double calculateWristPID() {
+		return armPID.calculate(wristEncoder.getDistance(), wristPID.getGoal());
+	}
+
+	public double calculatearmFeedforward() {
+		return armFeedforward.calculate(shoulderEncoder.getDistance(), shoulderEncoder.getRate());
+	}
+
+	public double calculatewristFeedforward() {
+		return wristFeedforward.calculate(
+				wristEncoder.getDistance(), wristEncoder.getRate()); // getRate = getVelocity?
+	}
+
+	/* TODO:
+	 * FeedForward for Arm and Wrist
+	 */
+
+	public void periodic() {
+
+		armMotor.setVoltage(calculateArmPID() + calculatearmFeedforward());
+		wristMotor.setVoltage(calculateWristPID() + calculatewristFeedforward());
 	}
 }
