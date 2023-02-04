@@ -43,7 +43,6 @@ public class Controls {
 		intakeOutButton = driveController.y();
 		intakeStopButton = driveController.b();
 
-
 		if (Subsystems.SubsystemConstants.DRIVEBASE_ENABLED) {
 			bindDrivebaseControls();
 		}
@@ -67,16 +66,15 @@ public class Controls {
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 	}
 
-
 	public void bindArmControls() {
 		armManualControl.toggleOnTrue(
 				new ManualArmOverrideCommand(
 						s.armSubsystem, codriveController.getRightY(), codriveController.getLeftY()));
+	}
 
 	public void bindIntakeControls() {
 		intakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
 		intakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
 		intakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
-
 	}
 }
