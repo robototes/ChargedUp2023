@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.Robot;
 import frc.team2412.robot.sim.PhysicsSim;
-import frc.team2412.robot.util.ModuleUtil;
 import frc.team2412.robot.util.PFFController;
 import frc.team2412.robot.util.gyroscope.Gyroscope;
 import frc.team2412.robot.util.gyroscope.NavXGyro;
@@ -60,11 +59,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private final double TIP_TOLERANCE = 5;
 
 	// units: raw sensor units
-	private final double steerPositionCoefficient =
+	private final double STEER_POSITION_COEFFICIENT =
 			(TICKS_PER_ROTATION / (2 * Math.PI)) * STEER_REDUCTION; // radians
 	// per
 	// tick
-	private final double driveVelocityCoefficient =
+	private final double DRIVE_VELOCITY_COEFFICIENT =
 			(TICKS_PER_ROTATION / (Math.PI * WHEEL_DIAMETER_METERS)) * DRIVE_REDUCTION; // ticks per meter
 
 	// Balance controller is in degrees
@@ -191,7 +190,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			}
 
 			steeringMotor.setIntegratedEncoderPosition(
-					getModuleAngles()[i].getRadians() * steerPositionCoefficient);
+					getModuleAngles()[i].getRadians() * STEER_POSITION_COEFFICIENT);
 
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
@@ -240,11 +239,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	/** Drives the robot using states */
 	public void drive(SwerveModuleState[] states) {
 		for (int i = 0; i < states.length; i++) {
-			if (!IS_COMP) {
-				states[i] =
-						ModuleUtil.optimize(
-								states[i], getModuleAngles()[i]); // might work for both bots need to test
-			}
+			// states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
+			states[i] = SwerveModuleState.optimize(states[i], getModuleAngles()[i]);
 		}
 
 		// Set motor speeds and angles
@@ -254,11 +250,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						states[i].speedMetersPerSecond / MAX_DRIVE_SPEED_METERS * 12); // set voltage
 			} else {
 				moduleDriveMotors[i].set(
-						states[i].speedMetersPerSecond * driveVelocityCoefficient); // set velocity
+						states[i].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT); // set velocity
 			}
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
-			moduleAngleMotors[i].set(states[i].angle.getRadians() * steerPositionCoefficient);
+			moduleAngleMotors[i].set(states[i].angle.getRadians() * STEER_POSITION_COEFFICIENT);
 		}
 	}
 
@@ -276,10 +272,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			positions[i] =
 					new SwerveModulePosition(
-							moduleDriveMotors[i].getIntegratedEncoderPosition() * (1 / driveVelocityCoefficient),
+							moduleDriveMotors[i].getIntegratedEncoderPosition()
+									* (1 / DRIVE_VELOCITY_COEFFICIENT),
 							Rotation2d.fromRadians(
 									moduleAngleMotors[i].getIntegratedEncoderPosition()
-											* (1 / steerPositionCoefficient)));
+											* (1 / STEER_POSITION_COEFFICIENT)));
 		}
 
 		return positions;

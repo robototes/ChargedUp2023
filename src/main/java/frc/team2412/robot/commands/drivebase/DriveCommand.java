@@ -61,9 +61,15 @@ public class DriveCommand extends CommandBase {
 		double y = deadbandCorrection(strafe.getAsDouble());
 		double rot = deadbandCorrection(-rotation.getAsDouble());
 		drivebaseSubsystem.drive(
-				x * driveSpeedModifier * drivebaseSubsystem.MAX_DRIVE_SPEED_METERS, // convert from percent to m/s
+				x
+						* driveSpeedModifier
+						* drivebaseSubsystem.MAX_DRIVE_SPEED_METERS, // convert from percent to m/s
 				y * driveSpeedModifier * drivebaseSubsystem.MAX_DRIVE_SPEED_METERS,
-				Rotation2d.fromRotations(rot * rotationSpeedEntry.getDouble(1.0) * drivebaseSubsystem.MAX_ROTATION_SPEED.getRotations()), // convert from percent to rotations per second
+				Rotation2d.fromRotations(
+						rot
+								* rotationSpeedEntry.getDouble(1.0)
+								* drivebaseSubsystem.MAX_ROTATION_SPEED
+										.getRotations()), // convert from percent to rotations per second
 				fieldOrientedEntry.getBoolean(true),
 				false);
 	}

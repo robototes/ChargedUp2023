@@ -15,6 +15,9 @@ public class BrushlessSparkMaxController extends MotorController {
 		this.motor = new CANSparkMax(id, MotorType.kBrushless);
 		this.motorPID = motor.getPIDController();
 		this.mode = mode;
+		motorPID.setPositionPIDWrappingEnabled(true);
+		motorPID.setPositionPIDWrappingMaxInput(150 / 7);
+		motorPID.setPositionPIDWrappingMinInput(0);
 
 		useIntegratedEncoder();
 	}
