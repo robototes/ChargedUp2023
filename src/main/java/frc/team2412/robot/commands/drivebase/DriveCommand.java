@@ -22,14 +22,14 @@ public class DriveCommand extends CommandBase {
 					.addPersistent("Drive Speed", 1)
 					.withSize(2, 1)
 					.withWidget(BuiltInWidgets.kNumberSlider)
-					.withProperties(Map.of("Min", 0, "Max", 5))
+					.withProperties(Map.of("Min", 0, "Max", 1))
 					.getEntry();
 	private GenericEntry rotationSpeedEntry =
 			Shuffleboard.getTab("Drivebase")
 					.addPersistent("Rotation Speed", 1)
 					.withSize(2, 1)
 					.withWidget(BuiltInWidgets.kNumberSlider)
-					.withProperties(Map.of("Min", 0, "Max", 5))
+					.withProperties(Map.of("Min", 0, "Max", 1))
 					.getEntry();
 	private GenericEntry fieldOrientedEntry =
 			Shuffleboard.getTab("Drivebase")
@@ -54,7 +54,6 @@ public class DriveCommand extends CommandBase {
 
 	@Override
 	public void execute() {
-		// TODO: This is currently m/s. Should it be percent of max speed?
 		double driveSpeedModifier =
 				driveSpeedEntry.getDouble(1.0) * (1 - (speedLimiter.getAsDouble() * 0.7));
 
@@ -62,9 +61,9 @@ public class DriveCommand extends CommandBase {
 		double y = deadbandCorrection(strafe.getAsDouble());
 		double rot = deadbandCorrection(-rotation.getAsDouble());
 		drivebaseSubsystem.drive(
-				x * driveSpeedModifier,
-				y * driveSpeedModifier,
-				Rotation2d.fromRotations(rot * rotationSpeedEntry.getDouble(1.0)),
+				x * driveSpeedModifier * drivebaseSubsystem.MAX_DRIVE_SPEED_METERS, // convert from percent to m/s
+				y * driveSpeedModifier * drivebaseSubsystem.MAX_DRIVE_SPEED_METERS,
+				Rotation2d.fromRotations(rot * rotationSpeedEntry.getDouble(1.0) * drivebaseSubsystem.MAX_ROTATION_SPEED.getRotations()), // convert from percent to rotations per second
 				fieldOrientedEntry.getBoolean(true),
 				false);
 	}

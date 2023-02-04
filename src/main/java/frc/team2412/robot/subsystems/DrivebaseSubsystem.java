@@ -31,7 +31,7 @@ import frc.team2412.robot.util.motorcontroller.TalonFXController;
 
 public class DrivebaseSubsystem extends SubsystemBase {
 
-	private static final boolean IS_COMP = Robot.getInstance().isCompetition();
+	private final boolean IS_COMP = Robot.getInstance().isCompetition();
 
 	// ordered from front left, front right, back left, back right
 	private static final Rotation2d[] PRACTICE_DRIVEBASE_ENCODER_OFFSETS = {
@@ -47,16 +47,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		Rotation2d.fromDegrees(-332.841)
 	};
 
-	public static final double MAX_DRIVE_SPEED_METERS = 4.4196;
+	public final double MAX_DRIVE_SPEED_METERS = 4.4196;
+	public final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRotations(2.2378);
 
-	private static final double TICKS_PER_ROTATION = IS_COMP ? 1.0 : 2048.0;
-	private static final double WHEEL_DIAMETER_METERS = 0.0889;
-	private static final double DRIVE_REDUCTION = IS_COMP ? 6.75 : 8.14;
-	private static final double STEER_REDUCTION = IS_COMP ? 150 / 7 : (32.0 / 15.0) * (60.0 / 10.0);
+	private final double TICKS_PER_ROTATION = IS_COMP ? 1.0 : 2048.0;
+	private final double WHEEL_DIAMETER_METERS = 0.0889;
+	private final double DRIVE_REDUCTION = IS_COMP ? 6.75 : 8.14;
+	private final double STEER_REDUCTION = IS_COMP ? 150 / 7 : (32.0 / 15.0) * (60.0 / 10.0);
 
-	private static final double TIP_F = 0.01;
-	private static final double TIP_P = 0.05;
-	private static final double TIP_TOLERANCE = 5;
+	private final double TIP_F = 0.01;
+	private final double TIP_P = 0.05;
+	private final double TIP_TOLERANCE = 5;
 
 	// units: raw sensor units
 	private final double steerPositionCoefficient =
@@ -301,8 +302,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	}
 
 	/**
-	 * Resets the gyroscope's angle to 0 After this is called, the radio (on bonk) will be the robot's
-	 * new global forward
+	 * Resets the gyroscope's angle to 0 After this is called, the radio (on bonk) or the intake (on
+	 * comp) will be the robot's new global forward
 	 */
 	public void resetGyroAngle() {
 		resetGyroAngle(gyroscope.getRawYaw());
@@ -353,14 +354,5 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void periodic() {
 		pose = odometry.update(gyroscope.getAngle(), getModulePositions());
 		field.setRobotPose(pose);
-
-		// System.out.println("module FL pos: " + moduleEncoders[0].getAbsolutePosition());
-		// System.out.println("module FR pos: " + moduleEncoders[1].getAbsolutePosition());
-		// System.out.println("module BL pos: " + moduleEncoders[2].getAbsolutePosition());
-		// System.out.println("module BR pos: " + moduleEncoders[3].getAbsolutePosition());
-
-		// System.out.println("set: " + getModuleAngles()[0].getRadians() * steerPositionCoefficient);
-		// System.out.println("get: " + moduleAngleMotors[0].getIntegratedEncoderPosition());
-
 	}
 }
