@@ -32,6 +32,7 @@ public class VisionSubsystem extends SubsystemBase {
 	private BiConsumer<Pose2d, Double> poseConsumer;
 	/** Null if no known robot pose, otherwise the last calculated robot pose from vision data. */
 	private Pose3d robotPose = null;
+	private double lastTimeStamp=0;
 	/*
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
 	 */
@@ -62,8 +63,9 @@ public class VisionSubsystem extends SubsystemBase {
 		// Connect to photonvision server
 		// Only in sim because normally photonvision connects to robot
 		if (RobotBase.isSimulation()) {
-			networkTables.stopServer();
-			networkTables.startClient4("localhost");
+			//			networkTables.stopServer();
+			//			networkTables.startClient4("localhost");
+
 		}
 
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
@@ -82,7 +84,8 @@ public class VisionSubsystem extends SubsystemBase {
 		latestResult = photonCamera.getLatestResult();
 		updatePoseCache();
 		if (robotPose != null) {
-			poseConsumer.accept(robotPose.toPose2d(), latestResult.getTimestampSeconds());
+			lastTimeStamp = latestResult.getTimestampSeconds();
+			poseConsumer.accept(robotPose.toPose2d(), lastTimeStamp);
 		}
 	}
 
@@ -152,5 +155,10 @@ public class VisionSubsystem extends SubsystemBase {
 	 */
 	public Pose3d getRobotPose() {
 		return robotPose;
+	}
+
+	//returns the last time we saw an aprilTag
+	public double getLastTimeStamp(){
+		return lastTimeStamp;
 	}
 }
