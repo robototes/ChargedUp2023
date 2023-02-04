@@ -168,14 +168,6 @@ public class ArmSubsystem extends SubsystemBase {
 		wristMotor.set(MAX_WRIST_SPEED + percentOutput);
 	}
 
-	public void stopArm() {
-		armMotor.stopMotor();
-	}
-
-	public void stopWrist() {
-		wristMotor.stopMotor();
-	}
-
 	public void setPosition(PositionType position) {
 		currentPosition = position;
 	}
