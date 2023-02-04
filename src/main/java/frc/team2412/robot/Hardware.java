@@ -27,6 +27,7 @@ public class Hardware {
 	public static final Rotation2d DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET =
 			Rotation2d.fromDegrees(311.396);
 	public static final int GYRO_PORT = 13;
+
 	// Arm devices are from range 20 - 29
 	public static final int ARM_MOTOR = 20, WRIST_MOTOR = 21;
 	public static final int SHOULDER_ENCODER_PORT_A = 0,
@@ -35,6 +36,11 @@ public class Hardware {
 			ELBOW_ENCODER_PORT_B = 3,
 			WRIST_ENCODER_PORT_A = 4,
 			WRIST_ENCODER_PORT_B = 5;
+
+	// Intake devices are ports 30-39
+	public static final int INTAKE_MOTOR_1 = 30;
+
+	public static final int INTAKE_DISTANCE_SENSOR = 6, INTAKE_COLOR_SENSOR = 7;
 
 	public static final double GEAR_RATIO;
 
