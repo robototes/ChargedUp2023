@@ -24,7 +24,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
  * north/forward, +Y is west/left, and +Z is up. On the field, this is based on the blue driver
  * station (+X is forward from blue driver station, +Y is left, +Z is up).
  *
- * At some point we should discuss how we want to handle the different alliances.
+ * <p>At some point we should discuss how we want to handle the different alliances.
  */
 public class VisionSubsystem extends SubsystemBase {
 	private PhotonCamera photonCamera;
