@@ -7,35 +7,23 @@ import com.revrobotics.CANSparkMax.IdleMode;
 
 public abstract class MotorController {
 	public enum MotorNeutralMode {
-		COAST {
-			@Override
-			public NeutralMode getCTRE() {
-				return NeutralMode.Coast;
-			}
-
-			@Override
-			public IdleMode getREV() {
-				return IdleMode.kCoast;
-			}
-		},
-		BRAKE {
-			@Override
-			public NeutralMode getCTRE() {
-				return NeutralMode.Brake;
-			}
-
-			@Override
-			public IdleMode getREV() {
-				return IdleMode.kBrake;
-			}
-		};
+		COAST(NeutralMode.Coast, IdleMode.kCoast),
+		BRAKE(NeutralMode.Brake, IdleMode.kBrake);
+		
+		private final NeutralMode ctre;
+		private final IdleMode rev;
+		
+		MotorNeutralMode(NeutralMode ctre, IdleMode rev) {
+		    this.ctre = ctre;
+		    this.rev = rev;
+		}
 
 		public NeutralMode getCTRE() {
-			return NeutralMode.Coast;
+			return ctre;
 		}
 
 		public IdleMode getREV() {
-			return IdleMode.kCoast;
+			return rev;
 		}
 	}
 
