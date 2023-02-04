@@ -139,10 +139,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public DrivebaseSubsystem() {
 		gyroscope = isComp ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
 
-		if (isComp) {
-			gyroscope.setInverted(false);
-		}
-
 		odometry = new SwerveDriveOdometry(kinematics, gyroscope.getAngle(), getModulePositions());
 		pose = odometry.getPoseMeters();
 
@@ -156,16 +152,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			moduleEncoders[i].configFactoryDefault();
 			moduleEncoders[i].configSensorInitializationStrategy(
 					SensorInitializationStrategy.BootToAbsolutePosition);
-			if (isComp) {
-				// moduleEncoders[i].configSensorDirection(true);
-			}
 		}
 
 		// configure drive motors
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			MotorController driveMotor = moduleDriveMotors[i];
 			driveMotor.setNeutralMode(MotorController.MotorNeutralMode.BRAKE);
-			driveMotor.setEncoderInverted(true);
 
 			if (isComp) {
 				driveMotor.setControlMode(MotorControlMode.VOLTAGE);
@@ -181,8 +173,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.configFactoryDefault();
 			steeringMotor.setNeutralMode(MotorNeutralMode.COAST);
 			// Configure PID values
-			// TALON: steeringMotor.setPID(0.15, 0.00, 1.0);
-			steeringMotor.setPID(0.15, 0, 0);
+			if (isComp) {
+				steeringMotor.setPID(0.15, 0, 0);
+			} else {
+				steeringMotor.setPID(0.15, 0.00, 1.0);
+			}
 
 			steeringMotor.useIntegratedEncoder();
 
@@ -191,7 +186,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			}
 
 			steeringMotor.setIntegratedEncoderPosition(
-					getModuleAngles()[i].getRadians() * steerPositionCoefficient); // verified
+					getModuleAngles()[i].getRadians() * steerPositionCoefficient);
 
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
@@ -241,19 +236,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void drive(SwerveModuleState[] states) {
 		for (int i = 0; i < states.length; i++) {
 			if (!isComp) {
-				states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
-			} else {
-				states[i] = SwerveModuleState.optimize(states[i], getModuleAngles()[i]);
+				states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]); // might work for both bots need to test
 			}
 		}
 
 		// Set motor speeds and angles
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			// meters/100ms * raw sensor units conversion
 			if (isComp) {
-				moduleDriveMotors[i].set(states[i].speedMetersPerSecond / maxDriveSpeedMeters * 12);
+				moduleDriveMotors[i].set(states[i].speedMetersPerSecond / maxDriveSpeedMeters * 12); // set voltage
 			} else {
-				moduleDriveMotors[i].set(states[i].speedMetersPerSecond * driveVelocityCoefficient);
+				moduleDriveMotors[i].set(states[i].speedMetersPerSecond * driveVelocityCoefficient); // set velocity
 			}
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {

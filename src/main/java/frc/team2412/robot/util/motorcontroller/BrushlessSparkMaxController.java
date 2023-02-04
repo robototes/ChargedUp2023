@@ -34,11 +34,6 @@ public class BrushlessSparkMaxController extends MotorController {
 	}
 
 	@Override
-	public void setEncoderInverted(boolean inverted) {
-		// this.motor.getEncoder().setInverted(inverted);
-	}
-
-	@Override
 	public void setPID(double P, double I, double D) {
 		motorPID.setP(P);
 		motorPID.setI(I);
