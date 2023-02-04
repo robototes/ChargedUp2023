@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team2412.robot.commands.arm.ManualArmOverrideCommand;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
+import frc.team2412.robot.commands.intake.IntakeSetInCommand;
+import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
+import frc.team2412.robot.commands.intake.IntakeSetStopCommand;
 
 public class Controls {
 	public static class ControlConstants {
@@ -21,7 +24,11 @@ public class Controls {
 	// Arm
 
 	public final Trigger armManualControl;
-	public final Trigger wristManualControl;
+
+	// intake
+	public final Trigger intakeInButton;
+	public final Trigger intakeOutButton;
+	public final Trigger intakeStopButton;
 
 	private final Subsystems s;
 
@@ -31,10 +38,18 @@ public class Controls {
 		this.s = s;
 
 		armManualControl = codriveController.rightStick();
-		wristManualControl = codriveController.leftStick();
+
+		intakeInButton = driveController.a();
+		intakeOutButton = driveController.y();
+		intakeStopButton = driveController.b();
+
 
 		if (Subsystems.SubsystemConstants.DRIVEBASE_ENABLED) {
 			bindDrivebaseControls();
+		}
+
+		if (Subsystems.SubsystemConstants.INTAKE_ENABLED) {
+			bindIntakeControls();
 		}
 	}
 
@@ -52,9 +67,16 @@ public class Controls {
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 	}
 
+
 	public void bindArmControls() {
 		armManualControl.toggleOnTrue(
 				new ManualArmOverrideCommand(
 						s.armSubsystem, codriveController.getRightY(), codriveController.getLeftY()));
+
+	public void bindIntakeControls() {
+		intakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
+		intakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
+		intakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
+
 	}
 }
