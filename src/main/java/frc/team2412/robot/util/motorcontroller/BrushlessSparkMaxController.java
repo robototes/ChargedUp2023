@@ -50,11 +50,12 @@ public class BrushlessSparkMaxController extends MotorController {
 		if (mode == MotorControlMode.VELOCITY) {
 			setpoint = setpoint * 60; // rps to rpm
 		}
+
 		if (mode == MotorControlMode.VOLTAGE) {
 			this.motor.setVoltage(setpoint);
-			return;
+		} else {
+			motorPID.setReference(setpoint, mode.getREV());
 		}
-		motorPID.setReference(setpoint, mode.getREV());
 	}
 
 	@Override

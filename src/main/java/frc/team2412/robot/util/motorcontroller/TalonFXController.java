@@ -33,11 +33,6 @@ public class TalonFXController extends MotorController {
 	}
 
 	@Override
-	public void setEncoderInverted(boolean inverted) {
-		motor.setSensorPhase(inverted);
-	}
-
-	@Override
 	public void setPID(double P, double I, double D) {
 		motor.config_kP(motorPIDIndex, P);
 		motor.config_kI(motorPIDIndex, I);
@@ -54,7 +49,12 @@ public class TalonFXController extends MotorController {
 		if (mode == MotorControlMode.VELOCITY) {
 			setpoint = setpoint / 10; // seconds to 100ms
 		}
-		motor.set(mode.getCTRE(), setpoint);
+
+		if (mode == MotorControlMode.VOLTAGE) {
+			motor.setVoltage(setpoint);
+		} else {
+			motor.set(mode.getCTRE(), setpoint);
+		}
 	}
 
 	@Override
