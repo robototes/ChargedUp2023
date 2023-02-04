@@ -72,7 +72,7 @@ public class Controls {
 	public void bindArmControls() {
 		armManualControl.toggleOnTrue(
 				new ManualArmOverrideCommand(
-						s.armSubsystem, codriveController.getRightY(), codriveController.getLeftY()));
+						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
 	}
 
 	public void bindIntakeControls() {

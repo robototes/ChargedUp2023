@@ -159,7 +159,6 @@ public class ArmSubsystem extends SubsystemBase {
 
 	// Methods
 
-	/** Stops Arm */
 	public void setArmMotor(double percentOutput) {
 		armMotor.set(MAX_ARM_SPEED * percentOutput);
 	}
