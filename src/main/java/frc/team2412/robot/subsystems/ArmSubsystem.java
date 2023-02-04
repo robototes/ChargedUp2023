@@ -19,6 +19,9 @@ public class ArmSubsystem extends SubsystemBase {
 
 	public static class ArmConstants { // To find values later
 		// Mech problem basically
+
+		public static final double MAX_ARM_SPEED = 0.35;
+		public static final double MAX_WRIST_SPEED = 0.3;
 		public static final double ARM_LENGTH = 0;
 		public static final double VIRTUAL_BAR_LENGTH = 0;
 
@@ -89,13 +92,11 @@ public class ArmSubsystem extends SubsystemBase {
 			HIGH(50, 0, 279.6, 0, 111),
 			SUBSTATION(80, 0, 279.6, 0, 0); // ?
 
-			public static enum wristAngle {}
-
-			public double armAngle;
-			public double retractedWristAngle;
-			public double retractedConeWristAngle;
-			public double prescoringWristAngle;
-			public double scoringWristAngle;
+			public final double armAngle;
+			public final double retractedWristAngle;
+			public final double retractedConeWristAngle;
+			public final double prescoringWristAngle;
+			public final double scoringWristAngle;
 
 			PositionType(
 					double armAngle,
@@ -114,7 +115,8 @@ public class ArmSubsystem extends SubsystemBase {
 
 	// Hardware
 
-	private PositionType currentPosition = LOW;
+	private PositionType currentPosition;
+	private boolean manualOverride;
 
 	private final CANSparkMax armMotor;
 	private final CANSparkMax wristMotor;
@@ -148,6 +150,9 @@ public class ArmSubsystem extends SubsystemBase {
 		armPID.setTolerance(ARM_POS_TOLERANCE, ARM_VELOCITY_TOLERANCE);
 		wristPID.setTolerance(WRIST_POS_TOLERANCE, WRIST_VELOCITY_TOLERANCE);
 
+		currentPosition = LOW;
+		manualOverride = false;
+
 		shoulderEncoder.reset();
 		wristEncoder.reset();
 	}
@@ -155,6 +160,14 @@ public class ArmSubsystem extends SubsystemBase {
 	// Methods
 
 	/** Stops Arm */
+	public void setArmMotor(double percentOutput) {
+		armMotor.set(MAX_ARM_SPEED * percentOutput);
+	}
+
+	public void setWristMotor(double percentOutput) {
+		wristMotor.set(MAX_WRIST_SPEED + percentOutput);
+	}
+
 	public void stopArm() {
 		armMotor.stopMotor();
 	}
@@ -167,12 +180,33 @@ public class ArmSubsystem extends SubsystemBase {
 		currentPosition = position;
 	}
 
+	public void setManualOverride(boolean override) {
+		manualOverride = override;
+	}
+
 	public void setArmGoal(double targetAngle) {
 		armPID.setGoal(targetAngle);
 	}
 
 	public void setWristGoal(double targetAngle) {
 		wristPID.setGoal(targetAngle);
+	}
+
+	public double calculateArmPID() {
+		return armPID.calculate(shoulderEncoder.getDistance(), armPID.getGoal());
+	}
+
+	public double calculateWristPID() {
+		return armPID.calculate(wristEncoder.getDistance(), wristPID.getGoal());
+	}
+
+	public double calculatearmFeedforward() {
+		return armFeedforward.calculate(shoulderEncoder.getDistance(), shoulderEncoder.getRate());
+	}
+
+	public double calculatewristFeedforward() {
+		return wristFeedforward.calculate(
+				wristEncoder.getDistance(), wristEncoder.getRate()); // getRate = getVelocity?
 	}
 
 	public boolean armIsAtGoal() {
@@ -195,30 +229,14 @@ public class ArmSubsystem extends SubsystemBase {
 		return currentPosition;
 	}
 
-	public double calculateArmPID() {
-		return armPID.calculate(shoulderEncoder.getDistance(), armPID.getGoal());
-	}
-
-	public double calculateWristPID() {
-		return armPID.calculate(wristEncoder.getDistance(), wristPID.getGoal());
-	}
-
-	public double calculatearmFeedforward() {
-		return armFeedforward.calculate(shoulderEncoder.getDistance(), shoulderEncoder.getRate());
-	}
-
-	public double calculatewristFeedforward() {
-		return wristFeedforward.calculate(
-				wristEncoder.getDistance(), wristEncoder.getRate()); // getRate = getVelocity?
-	}
-
 	/* TODO:
 	 * FeedForward for Arm and Wrist
 	 */
-
+	@Override
 	public void periodic() {
-
-		armMotor.setVoltage(calculateArmPID() + calculatearmFeedforward());
-		wristMotor.setVoltage(calculateWristPID() + calculatewristFeedforward());
+		if (!manualOverride) {
+			armMotor.setVoltage(calculateArmPID() + calculatearmFeedforward());
+			wristMotor.setVoltage(calculateWristPID() + calculatewristFeedforward());
+		}
 	}
 }

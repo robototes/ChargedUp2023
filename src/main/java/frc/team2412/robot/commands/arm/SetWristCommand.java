@@ -27,6 +27,11 @@ public class SetWristCommand extends CommandBase {
 	public void initialize() {
 
 		switch (wristPosition) {
+			case RETRACT:
+				targetAngle =
+						0; // TODO: get intake gamePiece and decide which retract value to use based off said
+				// piece
+				break;
 			case RETRACT_CUBE:
 				targetAngle = armSubsystem.getPosition().retractedWristAngle;
 				break;
