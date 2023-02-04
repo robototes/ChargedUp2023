@@ -61,6 +61,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
 		latestResult = photonCamera.getLatestResult();
+
 		networkTables.addListener(
 				networkTables
 						.getTable("photonvision")
@@ -108,6 +109,21 @@ public class VisionSubsystem extends SubsystemBase {
 				.transformBy(Hardware.CAM_TO_ROBOT);
 	}
 
+	public static Pose3d getAlternateRobotPoseUsingTarget(PhotonTrackedTarget target) {
+		if (target == null || fieldLayout == null) {
+			return null;
+		}
+		// If target doesn't have fiducial ID, value is -1 (which shouldn't be in the layout)
+		Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
+		if (tagPose.isEmpty()) {
+			return null;
+		}
+		return tagPose
+				.get()
+				.transformBy(target.getAlternateCameraToTarget().inverse())
+				.transformBy(Hardware.CAM_TO_ROBOT);
+	}
+
 	/** Updates the robot pose cache. */
 	private void updatePoseCache() {
 		if (!hasTargets()) {
@@ -115,6 +131,11 @@ public class VisionSubsystem extends SubsystemBase {
 		} else {
 			robotPose = getRobotPoseUsingTarget(latestResult.getBestTarget());
 		}
+		System.out.println(
+				"Best: " + latestResult.getBestTarget().getBestCameraToTarget().getRotation().getX());
+		System.out.println(
+				"Alternate: "
+						+ latestResult.getBestTarget().getAlternateCameraToTarget().getRotation().getX());
 	}
 
 	/**

@@ -328,5 +328,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void periodic() {
 		pose = poseEstimator.update(getGyroRotation2d(), getModulePositions());
 		field.setRobotPose(pose);
+		// Translation: X, Y, Z
+		// Rotation: Pitch (up/down), yaw (left/right), roll (twist)
 	}
 }
