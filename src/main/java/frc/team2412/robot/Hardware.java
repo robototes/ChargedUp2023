@@ -45,8 +45,8 @@ public class Hardware {
 							Units.inchesToMeters(26.0 / 2 - 7),
 							// 30 inches above the ground
 							Units.inchesToMeters(30)),
-					// Camera has a slight yaw, around -0.25 radians following right-hand rule (thumb points
-					// to +Z/up, fingers curl in positive rotation)
+					// Camera has a slight yaw, -12 degrees following right-hand rule (thumb points to +Z/up,
+					// fingers curl in positive rotation)
 					new Rotation3d(0, 0, Math.toRadians(cameraYawDegrees)));
 	public static final Transform3d CAM_TO_ROBOT = ROBOT_TO_CAM.inverse();
 

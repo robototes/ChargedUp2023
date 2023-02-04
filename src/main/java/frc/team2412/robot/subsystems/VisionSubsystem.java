@@ -32,7 +32,7 @@ public class VisionSubsystem extends SubsystemBase {
 	/** Null if no known robot pose, otherwise the last calculated robot pose from vision data. */
 	private Pose3d robotPose = null;
 
-	private double lastTimeStamp = 0;
+	private double lastTimestampSeconds = 0;
 	/*
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
 	 */
@@ -76,8 +76,8 @@ public class VisionSubsystem extends SubsystemBase {
 		latestResult = photonCamera.getLatestResult();
 		updatePoseCache();
 		if (robotPose != null) {
-			lastTimeStamp = latestResult.getTimestampSeconds();
-			poseConsumer.accept(robotPose.toPose2d(), lastTimeStamp);
+			lastTimestampSeconds = latestResult.getTimestampSeconds();
+			poseConsumer.accept(robotPose.toPose2d(), lastTimestampSeconds);
 		}
 	}
 
@@ -149,7 +149,7 @@ public class VisionSubsystem extends SubsystemBase {
 	 *
 	 * @return The time we last saw an AprilTag in seconds since FPGA startup.
 	 */
-	public double getLastTimeStamp() {
-		return lastTimeStamp;
+	public double getLastTimestampSeconds() {
+		return lastTimestampSeconds;
 	}
 }
