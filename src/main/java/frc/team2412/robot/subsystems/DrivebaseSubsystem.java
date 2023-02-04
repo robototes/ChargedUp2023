@@ -140,10 +140,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		gyroscope = isComp ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
 
 		if (isComp) {
-			gyroscope.setInverted(true);
+			gyroscope.setInverted(false);
 		}
 
-		odometry = new SwerveDriveOdometry(kinematics, gyroscope.getYaw(), getModulePositions());
+		odometry = new SwerveDriveOdometry(kinematics, gyroscope.getAngle(), getModulePositions());
 		pose = odometry.getPoseMeters();
 
 		balanceController =
@@ -305,7 +305,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * new global forward
 	 */
 	public void resetGyroAngle() {
-		resetGyroAngle(gyroscope.getYaw());
+		resetGyroAngle(gyroscope.getRawYaw());
 	}
 
 	/**
