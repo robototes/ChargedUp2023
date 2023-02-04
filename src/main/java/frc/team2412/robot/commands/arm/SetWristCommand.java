@@ -6,49 +6,49 @@ import frc.team2412.robot.subsystems.ArmSubsystem;
 public class SetWristCommand extends CommandBase {
 
 	private ArmSubsystem armSubsystem;
-	private double targetAngle;
-	private WristPosition wristPosition;
+	private double targetWristAngle;
+	private WristPosition targetWristPosition;
 
 	public static enum WristPosition {
-		RETRACT,
-		RETRACT_CUBE,
-		RETRACT_CONE,
-		PRESCORE,
-		SCORE;
+		WRIST_RETRACT,
+		WRIST_RETRACT_CUBE,
+		WRIST_RETRACT_CONE,
+		WRIST_PRESCORE,
+		WRIST_SCORE;
 	}
 
-	public SetWristCommand(ArmSubsystem armSubsystem, WristPosition wristPosition) {
+	public SetWristCommand(ArmSubsystem armSubsystem, WristPosition targetWristPosition) {
 		this.armSubsystem = armSubsystem;
-		this.wristPosition = wristPosition;
+		this.targetWristPosition = targetWristPosition;
+
+		switch (targetWristPosition) {
+			case WRIST_RETRACT:
+				targetWristAngle =
+						0; // TODO: get intake gamePiece and decide which retract value to use based off said
+				// piece
+				break;
+			case WRIST_RETRACT_CUBE:
+				targetWristAngle = armSubsystem.getPosition().retractedWristAngle;
+				break;
+			case WRIST_RETRACT_CONE:
+				targetWristAngle = armSubsystem.getPosition().retractedConeWristAngle;
+				break;
+
+			case WRIST_PRESCORE:
+				targetWristAngle = armSubsystem.getPosition().prescoringWristAngle;
+				break;
+
+			case WRIST_SCORE:
+				targetWristAngle = armSubsystem.getPosition().scoringWristAngle;
+				break;
+		}
+
 		addRequirements(armSubsystem);
 	}
 
 	@Override
 	public void initialize() {
-
-		switch (wristPosition) {
-			case RETRACT:
-				targetAngle =
-						0; // TODO: get intake gamePiece and decide which retract value to use based off said
-				// piece
-				break;
-			case RETRACT_CUBE:
-				targetAngle = armSubsystem.getPosition().retractedWristAngle;
-				break;
-			case RETRACT_CONE:
-				targetAngle = armSubsystem.getPosition().retractedConeWristAngle;
-				break;
-
-			case PRESCORE:
-				targetAngle = armSubsystem.getPosition().prescoringWristAngle;
-				break;
-
-			case SCORE:
-				targetAngle = armSubsystem.getPosition().scoringWristAngle;
-				break;
-		}
-
-		armSubsystem.setWristGoal(targetAngle);
+		armSubsystem.setWristGoal(targetWristAngle);
 	}
 
 	@Override
