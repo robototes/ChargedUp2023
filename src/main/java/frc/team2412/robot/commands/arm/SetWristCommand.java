@@ -7,7 +7,6 @@ public class SetWristCommand extends CommandBase {
 
 	private ArmSubsystem armSubsystem;
 	private double targetWristAngle;
-	private WristPosition targetWristPosition;
 
 	public static enum WristPosition {
 		WRIST_RETRACT,
@@ -19,7 +18,6 @@ public class SetWristCommand extends CommandBase {
 
 	public SetWristCommand(ArmSubsystem armSubsystem, WristPosition targetWristPosition) {
 		this.armSubsystem = armSubsystem;
-		this.targetWristPosition = targetWristPosition;
 
 		switch (targetWristPosition) {
 			case WRIST_RETRACT:

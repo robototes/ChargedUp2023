@@ -191,13 +191,14 @@ public class ArmSubsystem extends SubsystemBase {
 		return armPID.calculate(wristEncoder.getDistance(), wristPID.getGoal());
 	}
 
-	public double calculatearmFeedforward() {
+	public double calculateArmFeedforward() {
 		return armFeedforward.calculate(shoulderEncoder.getDistance(), shoulderEncoder.getRate());
 	}
 
-	public double calculatewristFeedforward() {
+	public double calculateWristFeedforward() {
 		return wristFeedforward.calculate(
-				wristEncoder.getDistance(), wristEncoder.getRate()); // getRate = getVelocity?
+				shoulderEncoder.getDistance() + wristEncoder.getDistance(),
+				wristEncoder.getRate()); // getRate = getVelocity?
 	}
 
 	public boolean armIsAtGoal() {
@@ -226,8 +227,13 @@ public class ArmSubsystem extends SubsystemBase {
 	@Override
 	public void periodic() {
 		if (!manualOverride) {
-			armMotor.setVoltage(calculateArmPID() + calculatearmFeedforward());
-			wristMotor.setVoltage(calculateWristPID() + calculatewristFeedforward());
+			// for preset angle mode
+			armMotor.setVoltage(calculateArmPID() + calculateArmFeedforward());
+			wristMotor.setVoltage(calculateWristPID() + calculateWristFeedforward());
+		} else {
+			// for manual mode
+			armMotor.setVoltage(calculateWristFeedforward());
+			wristMotor.setVoltage(calculateArmFeedforward());
 		}
 	}
 }
