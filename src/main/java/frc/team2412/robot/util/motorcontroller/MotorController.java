@@ -9,13 +9,13 @@ public abstract class MotorController {
 	public enum MotorNeutralMode {
 		COAST(NeutralMode.Coast, IdleMode.kCoast),
 		BRAKE(NeutralMode.Brake, IdleMode.kBrake);
-		
+
 		private final NeutralMode ctre;
 		private final IdleMode rev;
-		
+
 		MotorNeutralMode(NeutralMode ctre, IdleMode rev) {
-		    this.ctre = ctre;
-		    this.rev = rev;
+			this.ctre = ctre;
+			this.rev = rev;
 		}
 
 		public NeutralMode getCTRE() {
