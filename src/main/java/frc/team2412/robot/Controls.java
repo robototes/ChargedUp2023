@@ -50,6 +50,9 @@ public class Controls {
 		if (Subsystems.SubsystemConstants.INTAKE_ENABLED) {
 			bindIntakeControls();
 		}
+		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
+			bindArmControls();
+		}
 	}
 
 	public void bindDrivebaseControls() {
