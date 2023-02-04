@@ -25,9 +25,7 @@ public abstract class Gyroscope {
 	}
 
 	public Rotation2d getAngle() {
-		return inverted
-				? getRawYaw().plus(adjustmentAngle).unaryMinus()
-				: getRawYaw().plus(adjustmentAngle);
+		return inverted ? getRawYaw().minus(adjustmentAngle) : getRawYaw().plus(adjustmentAngle);
 	}
 
 	public void setAngleAdjustment(Rotation2d angleAdjustment) {

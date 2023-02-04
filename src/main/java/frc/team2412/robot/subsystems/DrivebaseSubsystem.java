@@ -139,6 +139,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public DrivebaseSubsystem() {
 		gyroscope = isComp ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
 
+		if (isComp) {
+			gyroscope.setInverted(true);
+		}
+
 		odometry = new SwerveDriveOdometry(kinematics, gyroscope.getYaw(), getModulePositions());
 		pose = odometry.getPoseMeters();
 
@@ -163,11 +167,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			driveMotor.setNeutralMode(MotorController.MotorNeutralMode.BRAKE);
 			driveMotor.setEncoderInverted(true);
 
-			// driveMotor.setNominalVoltage(12.0);
-
-			// driveMotor.setPID(0.1, 0.001, 1023.0 / 20660.0);
-			// driveMotor.setPID(0.0005, 0, 0.005);
-			driveMotor.setControlMode(MotorControlMode.VOLTAGE);
+			if (isComp) {
+				driveMotor.setControlMode(MotorControlMode.VOLTAGE);
+			} else {
+				driveMotor.setControlMode(MotorControlMode.VELOCITY);
+				driveMotor.setPID(0.1, 0.001, 1023.0 / 20660.0);
+			}
 		}
 
 		// configure angle motors
@@ -237,15 +242,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		for (int i = 0; i < states.length; i++) {
 			if (!isComp) {
 				states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
+			} else {
+				states[i] = SwerveModuleState.optimize(states[i], getModuleAngles()[i]);
 			}
 		}
 
 		// Set motor speeds and angles
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			// meters/100ms * raw sensor units conversion
-			moduleDriveMotors[i].set(states[i].speedMetersPerSecond / maxDriveSpeedMeters * 12);
-			if (i == 0) {
-				System.out.println(states[0].speedMetersPerSecond / maxDriveSpeedMeters * 12);
+			if (isComp) {
+				moduleDriveMotors[i].set(states[i].speedMetersPerSecond / maxDriveSpeedMeters * 12);
+			} else {
+				moduleDriveMotors[i].set(states[i].speedMetersPerSecond * driveVelocityCoefficient);
 			}
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
