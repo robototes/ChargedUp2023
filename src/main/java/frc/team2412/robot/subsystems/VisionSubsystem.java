@@ -4,6 +4,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -11,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import io.github.oblarg.oblog.annotations.Log;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.function.BiConsumer;
 
@@ -22,6 +24,8 @@ public class VisionSubsystem extends SubsystemBase {
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
 	 */
 	private static final AprilTagFieldLayout fieldLayout;
+
+	private DoubleArraySubscriber targetPose;
 
 	private static final NetworkTableEntry targetPoseEntry =
 			NetworkTableInstance.getDefault().getTable("limelight").getEntry("targetpose_robotspace");
@@ -45,6 +49,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 	public VisionSubsystem(BiConsumer<Pose2d, Double> poseConsumer) {
 		this.poseConsumer = poseConsumer;
+		var networkTables = NetworkTableInstance.getDefault();
 
 		// // Connect to photonvision server
 		// // Only in sim because normally photonvision connects to robot
@@ -53,13 +58,18 @@ public class VisionSubsystem extends SubsystemBase {
 		// 	networkTables.startClient4("localhost");
 		// }
 
-		NetworkTableInstance.getDefault()
-				.addListener(
-						targetPoseEntry, EnumSet.of(NetworkTableEvent.Kind.kValueAll), this::updateEvent);
+		this.targetPose = networkTables.getTable("limelight").getDoubleArrayTopic("targetpose_robotspace").subscribe(new double[] {});
+		//networkTables.addListener(
+		//		targetPoseEntry, EnumSet.of(NetworkTableEvent.Kind.kValueAll), this::updateEvent);
 	}
 
-	public void updateEvent(NetworkTableEvent event) {
-		System.out.println(targetPoseEntry.getString("augh"));
+	//public void updateEvent(NetworkTableEvent event) {
+	@Override
+	public void periodic() {
+		double[] pose = targetPose.get();
+		System.out.print("Pose: ");
+		System.out.print(Arrays.toString(pose));
+		System.out.println();
 	}
 
 	@Log
