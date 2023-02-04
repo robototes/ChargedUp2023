@@ -3,7 +3,6 @@ package frc.team2412.robot;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -92,11 +91,6 @@ public class Robot extends TimedRobot {
 				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
 
 		PathPlannerServer.startServer(5811);
-
-		NetworkTableInstance networkTables = NetworkTableInstance.getDefault();
-		//		networkTables.stopServer();
-		//		networkTables.setServer("localhost");
-		//		networkTables.startClient4("myRobot");
 
 		autoBuilder =
 				new SwerveAutoBuilder(

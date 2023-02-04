@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import io.github.oblarg.oblog.annotations.Log;
@@ -32,7 +31,8 @@ public class VisionSubsystem extends SubsystemBase {
 	private BiConsumer<Pose2d, Double> poseConsumer;
 	/** Null if no known robot pose, otherwise the last calculated robot pose from vision data. */
 	private Pose3d robotPose = null;
-	private double lastTimeStamp=0;
+
+	private double lastTimeStamp = 0;
 	/*
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
 	 */
@@ -59,14 +59,6 @@ public class VisionSubsystem extends SubsystemBase {
 		this.poseConsumer = poseConsumer;
 
 		var networkTables = NetworkTableInstance.getDefault();
-
-		// Connect to photonvision server
-		// Only in sim because normally photonvision connects to robot
-		if (RobotBase.isSimulation()) {
-			//			networkTables.stopServer();
-			//			networkTables.startClient4("localhost");
-
-		}
 
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
 		latestResult = photonCamera.getLatestResult();
@@ -141,11 +133,6 @@ public class VisionSubsystem extends SubsystemBase {
 		} else {
 			robotPose = getRobotPoseUsingTarget(latestResult.getBestTarget());
 		}
-		System.out.println(
-				"Best: " + latestResult.getBestTarget().getBestCameraToTarget().getRotation().getX());
-		System.out.println(
-				"Alternate: "
-						+ latestResult.getBestTarget().getAlternateCameraToTarget().getRotation().getX());
 	}
 
 	/**
@@ -157,8 +144,12 @@ public class VisionSubsystem extends SubsystemBase {
 		return robotPose;
 	}
 
-	//returns the last time we saw an aprilTag
-	public double getLastTimeStamp(){
+	/**
+	 * Returns the last time we saw an AprilTag.
+	 *
+	 * @return The time we last saw an AprilTag in seconds since FPGA startup.
+	 */
+	public double getLastTimeStamp() {
 		return lastTimeStamp;
 	}
 }
