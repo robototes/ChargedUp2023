@@ -10,7 +10,7 @@ public class Subsystems {
 	public static class SubsystemConstants {
 		public static final boolean DRIVEBASE_ENABLED = true;
 		public static final boolean ARM_ENABLED = false;
-		public static final boolean INTAKE_ENABLED = true;
+		public static final boolean INTAKE_ENABLED = false;
 	}
 
 	public DrivebaseSubsystem drivebaseSubsystem;
