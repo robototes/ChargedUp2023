@@ -7,11 +7,13 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionTy
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.team2412.robot.Robot;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -20,8 +22,6 @@ public class ArmSubsystem extends SubsystemBase {
 	public static class ArmConstants { // To find values later
 		// Mech problem basically
 
-		public static final double MAX_ARM_SPEED = 0.35;
-		public static final double MAX_WRIST_SPEED = 0.3;
 		public static final double ARM_LENGTH = 0;
 		public static final double VIRTUAL_BAR_LENGTH = 0;
 
@@ -44,6 +44,12 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double WRIST_K_V = 0;
 
 		// Constraints
+		public static final int MIN_PERCENT_OUTPUT = -1;
+		public static final int MAX_PERCENT_OUTPUT = 1;
+
+		public static final double MAX_ARM_VELOCITY = 0.35;
+		public static final double MAX_WRIST_VELOCITY = 0.3;
+
 		public static final double ARM_POS_TOLERANCE = 0.01;
 		public static final double WRIST_POS_TOLERANCE = 0.01;
 
@@ -61,36 +67,32 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final Constraints WRIST_CONSTRAINTS =
 				new Constraints(MAX_WRIST_ACCELERATION, MAX_WRIST_VELOCITY);
 
-		// Arm Positions
+		public static final double TICKS_TO_INCHES = 42 / 360; // Maybe unneeded?
 
-		// TODO: maybe?
-		// Apparently, we wanted the node position to be in ticks.
-		// We need an inches to ticks converter.
-		public static final double HIGH_NODE_CUBE_POS = 0;
-		public static final double HIGH_NODE_CONE_POS = 0;
-		public static final double MIDDLE_NODE_CUBE_POS = 0;
-		public static final double MIDDLE_NODE_CONE_POS = 0;
-		public static final double GRAB_LOW_POS = 0;
-		public static final double RETRACT_POS = 0;
-		public static final double SUBSTATION_POS = 0;
-
-		public static final double TICKS_TO_INCHES = 42 / 360; // Maybe wrong?
-
+		// TODO: find limits
 		public static final double MIN_ARM_ANGLE = 56.9;
-		public static final double MAX_ARM_ANGLE = 170; // to find values later
-		public static final double WRIST_ANGLE_LIMIT = 20; // to find values later
+		public static final double MAX_ARM_ANGLE = 170;
+		public static final double MIN_WRIST_ANGLE = 20;
+		public static final double MAX_WRIST_ANGLE = 100;
 
 		// ENUM :(
 
 		/*
 		 * TODO:
 		 * Find arm and wrist angles (see onenote page)
+		 *
+		 * Values are angles that correspond to specific arm positions:
+		 * Arm Angle
+		 * Retracted Wrist Angle
+		 * Retracted Wrist Angle (cone edition)
+		 * Prescore Wrist Angle
+		 * Scoring Wrist Angle
 		 */
 		public static enum PositionType {
-			LOW(0, 0, 279.6, 0, 0),
-			MIDDLE(87.42, 0, 279.6, 0, 80.27),
-			HIGH(50, 0, 279.6, 0, 111),
-			SUBSTATION(80, 0, 279.6, 0, 0); // ?
+			ARM_LOW_POSITION(0, 0, 279.6, 0, 0),
+			ARM_MIDDLE_POSITION(87.42, 0, 279.6, 0, 80.27),
+			ARM_HIGH_POSITION(50, 0, 279.6, 0, 111),
+			ARM_SUBSTATION_POSITION(80, 0, 279.6, 0, 0); // ?
 
 			public final double armAngle;
 			public final double retractedWristAngle;
@@ -150,7 +152,7 @@ public class ArmSubsystem extends SubsystemBase {
 		armPID.setTolerance(ARM_POS_TOLERANCE, ARM_VELOCITY_TOLERANCE);
 		wristPID.setTolerance(WRIST_POS_TOLERANCE, WRIST_VELOCITY_TOLERANCE);
 
-		currentPosition = LOW;
+		currentPosition = ARM_LOW_POSITION;
 		manualOverride = false;
 
 		shoulderEncoder.reset();
@@ -160,11 +162,13 @@ public class ArmSubsystem extends SubsystemBase {
 	// Methods
 
 	public void setArmMotor(double percentOutput) {
-		armMotor.set(MAX_ARM_SPEED * percentOutput);
+		armMotor.set(
+				MathUtil.clamp(MAX_ARM_SPEED * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT));
 	}
 
 	public void setWristMotor(double percentOutput) {
-		wristMotor.set(MAX_WRIST_SPEED + percentOutput);
+		wristMotor.set(
+				MathUtil.clamp(MAX_WRIST_SPEED + percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT));
 	}
 
 	public void setPosition(PositionType position) {
@@ -176,11 +180,11 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	public void setArmGoal(double targetAngle) {
-		armPID.setGoal(targetAngle);
+		armPID.setGoal(MathUtil.clamp(targetAngle, MIN_ARM_ANGLE, MAX_ARM_ANGLE));
 	}
 
 	public void setWristGoal(double targetAngle) {
-		wristPID.setGoal(targetAngle);
+		wristPID.setGoal(MathUtil.clamp(targetAngle, MIN_WRIST_ANGLE, MAX_WRIST_ANGLE));
 	}
 
 	public double calculateArmPID() {
@@ -221,6 +225,10 @@ public class ArmSubsystem extends SubsystemBase {
 		return currentPosition;
 	}
 
+	public double convertToVolts(double percentOutput) {
+		return percentOutput * Robot.getInstance().getVoltage();
+	}
+
 	/* TODO:
 	 * FeedForward for Arm and Wrist
 	 */
@@ -228,12 +236,22 @@ public class ArmSubsystem extends SubsystemBase {
 	public void periodic() {
 		if (!manualOverride) {
 			// for preset angle mode
-			armMotor.setVoltage(calculateArmPID() + calculateArmFeedforward());
-			wristMotor.setVoltage(calculateWristPID() + calculateWristFeedforward());
+			armMotor.setVoltage(
+					convertToVolts(
+							MathUtil.clamp(
+									calculateArmPID() + calculateArmFeedforward(),
+									MIN_PERCENT_OUTPUT,
+									MAX_PERCENT_OUTPUT)));
+			wristMotor.setVoltage(
+					convertToVolts(
+							MathUtil.clamp(
+									calculateWristPID() + calculateWristFeedforward(),
+									MIN_PERCENT_OUTPUT,
+									MAX_PERCENT_OUTPUT)));
 		} else {
 			// for manual mode
-			armMotor.setVoltage(calculateWristFeedforward());
-			wristMotor.setVoltage(calculateArmFeedforward());
+			armMotor.setVoltage(convertToVolts(calculateWristFeedforward()));
+			wristMotor.setVoltage(convertToVolts(calculateArmFeedforward()));
 		}
 	}
 }

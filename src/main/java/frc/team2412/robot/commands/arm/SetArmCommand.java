@@ -21,6 +21,8 @@ public class SetArmCommand extends CommandBase {
 	public void initialize() {
 		armSubsystem.setPosition(positionType);
 		armSubsystem.setArmGoal(positionType.armAngle);
+		// Prepares wrist to score whenever position changes to save time
+		armSubsystem.setWristGoal(positionType.prescoringWristAngle);
 	}
 
 	@Override
