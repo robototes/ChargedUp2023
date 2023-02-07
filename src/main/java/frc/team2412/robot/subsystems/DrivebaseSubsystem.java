@@ -61,7 +61,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private static final double TIP_P = 0.05;
 	private static final double TIP_TOLERANCE = 5;
 
-	// units: raw sensor units
 	private static final double DRIVE_VELOCITY_COEFFICIENT =
 			(Math.PI * WHEEL_DIAMETER_METERS) * DRIVE_REDUCTION; // meters
 
@@ -175,8 +174,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		// configure angle motors
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
 			MotorController steeringMotor = moduleAngleMotors[i];
-			// steeringMotor.configFactoryDefault();
-			steeringMotor.setNeutralMode(MotorNeutralMode.COAST);
+			steeringMotor.configFactoryDefault();
+			steeringMotor.setNeutralMode(MotorNeutralMode.BRAKE);
 			// Configure PID values
 			if (IS_COMP) {
 				steeringMotor.setPID(0.15, 0, 0);
@@ -192,6 +191,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 			steeringMotor.setIntegratedEncoderPosition(
 					getModuleAngles()[i].getRotations() * STEER_REDUCTION);
+			steeringMotor.configureOptimization();
 
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
@@ -279,8 +279,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			positions[i] =
 					new SwerveModulePosition(
-							moduleDriveMotors[i].getIntegratedEncoderPosition()
-									* (1 / DRIVE_VELOCITY_COEFFICIENT),
+							moduleDriveMotors[i].getIntegratedEncoderPosition() / DRIVE_VELOCITY_COEFFICIENT,
 							Rotation2d.fromRotations(
 									moduleAngleMotors[i].getIntegratedEncoderPosition() / STEER_REDUCTION));
 		}
@@ -357,7 +356,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void simInit(PhysicsSim sim) {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			// TODO: make work
 			// sim.addTalonFX(moduleDriveMotors[i], 2, 20000, true);
 			// sim.addTalonFX(moduleAngleMotors[i], 2, 20000);
 		}
