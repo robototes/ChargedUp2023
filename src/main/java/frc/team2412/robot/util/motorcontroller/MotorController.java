@@ -59,12 +59,16 @@ public abstract class MotorController {
 
 	public abstract void setPID(double P, double I, double D);
 
+	/** Units: rotations for position or velocity, voltage for voltage, percent for percent */
 	public abstract void set(double setpoint);
 
+	/** Units: rotations for position or velocity, voltage for voltage, percent for percent */
 	public abstract void set(double setpoint, MotorControlMode mode);
 
+	/** Units: rotations */
 	public abstract void setIntegratedEncoderPosition(double position);
 
+	/** Units: rotations */
 	public abstract double getIntegratedEncoderPosition();
 
 	public abstract void setControlMode(MotorControlMode mode);
@@ -74,4 +78,6 @@ public abstract class MotorController {
 	public abstract void setInverted(boolean inverted);
 
 	public abstract void setNominalVoltage(double voltage);
+
+	public abstract void configureOptimization();
 }

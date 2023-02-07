@@ -4,8 +4,11 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.MotorFeedbackSensor;
 import com.revrobotics.SparkMaxPIDController;
+import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 
 public class BrushlessSparkMaxController extends MotorController {
+	private static final double TICKS_PER_ROTATION = 42.0;
+
 	private final CANSparkMax motor;
 	private final SparkMaxPIDController motorPID;
 
@@ -15,9 +18,6 @@ public class BrushlessSparkMaxController extends MotorController {
 		this.motor = new CANSparkMax(id, MotorType.kBrushless);
 		this.motorPID = motor.getPIDController();
 		this.mode = mode;
-		motorPID.setPositionPIDWrappingEnabled(true);
-		motorPID.setPositionPIDWrappingMaxInput(150 / 7);
-		motorPID.setPositionPIDWrappingMinInput(0);
 
 		useIntegratedEncoder();
 	}
@@ -93,5 +93,12 @@ public class BrushlessSparkMaxController extends MotorController {
 	@Override
 	public void setNominalVoltage(double voltage) {
 		motor.enableVoltageCompensation(voltage);
+	}
+
+	@Override
+	public void configureOptimization() {
+		motorPID.setPositionPIDWrappingEnabled(true);
+		motorPID.setPositionPIDWrappingMaxInput(DrivebaseSubsystem.STEER_REDUCTION);
+		motorPID.setPositionPIDWrappingMinInput(0);
 	}
 }

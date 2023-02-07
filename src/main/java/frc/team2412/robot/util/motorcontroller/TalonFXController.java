@@ -6,6 +6,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import frc.team2412.robot.Hardware;
 
 public class TalonFXController extends MotorController {
+	private static final double TICKS_PER_ROTATION = 2048.0;
+
 	private final WPI_TalonFX motor;
 	private final int motorPIDIndex = 0;
 
@@ -46,6 +48,11 @@ public class TalonFXController extends MotorController {
 
 	@Override
 	public void set(double setpoint, MotorControlMode mode) {
+		// convert to ticks from rotations or meters
+		if (mode == MotorControlMode.POSITION || mode == MotorControlMode.VELOCITY) {
+			setpoint = setpoint * TICKS_PER_ROTATION;
+		}
+
 		if (mode == MotorControlMode.VELOCITY) {
 			setpoint = setpoint / 10; // seconds to 100ms
 		}
@@ -59,12 +66,14 @@ public class TalonFXController extends MotorController {
 
 	@Override
 	public void setIntegratedEncoderPosition(double position) {
-		motor.setSelectedSensorPosition(position);
+		// convert from rotations to ticks
+		motor.setSelectedSensorPosition(position * TICKS_PER_ROTATION);
 	}
 
 	@Override
 	public double getIntegratedEncoderPosition() {
-		return motor.getSelectedSensorPosition();
+		// convert from ticks to rotations
+		return motor.getSelectedSensorPosition() / TICKS_PER_ROTATION;
 	}
 
 	@Override
@@ -85,5 +94,10 @@ public class TalonFXController extends MotorController {
 	public void setNominalVoltage(double voltage) {
 		motor.enableVoltageCompensation(true);
 		motor.configVoltageCompSaturation(voltage);
+	}
+
+	@Override
+	public void configureOptimization() {
+		// nothing to do here for CTRE
 	}
 }

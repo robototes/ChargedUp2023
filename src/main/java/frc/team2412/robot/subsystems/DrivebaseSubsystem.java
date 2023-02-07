@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.Robot;
 import frc.team2412.robot.sim.PhysicsSim;
+import frc.team2412.robot.util.ModuleUtil;
 import frc.team2412.robot.util.PFFController;
 import frc.team2412.robot.util.gyroscope.Gyroscope;
 import frc.team2412.robot.util.gyroscope.NavXGyro;
@@ -30,7 +31,7 @@ import frc.team2412.robot.util.motorcontroller.TalonFXController;
 
 public class DrivebaseSubsystem extends SubsystemBase {
 
-	private final boolean IS_COMP = Robot.getInstance().isCompetition();
+	private static final boolean IS_COMP = Robot.getInstance().isCompetition();
 
 	// ordered from front left, front right, back left, back right
 	private static final Rotation2d[] PRACTICE_DRIVEBASE_ENCODER_OFFSETS = {
@@ -46,25 +47,23 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		Rotation2d.fromDegrees(-332.841)
 	};
 
-	public final double MAX_DRIVE_SPEED_METERS = 4.4196;
-	public final Rotation2d MAX_ROTATION_SPEED = Rotation2d.fromRotations(2.2378);
+	public static final double MAX_DRIVE_SPEED_METERS_PER_SEC = 4.4196;
+	public static final Rotation2d MAX_ROTATION_SPEED_PER_SEC = Rotation2d.fromRotations(2.2378);
 
-	private final double TICKS_PER_ROTATION = IS_COMP ? 1.0 : 2048.0;
-	private final double WHEEL_DIAMETER_METERS = 0.0889;
-	private final double DRIVE_REDUCTION = IS_COMP ? 6.75 : 8.14;
-	private final double STEER_REDUCTION = IS_COMP ? 150 / 7 : (32.0 / 15.0) * (60.0 / 10.0);
+	private static final double WHEEL_DIAMETER_METERS = 0.0889;
+	private static final double DRIVE_REDUCTION = IS_COMP ? 6.75 : 8.14;
+	// steer reduction is the conversion from rotations of motor to rotations of the wheel
+	// module rotation * STEER_REDUCTION = motor rotation
+	public static final double STEER_REDUCTION =
+			IS_COMP ? 150.0 / 7.0 : (32.0 / 15.0) * (60.0 / 10.0);
 
-	private final double TIP_F = 0.01;
-	private final double TIP_P = 0.05;
-	private final double TIP_TOLERANCE = 5;
+	private static final double TIP_F = 0.01;
+	private static final double TIP_P = 0.05;
+	private static final double TIP_TOLERANCE = 5;
 
 	// units: raw sensor units
-	private final double STEER_POSITION_COEFFICIENT =
-			(TICKS_PER_ROTATION / (2 * Math.PI)) * STEER_REDUCTION; // radians
-	// per
-	// tick
-	private final double DRIVE_VELOCITY_COEFFICIENT =
-			(TICKS_PER_ROTATION / (Math.PI * WHEEL_DIAMETER_METERS)) * DRIVE_REDUCTION; // ticks per meter
+	private static final double DRIVE_VELOCITY_COEFFICIENT =
+			(Math.PI * WHEEL_DIAMETER_METERS) * DRIVE_REDUCTION; // meters
 
 	// Balance controller is in degrees
 	private final PFFController<Double> balanceController;
@@ -145,10 +144,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		poseEstimator =
 				new SwerveDrivePoseEstimator(
-						kinematics,
-						gyroscope.getRawYaw(),
-						getModulePositions(),
-						new Pose2d());
+						kinematics, gyroscope.getRawYaw(), getModulePositions(), new Pose2d());
 		pose = poseEstimator.getEstimatedPosition();
 
 		balanceController =
@@ -179,7 +175,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		// configure angle motors
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
 			MotorController steeringMotor = moduleAngleMotors[i];
-			steeringMotor.configFactoryDefault();
+			// steeringMotor.configFactoryDefault();
 			steeringMotor.setNeutralMode(MotorNeutralMode.COAST);
 			// Configure PID values
 			if (IS_COMP) {
@@ -195,7 +191,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			}
 
 			steeringMotor.setIntegratedEncoderPosition(
-					getModuleAngles()[i].getRadians() * STEER_POSITION_COEFFICIENT);
+					getModuleAngles()[i].getRotations() * STEER_REDUCTION);
 
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
@@ -243,23 +239,29 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	/** Drives the robot using states */
 	public void drive(SwerveModuleState[] states) {
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_DRIVE_SPEED_METERS_PER_SEC);
+
 		for (int i = 0; i < states.length; i++) {
-			// states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
-			states[i] = SwerveModuleState.optimize(states[i], getModuleAngles()[i]);
+			if (IS_COMP) {
+				states[i] = SwerveModuleState.optimize(states[i], getModuleAngles()[i]);
+			} else {
+				// this optimize assumes that PID loop is not continuous
+				states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
+			}
 		}
 
 		// Set motor speeds and angles
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			if (IS_COMP) {
 				moduleDriveMotors[i].set(
-						states[i].speedMetersPerSecond / MAX_DRIVE_SPEED_METERS * 12); // set voltage
+						states[i].speedMetersPerSecond / MAX_DRIVE_SPEED_METERS_PER_SEC * 12); // set voltage
 			} else {
 				moduleDriveMotors[i].set(
 						states[i].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT); // set velocity
 			}
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
-			moduleAngleMotors[i].set(states[i].angle.getRadians() * STEER_POSITION_COEFFICIENT);
+			moduleAngleMotors[i].set(states[i].angle.getRotations() * STEER_REDUCTION);
 		}
 	}
 
@@ -279,9 +281,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 					new SwerveModulePosition(
 							moduleDriveMotors[i].getIntegratedEncoderPosition()
 									* (1 / DRIVE_VELOCITY_COEFFICIENT),
-							Rotation2d.fromRadians(
-									moduleAngleMotors[i].getIntegratedEncoderPosition()
-											* (1 / STEER_POSITION_COEFFICIENT)));
+							Rotation2d.fromRotations(
+									moduleAngleMotors[i].getIntegratedEncoderPosition() / STEER_REDUCTION));
 		}
 
 		return positions;
