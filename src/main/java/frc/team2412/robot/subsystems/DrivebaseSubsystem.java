@@ -6,12 +6,12 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
@@ -95,7 +95,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private AHRS gyroscope;
 
-	private SwerveDriveOdometry odometry;
+	private SwerveDrivePoseEstimator poseEstimator;
 	private Pose2d pose;
 
 	private Field2d field = new Field2d();
@@ -103,10 +103,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public DrivebaseSubsystem() {
 		gyroscope = new AHRS(SerialPort.Port.kMXP);
 
-		odometry =
-				new SwerveDriveOdometry(
-						kinematics, Rotation2d.fromDegrees(gyroscope.getYaw()), getModulePositions());
-		pose = odometry.getPoseMeters();
+		poseEstimator =
+				new SwerveDrivePoseEstimator(
+						kinematics,
+						Rotation2d.fromDegrees(gyroscope.getYaw()),
+						getModulePositions(),
+						new Pose2d());
+		pose = poseEstimator.getEstimatedPosition();
 
 		balanceController =
 				PFFController.ofDouble(tipF, tipP)
@@ -291,8 +294,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * @param pose the new pose
 	 */
 	public void resetPose(Pose2d pose) {
-		odometry.resetPosition(pose.getRotation(), getModulePositions(), pose);
+		poseEstimator.resetPosition(pose.getRotation(), getModulePositions(), pose);
 		this.pose = pose;
+	}
+
+	/**
+	 * Adds a vision measurement of the robot's pose.
+	 *
+	 * @param robotPoseMeters The robot pose in meters.
+	 * @param timestampSeconds Timestamp in seconds since FPGA startup.
+	 */
+	public void addVisionMeasurement(Pose2d robotPoseMeters, double timestampSeconds) {
+		poseEstimator.addVisionMeasurement(robotPoseMeters, timestampSeconds);
 	}
 
 	/**
@@ -313,7 +326,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		pose = odometry.update(getGyroRotation2d(), getModulePositions());
+		pose = poseEstimator.update(getGyroRotation2d(), getModulePositions());
 		field.setRobotPose(pose);
 	}
 }
