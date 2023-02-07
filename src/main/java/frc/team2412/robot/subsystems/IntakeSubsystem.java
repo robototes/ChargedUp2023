@@ -6,6 +6,7 @@ import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.*;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -42,10 +43,11 @@ public class IntakeSubsystem extends SubsystemBase {
 		// public final nothing;
 
 	}
+	// HARDWARE
 
 	private final CANSparkMax motor;
 	// private final ColorSensorV3 colorSensor;
-	// private final distanceSensorIDK distanceSensor;
+	private final AnalogInput distanceSensor;
 
 	// CONSTRUCTOR
 	public IntakeSubsystem() {
@@ -53,6 +55,7 @@ public class IntakeSubsystem extends SubsystemBase {
 		// colorSensor = new ColorSensorV3(Port.kOnboard); //to find I2C port
 		// distanceSensor = new ();
 		motor.setIdleMode(IdleMode.kBrake);
+		distanceSensor = new AnalogInput(INTAKE_DISTANCE_SENSOR);
 	}
 
 	// METHODS
@@ -92,4 +95,8 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	public void rumble() {}
+
+	public double getDistance() {
+		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045) * 27.726;
+	}
 }
