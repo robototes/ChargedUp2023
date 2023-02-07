@@ -2,7 +2,6 @@ package frc.team2412.robot.subsystems;
 
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
-import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -144,12 +143,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public DrivebaseSubsystem() {
 		gyroscope = IS_COMP ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
 
-		odometry = new SwerveDriveOdometry(kinematics, gyroscope.getAngle(), getModulePositions());
-		pose = odometry.getPoseMeters();
 		poseEstimator =
 				new SwerveDrivePoseEstimator(
 						kinematics,
-						Rotation2d.fromDegrees(gyroscope.getYaw()),
+						gyroscope.getRawYaw(),
 						getModulePositions(),
 						new Pose2d());
 		pose = poseEstimator.getEstimatedPosition();
@@ -367,7 +364,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		pose = poseEstimator.update(getGyroRotation2d(), getModulePositions());
+		pose = poseEstimator.update(gyroscope.getAngle(), getModulePositions());
 		field.setRobotPose(pose);
 	}
 }
