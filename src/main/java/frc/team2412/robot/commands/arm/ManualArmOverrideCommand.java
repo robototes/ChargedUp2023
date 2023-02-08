@@ -31,7 +31,7 @@ public class ManualArmOverrideCommand extends CommandBase {
 	}
 
 	@Override
-	public void end() {
+	public void end(boolean interrupted) {
 		armSubsystem.setManualOverride(false);
 	}
 

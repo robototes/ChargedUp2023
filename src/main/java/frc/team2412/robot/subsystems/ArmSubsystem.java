@@ -47,9 +47,6 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final int MIN_PERCENT_OUTPUT = -1;
 		public static final int MAX_PERCENT_OUTPUT = 1;
 
-		public static final double MAX_ARM_VELOCITY = 0.35;
-		public static final double MAX_WRIST_VELOCITY = 0.3;
-
 		public static final double ARM_POS_TOLERANCE = 0.01;
 		public static final double WRIST_POS_TOLERANCE = 0.01;
 
@@ -75,7 +72,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double MIN_WRIST_ANGLE = 20;
 		public static final double MAX_WRIST_ANGLE = 100;
 
-		// ENUM :(
+		// ENUM :
 
 		/*
 		 * TODO:
@@ -163,12 +160,12 @@ public class ArmSubsystem extends SubsystemBase {
 
 	public void setArmMotor(double percentOutput) {
 		armMotor.set(
-				MathUtil.clamp(MAX_ARM_SPEED * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT));
+				MathUtil.clamp(MAX_ARM_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT));
 	}
 
 	public void setWristMotor(double percentOutput) {
 		wristMotor.set(
-				MathUtil.clamp(MAX_WRIST_SPEED + percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT));
+				MathUtil.clamp(MAX_WRIST_VELOCITY + percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT));
 	}
 
 	public void setPosition(PositionType position) {
@@ -196,13 +193,12 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	public double calculateArmFeedforward() {
-		return armFeedforward.calculate(shoulderEncoder.getDistance(), shoulderEncoder.getRate());
+		return armFeedforward.calculate(shoulderEncoder.getDistance(), 0);
 	}
 
 	public double calculateWristFeedforward() {
 		return wristFeedforward.calculate(
-				shoulderEncoder.getDistance() + wristEncoder.getDistance(),
-				wristEncoder.getRate()); // getRate = getVelocity?
+				shoulderEncoder.getDistance() + wristEncoder.getDistance(), 0); // getRate = getVelocity?
 	}
 
 	public boolean armIsAtGoal() {
@@ -248,10 +244,6 @@ public class ArmSubsystem extends SubsystemBase {
 									calculateWristPID() + calculateWristFeedforward(),
 									MIN_PERCENT_OUTPUT,
 									MAX_PERCENT_OUTPUT)));
-		} else {
-			// for manual mode
-			armMotor.setVoltage(convertToVolts(calculateWristFeedforward()));
-			wristMotor.setVoltage(convertToVolts(calculateArmFeedforward()));
 		}
 	}
 }
