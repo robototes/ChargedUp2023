@@ -1,6 +1,5 @@
 package frc.team2412.robot.util.motorcontroller;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import frc.team2412.robot.Hardware;
@@ -11,9 +10,9 @@ public class TalonFXController extends MotorController {
 	private final WPI_TalonFX motor;
 	private final int motorPIDIndex = 0;
 
-	private ControlMode mode;
+	private MotorControlMode mode;
 
-	public TalonFXController(int id, ControlMode mode) {
+	public TalonFXController(int id, MotorControlMode mode) {
 		this.motor = new WPI_TalonFX(id);
 		this.mode = mode;
 		motor.configSelectedFeedbackSensor(
@@ -21,7 +20,7 @@ public class TalonFXController extends MotorController {
 	}
 
 	public TalonFXController(int id) {
-		this(id, ControlMode.PercentOutput);
+		this(id, MotorControlMode.PERCENT);
 	}
 
 	@Override
@@ -43,14 +42,14 @@ public class TalonFXController extends MotorController {
 
 	@Override
 	public void set(double setpoint) {
-		motor.set(mode, setpoint);
+		set(setpoint, mode);
 	}
 
 	@Override
 	public void set(double setpoint, MotorControlMode mode) {
-		// convert to ticks from rotations or meters
+		// convert to ticks from rotations
 		if (mode == MotorControlMode.POSITION || mode == MotorControlMode.VELOCITY) {
-			setpoint = setpoint * TICKS_PER_ROTATION;
+			setpoint *= TICKS_PER_ROTATION;
 		}
 
 		if (mode == MotorControlMode.VELOCITY) {
@@ -78,7 +77,7 @@ public class TalonFXController extends MotorController {
 
 	@Override
 	public void setControlMode(MotorControlMode mode) {
-		this.mode = mode.getCTRE();
+		this.mode = mode;
 	}
 
 	// talonfx does not need this but neo does

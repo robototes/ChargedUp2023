@@ -75,7 +75,7 @@ public class DriveCommand extends CommandBase {
 				Rotation2d.fromRotations(
 						rot
 								* rotationSpeedEntry.getDouble(1.0)
-								* DrivebaseSubsystem.MAX_ROTATION_SPEED_PER_SEC
+								* DrivebaseSubsystem.MAX_ROTATIONS_PER_SEC
 										.getRotations()), // convert from percent to rotations per second
 				fieldOrientedEntry.getBoolean(true),
 				false);

@@ -47,10 +47,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		Rotation2d.fromDegrees(-332.841)
 	};
 
-	public static final double MAX_DRIVE_SPEED_METERS_PER_SEC = 4.4196;
-	public static final Rotation2d MAX_ROTATION_SPEED_PER_SEC = Rotation2d.fromRotations(2.2378);
+	// max drive speed is from SDS website and not calculated with robot weight
+	public static final double MAX_DRIVE_SPEED_METERS_PER_SEC = IS_COMP ? 4.4196 : 4.1148;
+	// see how this is calculated here: https://www.desmos.com/calculator/rrglfgzqnh
+	// it's basically just rotations_per_sec = velocity/(2*pi*turning radius)
+	public static final Rotation2d MAX_ROTATIONS_PER_SEC =
+			Rotation2d.fromRotations(IS_COMP ? 1.171 : 2.303);
 
-	private static final double WHEEL_DIAMETER_METERS = 0.0889;
+	// magic number found by trial and error (aka informal characterization)
+	private static final double ODOMETRY_ADJUSTMENT = 0.957;
+	// 4 inches * odemetry adjustment
+	private static final double WHEEL_DIAMETER_METERS = 0.1016 * ODOMETRY_ADJUSTMENT;
 	private static final double DRIVE_REDUCTION = IS_COMP ? 6.75 : 8.14;
 	// steer reduction is the conversion from rotations of motor to rotations of the wheel
 	// module rotation * STEER_REDUCTION = motor rotation
@@ -62,7 +69,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private static final double TIP_TOLERANCE = 5;
 
 	private static final double DRIVE_VELOCITY_COEFFICIENT =
-			(Math.PI * WHEEL_DIAMETER_METERS) * DRIVE_REDUCTION; // meters
+			DRIVE_REDUCTION / (Math.PI * WHEEL_DIAMETER_METERS); // meters to motor rotations
 
 	// Balance controller is in degrees
 	private final PFFController<Double> balanceController;
@@ -140,6 +147,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public DrivebaseSubsystem() {
 		gyroscope = IS_COMP ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
+		if (!IS_COMP) {
+			gyroscope.setInverted(true);
+		}
 
 		poseEstimator =
 				new SwerveDrivePoseEstimator(
@@ -183,12 +193,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 				steeringMotor.setPID(0.15, 0.00, 1.0);
 			}
 
-			steeringMotor.useIntegratedEncoder();
-
 			if (IS_COMP) {
 				steeringMotor.setInverted(true);
 			}
 
+			steeringMotor.useIntegratedEncoder();
 			steeringMotor.setIntegratedEncoderPosition(
 					getModuleAngles()[i].getRotations() * STEER_REDUCTION);
 			steeringMotor.configureOptimization();
