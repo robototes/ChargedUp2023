@@ -147,6 +147,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public DrivebaseSubsystem() {
 		gyroscope = IS_COMP ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
+		// Bonk's gyro has positive as counter-clockwise
 		if (!IS_COMP) {
 			gyroscope.setInverted(true);
 		}

@@ -30,10 +30,8 @@ public abstract class MotorController {
 	public enum MotorControlMode {
 		POSITION(ControlMode.Position, ControlType.kPosition),
 		VELOCITY(ControlMode.Velocity, ControlType.kVelocity),
-		VOLTAGE(
-				null,
-				ControlType.kVoltage), // CTRE does not have a voltage control mode, we just set it with
-		// motor.setVoltage()
+		// CTRE does not have a voltage control mode, we just set it with motor.setVoltage()
+		VOLTAGE(null, ControlType.kVoltage), 
 		PERCENT(ControlMode.PercentOutput, ControlType.kDutyCycle);
 
 		private final ControlMode ctre;
