@@ -17,23 +17,28 @@ public class DriveCommand extends CommandBase {
 	private final DoubleSupplier speedLimiter;
 
 	// shuffleboard
-	private GenericEntry driveSpeedEntry =
+	private static GenericEntry driveSpeedEntry =
 			Shuffleboard.getTab("Drivebase")
 					.addPersistent("Drive Speed", 1)
 					.withSize(2, 1)
 					.withWidget(BuiltInWidgets.kNumberSlider)
-					.withProperties(Map.of("Min", 0, "Max", 5))
+					.withProperties(Map.of("Min", 0, "Max", 1))
 					.getEntry();
-	private GenericEntry rotationSpeedEntry =
+	private static GenericEntry rotationSpeedEntry =
 			Shuffleboard.getTab("Drivebase")
 					.addPersistent("Rotation Speed", 1)
 					.withSize(2, 1)
 					.withWidget(BuiltInWidgets.kNumberSlider)
-					.withProperties(Map.of("Min", 0, "Max", 5))
+					.withProperties(Map.of("Min", 0, "Max", 1))
 					.getEntry();
-	private GenericEntry fieldOrientedEntry =
+	private static GenericEntry fieldOrientedEntry =
 			Shuffleboard.getTab("Drivebase")
 					.addPersistent("Field Oriented", true)
+					.withWidget(BuiltInWidgets.kToggleSwitch)
+					.getEntry();
+	private static GenericEntry cubeSpeed =
+			Shuffleboard.getTab("Drivebase")
+					.add("Cube Speed", true)
 					.withWidget(BuiltInWidgets.kToggleSwitch)
 					.getEntry();
 
@@ -61,9 +66,17 @@ public class DriveCommand extends CommandBase {
 		double y = deadbandCorrection(strafe.getAsDouble());
 		double rot = deadbandCorrection(-rotation.getAsDouble());
 		drivebaseSubsystem.drive(
-				x * driveSpeedModifier,
-				y * driveSpeedModifier,
-				Rotation2d.fromRotations(rot * rotationSpeedEntry.getDouble(1.0)),
+				(cubeSpeed.getBoolean(false) ? Math.pow(x, 3) : x)
+						* driveSpeedModifier
+						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC, // convert from percent to m/s
+				(cubeSpeed.getBoolean(false) ? Math.pow(y, 3) : y)
+						* driveSpeedModifier
+						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC,
+				Rotation2d.fromRotations(
+						rot
+								* rotationSpeedEntry.getDouble(1.0)
+								* DrivebaseSubsystem.MAX_ROTATION_SPEED_PER_SEC
+										.getRotations()), // convert from percent to rotations per second
 				fieldOrientedEntry.getBoolean(true),
 				false);
 	}
