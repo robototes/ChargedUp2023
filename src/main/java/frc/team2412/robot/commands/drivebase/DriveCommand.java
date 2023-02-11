@@ -41,6 +41,12 @@ public class DriveCommand extends CommandBase {
 					.add("Cube Speed", true)
 					.withWidget(BuiltInWidgets.kToggleSwitch)
 					.getEntry();
+	private static GenericEntry triggerModifierEntry =
+			Shuffleboard.getTab("Drivebase")
+					.add("Trigger Modifier", 0.7)
+					.withWidget(BuiltInWidgets.kNumberSlider)
+					.withProperties(Map.of("Min", 0, "Max", 1))
+					.getEntry();
 
 	public DriveCommand(
 			DrivebaseSubsystem drivebaseSubsystem,
@@ -52,6 +58,7 @@ public class DriveCommand extends CommandBase {
 		this.forward = forward;
 		this.strafe = strafe;
 		this.rotation = rotation;
+		// this variable give the right trigger input
 		this.speedLimiter = speedLimiter;
 
 		addRequirements(drivebaseSubsystem);
@@ -60,7 +67,8 @@ public class DriveCommand extends CommandBase {
 	@Override
 	public void execute() {
 		double driveSpeedModifier =
-				driveSpeedEntry.getDouble(1.0) * (1 - (speedLimiter.getAsDouble() * 0.7));
+				driveSpeedEntry.getDouble(1.0)
+						* (1 - (speedLimiter.getAsDouble() * (1 - triggerModifierEntry.getDouble(0.7))));
 
 		double x = deadbandCorrection(-forward.getAsDouble());
 		double y = deadbandCorrection(strafe.getAsDouble());
