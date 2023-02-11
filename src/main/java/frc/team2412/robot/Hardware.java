@@ -56,4 +56,7 @@ public class Hardware {
 	// Intake devices are ports 30-39
 	public static final int INTAKE_MOTOR_1 = 30, INTAKE_MOTOR_2 = 31;
 	public static final int INTAKE_DISTANCE_SENSOR = 6, INTAKE_COLOR_SENSOR = 7;
+
+	// LED strip is PWM port 8
+	public static final int LED_STRIP = 8;
 }
