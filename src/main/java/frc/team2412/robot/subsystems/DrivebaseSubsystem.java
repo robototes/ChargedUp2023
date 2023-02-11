@@ -1,5 +1,7 @@
 package frc.team2412.robot.subsystems;
 
+import java.util.function.BiConsumer;
+
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
