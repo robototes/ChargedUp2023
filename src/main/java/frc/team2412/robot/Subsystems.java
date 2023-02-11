@@ -5,6 +5,7 @@ import static frc.team2412.robot.Subsystems.SubsystemConstants.*;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
@@ -26,12 +27,15 @@ public class Subsystems {
 	public SwerveDrivePoseEstimator poseEstimator;
 
 	public Subsystems() {
+		SwerveModulePosition[] pseudoPositions = new SwerveModulePosition[4];
+		SwerveModulePosition defaultPosition = new SwerveModulePosition(0.0, new Rotation2d());
+		for (int pseudoPosition = 0; pseudoPosition < pseudoPositions.length; pseudoPosition++) {
+			pseudoPositions[pseudoPosition] = defaultPosition;
+		}
+
 		poseEstimator =
 				new SwerveDrivePoseEstimator(
-						DrivebaseSubsystem.kinematics,
-						Rotation2d.fromDegrees(0),
-						DrivebaseSubsystem.getModulePositions(),
-						new Pose2d());
+						DrivebaseSubsystem.kinematics, new Rotation2d(), pseudoPositions, new Pose2d());
 
 		boolean comp = Robot.getInstance().isCompetition();
 

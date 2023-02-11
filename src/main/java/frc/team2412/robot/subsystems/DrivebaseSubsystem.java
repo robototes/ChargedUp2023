@@ -73,7 +73,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	// Balance controller is in degrees
 	private final PFFController<Double> balanceController;
 
-	private static final MotorController[] moduleDriveMotors =
+	private final MotorController[] moduleDriveMotors =
 			IS_COMP
 					? new BrushlessSparkMaxController[] {
 						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
@@ -282,7 +282,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		return kinematics.toSwerveModuleStates(speeds);
 	}
 
-	public static SwerveModulePosition[] getModulePositions() {
+	public SwerveModulePosition[] getModulePositions() {
 		SwerveModulePosition[] positions = new SwerveModulePosition[4];
 
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
