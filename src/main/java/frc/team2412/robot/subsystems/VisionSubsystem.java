@@ -12,10 +12,23 @@ import io.github.oblarg.oblog.annotations.Log;
 import java.util.EnumSet;
 import java.util.function.BiConsumer;
 
+/**
+ * All poses and transforms use the NWU (North-West-Up) coordinate system, where +X is
+ * north/forward, +Y is west/left, and +Z is up. On the field, this is based on the blue driver
+ * station (+X is forward from blue driver station, +Y is left, +Z is up).
+ *
+ * <p>At some point we should discuss how we want to handle the different alliances.
+ */
 public class VisionSubsystem extends SubsystemBase {
 	private BiConsumer<Pose2d, Double> poseConsumer;
 	/** Null if no known robot pose, otherwise the last calculated robot pose from vision data. */
 	private Pose3d robotPose = null;
+
+	private double lastTimestampSeconds = 0;
+	/*
+	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
+	 */
+	private static final AprilTagFieldLayout fieldLayout;
 
 	private DoubleArraySubscriber targetPose;
 
@@ -63,5 +76,14 @@ public class VisionSubsystem extends SubsystemBase {
 	 */
 	public Pose3d getRobotPose() {
 		return robotPose;
+	}
+
+	/**
+	 * Returns the last time we saw an AprilTag.
+	 *
+	 * @return The time we last saw an AprilTag in seconds since FPGA startup.
+	 */
+	public double getLastTimestampSeconds() {
+		return lastTimestampSeconds;
 	}
 }

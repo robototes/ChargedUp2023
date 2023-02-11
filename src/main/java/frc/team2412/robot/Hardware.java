@@ -34,6 +34,7 @@ public class Hardware {
 
 	// Cameras
 	public static final String PHOTON_CAM = "OV5647";
+	public static final double cameraYawDegrees = -12;
 	// Rough measurements, origin is center of robot, +X is forward, +Y is left, +Z is up
 	public static final Transform3d ROBOT_TO_CAM =
 			new Transform3d(
@@ -44,9 +45,9 @@ public class Hardware {
 							Units.inchesToMeters(26.0 / 2 - 7),
 							// 30 inches above the ground
 							Units.inchesToMeters(30)),
-					// Camera has a slight yaw, around -0.25 radians following right-hand rule (thumb points
-					// to +Z/up, fingers curl in positive rotation)
-					new Rotation3d(0, 0, -0.25));
+					// Camera has a slight yaw, -12 degrees following right-hand rule (thumb points to +Z/up,
+					// fingers curl in positive rotation)
+					new Rotation3d(0, 0, Math.toRadians(cameraYawDegrees)));
 	public static final Transform3d CAM_TO_ROBOT = ROBOT_TO_CAM.inverse();
 
 	// Arm devices are from range 20 - 29
