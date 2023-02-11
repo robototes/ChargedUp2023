@@ -2,6 +2,9 @@ package frc.team2412.robot;
 
 import static frc.team2412.robot.Subsystems.SubsystemConstants.*;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
@@ -20,14 +23,23 @@ public class Subsystems {
 	public IntakeSubsystem intakeSubsystem;
 	public VisionSubsystem visionSubsystem;
 
+	public SwerveDrivePoseEstimator poseEstimator;
+
 	public Subsystems() {
+		poseEstimator =
+				new SwerveDrivePoseEstimator(
+						DrivebaseSubsystem.kinematics,
+						Rotation2d.fromDegrees(0),
+						DrivebaseSubsystem.getModulePositions(),
+						new Pose2d());
+
 		boolean comp = Robot.getInstance().isCompetition();
 
 		if (DRIVEBASE_ENABLED) {
-			drivebaseSubsystem = new DrivebaseSubsystem();
-			if (VISION_ENABLED) {
-				visionSubsystem = new VisionSubsystem(drivebaseSubsystem::addVisionMeasurement);
-			}
+			drivebaseSubsystem = new DrivebaseSubsystem(poseEstimator);
+		}
+		if (VISION_ENABLED) {
+			visionSubsystem = new VisionSubsystem(poseEstimator);
 		}
 		if (!comp) {
 			return;

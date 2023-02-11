@@ -2,7 +2,7 @@ package frc.team2412.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -13,7 +13,6 @@ import io.github.oblarg.oblog.annotations.Log;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -28,9 +27,10 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class VisionSubsystem extends SubsystemBase {
 	private PhotonCamera photonCamera;
 	private PhotonPipelineResult latestResult;
-	private BiConsumer<Pose2d, Double> poseConsumer;
 	/** Null if no known robot pose, otherwise the last calculated robot pose from vision data. */
 	private Pose3d robotPose = null;
+
+	private SwerveDrivePoseEstimator poseEstimator;
 
 	private double lastTimestampSeconds = 0;
 	/*
@@ -55,8 +55,8 @@ public class VisionSubsystem extends SubsystemBase {
 		fieldLayout = temp;
 	}
 
-	public VisionSubsystem(BiConsumer<Pose2d, Double> poseConsumer) {
-		this.poseConsumer = poseConsumer;
+	public VisionSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
+		poseEstimator = initialPoseEstimator;
 
 		var networkTables = NetworkTableInstance.getDefault();
 
@@ -77,7 +77,7 @@ public class VisionSubsystem extends SubsystemBase {
 		updatePoseCache();
 		if (robotPose != null) {
 			lastTimestampSeconds = latestResult.getTimestampSeconds();
-			poseConsumer.accept(robotPose.toPose2d(), lastTimestampSeconds);
+			poseEstimator.addVisionMeasurement(robotPose.toPose2d(), lastTimestampSeconds);
 		}
 	}
 

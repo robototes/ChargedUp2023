@@ -73,7 +73,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	// Balance controller is in degrees
 	private final PFFController<Double> balanceController;
 
-	private final MotorController[] moduleDriveMotors =
+	private static final MotorController[] moduleDriveMotors =
 			IS_COMP
 					? new BrushlessSparkMaxController[] {
 						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
@@ -88,7 +88,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						new TalonFXController(Hardware.DRIVEBASE_BACK_RIGHT_DRIVE_MOTOR)
 					};
 
-	private final MotorController[] moduleAngleMotors =
+	private static final MotorController[] moduleAngleMotors =
 			IS_COMP
 					? new BrushlessSparkMaxController[] {
 						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_LEFT_ANGLE_MOTOR),
@@ -114,7 +114,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			IS_COMP ? COMP_DRIVEBASE_ENCODER_OFFSETS : PRACTICE_DRIVEBASE_ENCODER_OFFSETS;
 
 	// 2ft x 2ft for practice bot
-	private final Translation2d[] moduleLocations =
+	private static final Translation2d[] moduleLocations =
 			IS_COMP
 					? new Translation2d[] {
 						new Translation2d(
@@ -133,7 +133,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(-8.5)) // back right
 					};
 
-	SwerveDriveKinematics kinematics =
+	public static final SwerveDriveKinematics kinematics =
 			new SwerveDriveKinematics(
 					moduleLocations[0], moduleLocations[1], moduleLocations[2], moduleLocations[3]);
 
@@ -144,16 +144,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private Field2d field = new Field2d();
 
-	public DrivebaseSubsystem() {
+	public DrivebaseSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
 		gyroscope = IS_COMP ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
 		// Bonk's gyro has positive as counter-clockwise
 		if (!IS_COMP) {
 			gyroscope.setInverted(true);
 		}
 
-		poseEstimator =
-				new SwerveDrivePoseEstimator(
-						kinematics, gyroscope.getRawYaw(), getModulePositions(), new Pose2d());
+		poseEstimator = initialPoseEstimator;
+		poseEstimator.resetPosition(gyroscope.getRawYaw(), getModulePositions(), new Pose2d());
+
 		pose = poseEstimator.getEstimatedPosition();
 
 		balanceController =
@@ -282,7 +282,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		return kinematics.toSwerveModuleStates(speeds);
 	}
 
-	public SwerveModulePosition[] getModulePositions() {
+	public static SwerveModulePosition[] getModulePositions() {
 		SwerveModulePosition[] positions = new SwerveModulePosition[4];
 
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
@@ -342,16 +342,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void resetPose(Pose2d pose) {
 		poseEstimator.resetPosition(pose.getRotation(), getModulePositions(), pose);
 		this.pose = pose;
-	}
-
-	/**
-	 * Adds a vision measurement of the robot's pose.
-	 *
-	 * @param robotPoseMeters The robot pose in meters.
-	 * @param timestampSeconds Timestamp in seconds since FPGA startup.
-	 */
-	public void addVisionMeasurement(Pose2d robotPoseMeters, double timestampSeconds) {
-		poseEstimator.addVisionMeasurement(robotPoseMeters, timestampSeconds);
 	}
 
 	/**
