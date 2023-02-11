@@ -49,10 +49,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	// max drive speed is from SDS website and not calculated with robot weight
 	public static final double MAX_DRIVE_SPEED_METERS_PER_SEC = IS_COMP ? 4.4196 : 4.1148;
-	// see how this is calculated here: https://www.desmos.com/calculator/rrglfgzqnh
-	// it's basically just rotations_per_sec = velocity/(2*pi*turning radius)
+	// this is calculated as rotations_per_sec = velocity/(2*pi*turning radius (diagonal diameter))
 	public static final Rotation2d MAX_ROTATIONS_PER_SEC =
-			Rotation2d.fromRotations(IS_COMP ? 1.171 : 2.303);
+			Rotation2d.fromRotations(IS_COMP ? 0.8574 : 1.0724);
 
 	// magic number found by trial and error (aka informal characterization)
 	private static final double ODOMETRY_ADJUSTMENT = 0.957;
