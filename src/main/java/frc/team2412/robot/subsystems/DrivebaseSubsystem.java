@@ -1,11 +1,7 @@
 package frc.team2412.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
-import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,80 +16,128 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
+import frc.team2412.robot.Robot;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.ModuleUtil;
 import frc.team2412.robot.util.PFFController;
+import frc.team2412.robot.util.gyroscope.Gyroscope;
+import frc.team2412.robot.util.gyroscope.NavXGyro;
+import frc.team2412.robot.util.gyroscope.Pigeon2Gyro;
+import frc.team2412.robot.util.motorcontroller.BrushlessSparkMaxController;
+import frc.team2412.robot.util.motorcontroller.MotorController;
+import frc.team2412.robot.util.motorcontroller.MotorController.MotorControlMode;
+import frc.team2412.robot.util.motorcontroller.MotorController.MotorNeutralMode;
+import frc.team2412.robot.util.motorcontroller.TalonFXController;
 
 public class DrivebaseSubsystem extends SubsystemBase {
 
-	private static final double ticksPerRotation = 2048.0; // for the talonfx
-	private static final double wheelDiameterMeters = 0.0889; // 3.5 inches
-	private static final double driveReductionL1 = 8.14; // verified
-	private static final double steerReduction = (32.0 / 15.0) * (60.0 / 10.0); // verified, 12.8
+	private static final boolean IS_COMP = Robot.getInstance().isCompetition();
 
-	// position units is one rotation / 2048
-	// extrapolate this to meters using wheel perimeter (pi * wheel diameter)
-	// raw sensor unit per meter driven = ticks/ perimeter
-
-	// units: raw sensor units
-	private static final double steerPositionCoefficient =
-			(ticksPerRotation / (2 * Math.PI)) * steerReduction; // radians
-	// per
-	// tick
-	private static final double driveVelocityCoefficient =
-			(ticksPerRotation / (Math.PI * wheelDiameterMeters))
-					* driveReductionL1; // ticks per meter per 100 ms
-
-	private static final int talonFXLoopNumber = 0;
-	private static final int canTimeoutMS = 20;
-
-	private static PFFController<Double> balanceController;
-
-	private static final double tipF = 0.01;
-	private static final double tipP = 0.05;
-	private static final double tipTolerance = 5;
-
-	private WPI_TalonFX[] moduleDriveMotors = {
-		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_RIGHT_DRIVE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_LEFT_DRIVE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_RIGHT_DRIVE_MOTOR)
+	// ordered from front left, front right, back left, back right
+	private static final Rotation2d[] PRACTICE_DRIVEBASE_ENCODER_OFFSETS = {
+		Rotation2d.fromDegrees(337.236),
+		Rotation2d.fromDegrees(251.982),
+		Rotation2d.fromDegrees(205.839),
+		Rotation2d.fromDegrees(311.396)
+	};
+	private static final Rotation2d[] COMP_DRIVEBASE_ENCODER_OFFSETS = {
+		Rotation2d.fromDegrees(-111.796),
+		Rotation2d.fromDegrees(-343.388),
+		Rotation2d.fromDegrees(-21.796),
+		Rotation2d.fromDegrees(-332.841)
 	};
 
-	private WPI_TalonFX[] moduleAngleMotors = {
-		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_LEFT_ANGLE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_FRONT_RIGHT_ANGLE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_LEFT_ANGLE_MOTOR),
-		new WPI_TalonFX(Hardware.DRIVEBASE_BACK_RIGHT_ANGLE_MOTOR)
-	};
+	// max drive speed is from SDS website and not calculated with robot weight
+	public static final double MAX_DRIVE_SPEED_METERS_PER_SEC = IS_COMP ? 4.4196 : 4.1148;
+	// this is calculated as rotations_per_sec = velocity/(2*pi*turning radius (diagonal diameter))
+	public static final Rotation2d MAX_ROTATIONS_PER_SEC =
+			Rotation2d.fromRotations(IS_COMP ? 0.8574 : 1.0724);
 
-	private WPI_CANCoder[] moduleEncoders = {
+	// magic number found by trial and error (aka informal characterization)
+	private static final double ODOMETRY_ADJUSTMENT = 0.957;
+	// 4 inches * odemetry adjustment
+	private static final double WHEEL_DIAMETER_METERS = 0.1016 * ODOMETRY_ADJUSTMENT;
+	private static final double DRIVE_REDUCTION = IS_COMP ? 6.75 : 8.14;
+	// steer reduction is the conversion from rotations of motor to rotations of the wheel
+	// module rotation * STEER_REDUCTION = motor rotation
+	public static final double STEER_REDUCTION =
+			IS_COMP ? 150.0 / 7.0 : (32.0 / 15.0) * (60.0 / 10.0);
+
+	private static final double TIP_F = 0.01;
+	private static final double TIP_P = 0.05;
+	private static final double TIP_TOLERANCE = 5;
+
+	private static final double DRIVE_VELOCITY_COEFFICIENT =
+			DRIVE_REDUCTION / (Math.PI * WHEEL_DIAMETER_METERS); // meters to motor rotations
+
+	// Balance controller is in degrees
+	private final PFFController<Double> balanceController;
+
+	private final MotorController[] moduleDriveMotors =
+			IS_COMP
+					? new BrushlessSparkMaxController[] {
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_RIGHT_DRIVE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_BACK_LEFT_DRIVE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_BACK_RIGHT_DRIVE_MOTOR)
+					}
+					: new TalonFXController[] {
+						new TalonFXController(Hardware.DRIVEBASE_FRONT_LEFT_DRIVE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_FRONT_RIGHT_DRIVE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_BACK_LEFT_DRIVE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_BACK_RIGHT_DRIVE_MOTOR)
+					};
+
+	private final MotorController[] moduleAngleMotors =
+			IS_COMP
+					? new BrushlessSparkMaxController[] {
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_LEFT_ANGLE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_RIGHT_ANGLE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_BACK_LEFT_ANGLE_MOTOR),
+						new BrushlessSparkMaxController(Hardware.DRIVEBASE_BACK_RIGHT_ANGLE_MOTOR)
+					}
+					: new TalonFXController[] {
+						new TalonFXController(Hardware.DRIVEBASE_FRONT_LEFT_ANGLE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_FRONT_RIGHT_ANGLE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_BACK_LEFT_ANGLE_MOTOR),
+						new TalonFXController(Hardware.DRIVEBASE_BACK_RIGHT_ANGLE_MOTOR)
+					};
+
+	private final WPI_CANCoder[] moduleEncoders = {
 		new WPI_CANCoder(Hardware.DRIVEBASE_FRONT_LEFT_ENCODER_PORT),
 		new WPI_CANCoder(Hardware.DRIVEBASE_FRONT_RIGHT_ENCODER_PORT),
 		new WPI_CANCoder(Hardware.DRIVEBASE_BACK_LEFT_ENCODER_PORT),
 		new WPI_CANCoder(Hardware.DRIVEBASE_BACK_RIGHT_ENCODER_PORT)
 	};
 
-	private Rotation2d[] moduleOffsets = {
-		Hardware.DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET,
-		Hardware.DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET,
-		Hardware.DRIVEBASE_BACK_LEFT_ENCODER_OFFSET,
-		Hardware.DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET
-	};
+	private final Rotation2d[] moduleOffsets =
+			IS_COMP ? COMP_DRIVEBASE_ENCODER_OFFSETS : PRACTICE_DRIVEBASE_ENCODER_OFFSETS;
 
 	// 2ft x 2ft for practice bot
-	private final Translation2d[] moduleLocations = {
-		new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(8.5)), // front left
-		new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(-8.5)), // front right
-		new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(8.5)), // back left
-		new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(-8.5)) // back right
-	};
+	private final Translation2d[] moduleLocations =
+			IS_COMP
+					? new Translation2d[] {
+						new Translation2d(
+								Units.inchesToMeters(12.375), Units.inchesToMeters(10.375)), // front left
+						new Translation2d(
+								Units.inchesToMeters(12.375), Units.inchesToMeters(-10.375)), // front right
+						new Translation2d(
+								Units.inchesToMeters(-12.375), Units.inchesToMeters(10.375)), // back left
+						new Translation2d(
+								Units.inchesToMeters(-12.375), Units.inchesToMeters(-10.375)) // back right
+					}
+					: new Translation2d[] {
+						new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(8.5)), // front left
+						new Translation2d(Units.inchesToMeters(8.5), Units.inchesToMeters(-8.5)), // front right
+						new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(8.5)), // back left
+						new Translation2d(Units.inchesToMeters(-8.5), Units.inchesToMeters(-8.5)) // back right
+					};
 
 	SwerveDriveKinematics kinematics =
 			new SwerveDriveKinematics(
 					moduleLocations[0], moduleLocations[1], moduleLocations[2], moduleLocations[3]);
 
-	private AHRS gyroscope;
+	private Gyroscope gyroscope;
 
 	private SwerveDrivePoseEstimator poseEstimator;
 	private Pose2d pose;
@@ -101,67 +145,71 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private Field2d field = new Field2d();
 
 	public DrivebaseSubsystem() {
-		gyroscope = new AHRS(SerialPort.Port.kMXP);
+		gyroscope = IS_COMP ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
+		// Bonk's gyro has positive as counter-clockwise
+		if (!IS_COMP) {
+			gyroscope.setInverted(true);
+		}
 
 		poseEstimator =
 				new SwerveDrivePoseEstimator(
-						kinematics,
-						Rotation2d.fromDegrees(gyroscope.getYaw()),
-						getModulePositions(),
-						new Pose2d());
+						kinematics, gyroscope.getRawYaw(), getModulePositions(), new Pose2d());
 		pose = poseEstimator.getEstimatedPosition();
 
 		balanceController =
-				PFFController.ofDouble(tipF, tipP)
-						.setTargetPosition((double) gyroscope.getRoll())
-						.setTargetPositionTolerance(tipTolerance);
+				PFFController.ofDouble(TIP_F, TIP_P)
+						.setTargetPosition(gyroscope.getRawRoll().getDegrees())
+						.setTargetPositionTolerance(TIP_TOLERANCE);
 
 		// configure encoders offsets
 		for (int i = 0; i < moduleEncoders.length; i++) {
 			moduleEncoders[i].configFactoryDefault();
+			moduleEncoders[i].configSensorInitializationStrategy(
+					SensorInitializationStrategy.BootToAbsolutePosition);
 		}
 
 		// configure drive motors
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			WPI_TalonFX driveMotor = moduleDriveMotors[i];
-			driveMotor.setNeutralMode(NeutralMode.Brake);
-			driveMotor.setSensorPhase(true);
+			MotorController driveMotor = moduleDriveMotors[i];
+			driveMotor.setNeutralMode(MotorController.MotorNeutralMode.BRAKE);
 
-			driveMotor.configNeutralDeadband(0.01);
-			driveMotor.configSelectedFeedbackSensor(
-					TalonFXFeedbackDevice.IntegratedSensor, talonFXLoopNumber, canTimeoutMS);
-
-			driveMotor.config_kP(talonFXLoopNumber, 0.1);
-			driveMotor.config_kI(talonFXLoopNumber, 0.001);
-			driveMotor.config_kD(talonFXLoopNumber, 1023.0 / 20660.0);
+			if (IS_COMP) {
+				driveMotor.setControlMode(MotorControlMode.VOLTAGE);
+			} else {
+				driveMotor.setControlMode(MotorControlMode.VELOCITY);
+				driveMotor.setPID(0.1, 0.001, 1023.0 / 20660.0);
+			}
 		}
 
 		// configure angle motors
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
-			WPI_TalonFX steeringMotor = moduleAngleMotors[i];
+			MotorController steeringMotor = moduleAngleMotors[i];
 			steeringMotor.configFactoryDefault();
-			steeringMotor.configSelectedFeedbackSensor(
-					TalonFXFeedbackDevice.IntegratedSensor, talonFXLoopNumber, canTimeoutMS);
+			steeringMotor.setNeutralMode(MotorNeutralMode.BRAKE);
 			// Configure PID values
-			steeringMotor.config_kP(talonFXLoopNumber, 0.15, canTimeoutMS);
-			steeringMotor.config_kI(talonFXLoopNumber, 0.00, canTimeoutMS);
-			steeringMotor.config_kD(talonFXLoopNumber, 1.0, canTimeoutMS);
-			steeringMotor.setSelectedSensorPosition(
-					getModuleAngles()[i].times(((ticksPerRotation / 360) * steerReduction)).getDegrees());
+			if (IS_COMP) {
+				steeringMotor.setPID(0.15, 0, 0);
+			} else {
+				steeringMotor.setPID(0.15, 0.00, 1.0);
+			}
+
+			if (IS_COMP) {
+				steeringMotor.setInverted(true);
+			}
+
+			steeringMotor.useIntegratedEncoder();
+			steeringMotor.setIntegratedEncoderPosition(
+					getModuleAngles()[i].getRotations() * STEER_REDUCTION);
+			steeringMotor.configureOptimization();
+
+			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
 
 		// configure shuffleboard
 		SmartDashboard.putData("Field", field);
 	}
 
-	/**
-	 * Drives the robot using forward, strafe, and rotation. Units in meters
-	 *
-	 * @param forward
-	 * @param strafe
-	 * @param rotation
-	 * @param fieldOriented
-	 */
+	/** Drives the robot using forward, strafe, and rotation. Units in meters */
 	public void drive(
 			double forward,
 			double strafe,
@@ -170,7 +218,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			boolean autoBalance) {
 		// Auto balancing will only be used in autonomous
 		if (autoBalance) {
-			forward -= balanceController.update((double) gyroscope.getRoll());
+			forward -= balanceController.update(gyroscope.getRawRoll().getDegrees());
 		}
 
 		ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
@@ -178,7 +226,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		if (fieldOriented) {
 			chassisSpeeds =
 					ChassisSpeeds.fromFieldRelativeSpeeds(
-							forward, -strafe, rotation.getRadians(), getGyroRotation2d());
+							forward, -strafe, rotation.getRadians(), gyroscope.getAngle());
 		} else {
 			chassisSpeeds = new ChassisSpeeds(forward, -strafe, rotation.getRadians());
 		}
@@ -198,33 +246,37 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		drive(moduleStates);
 	}
 
-	/**
-	 * Drives the robot using states
-	 *
-	 * @param states
-	 */
+	/** Drives the robot using states */
 	public void drive(SwerveModuleState[] states) {
+		SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_DRIVE_SPEED_METERS_PER_SEC);
+
 		for (int i = 0; i < states.length; i++) {
-			states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
+			if (IS_COMP) {
+				states[i] = SwerveModuleState.optimize(states[i], getModuleAngles()[i]);
+			} else {
+				// this optimize assumes that PID loop is not continuous
+				states[i] = ModuleUtil.optimize(states[i], getModuleAngles()[i]);
+			}
 		}
 
 		// Set motor speeds and angles
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			// meters/100ms * raw sensor units conversion
-			moduleDriveMotors[i].set(
-					TalonFXControlMode.Velocity,
-					((states[i].speedMetersPerSecond) / 10) * driveVelocityCoefficient);
+			if (IS_COMP) {
+				moduleDriveMotors[i].set(
+						states[i].speedMetersPerSecond / MAX_DRIVE_SPEED_METERS_PER_SEC * 12); // set voltage
+			} else {
+				moduleDriveMotors[i].set(
+						states[i].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT); // set velocity
+			}
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
-			moduleAngleMotors[i].set(
-					TalonFXControlMode.Position, states[i].angle.getRadians() * steerPositionCoefficient);
+			moduleAngleMotors[i].set(states[i].angle.getRotations() * STEER_REDUCTION);
 		}
 	}
 
 	/**
-	 * @param speeds
-	 * @return Array with modules with front left at [0], front right at [1], back left at [2], back
-	 *     right at [3]
+	 * Array with modules with front left at [0], front right at [1], back left at [2], back right at
+	 * [3]
 	 */
 	public SwerveModuleState[] getModuleStates(ChassisSpeeds speeds) {
 		return kinematics.toSwerveModuleStates(speeds);
@@ -236,10 +288,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			positions[i] =
 					new SwerveModulePosition(
-							moduleDriveMotors[i].getSelectedSensorPosition() * (1 / driveVelocityCoefficient),
-							Rotation2d.fromRadians(
-									moduleAngleMotors[i].getSelectedSensorPosition()
-											* (1 / steerPositionCoefficient)));
+							moduleDriveMotors[i].getIntegratedEncoderPosition() / DRIVE_VELOCITY_COEFFICIENT,
+							Rotation2d.fromRotations(
+									moduleAngleMotors[i].getIntegratedEncoderPosition() / STEER_REDUCTION));
 		}
 
 		return positions;
@@ -262,11 +313,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	}
 
 	/**
-	 * Resets the gyroscope's angle to 0 After this is called, the radio (on bonk) will be the robot's
-	 * new global forward
+	 * Resets the gyroscope's angle to 0 After this is called, the radio (on bonk) or the intake (on
+	 * comp) will be the robot's new global forward
 	 */
 	public void resetGyroAngle() {
-		resetGyroAngle(Rotation2d.fromDegrees(gyroscope.getYaw()));
+		resetGyroAngle(gyroscope.getRawYaw());
 	}
 
 	/**
@@ -275,12 +326,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * @param angle The new forward
 	 */
 	public void resetGyroAngle(Rotation2d angle) {
-		gyroscope.setAngleAdjustment(-angle.getDegrees());
-	}
-
-	/** Returns a Rotation2d containing the robot's rotation */
-	public Rotation2d getGyroRotation2d() {
-		return Rotation2d.fromDegrees(-gyroscope.getAngle());
+		gyroscope.setAngleAdjustment(angle.unaryMinus());
 	}
 
 	/** Returns the robot's pose */
@@ -319,14 +365,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void simInit(PhysicsSim sim) {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			sim.addTalonFX(moduleDriveMotors[i], 2, 20000, true);
-			sim.addTalonFX(moduleAngleMotors[i], 2, 20000);
+			// sim.addTalonFX(moduleDriveMotors[i], 2, 20000, true);
+			// sim.addTalonFX(moduleAngleMotors[i], 2, 20000);
 		}
 	}
 
 	@Override
 	public void periodic() {
-		pose = poseEstimator.update(getGyroRotation2d(), getModulePositions());
+		pose = poseEstimator.update(gyroscope.getAngle(), getModulePositions());
 		field.setRobotPose(pose);
 	}
 }
