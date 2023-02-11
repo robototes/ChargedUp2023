@@ -44,7 +44,6 @@ public class LEDSubsystem extends SubsystemBase {
 		return buffer;
 	}
 
-	
 	public void setBuffer(int r, int g, int b) {
 		for (var i = 0; i < buffer.getLength(); i++) {
 			// Sets each led in the buffer to the color
@@ -52,6 +51,5 @@ public class LEDSubsystem extends SubsystemBase {
 		}
 		// Sets the led to the buffer
 		leds.setData(buffer);
-		}
 	}
 }

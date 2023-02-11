@@ -41,7 +41,7 @@ public class Subsystems {
 		if (INTAKE_ENABLED) {
 			intakeSubsystem = new IntakeSubsystem();
 		}
-		if (LED_ENABLED) {
+		if (INTAKE_ENABLED) {
 			ledSubsystem = new LEDSubsystem();
 		}
 	}

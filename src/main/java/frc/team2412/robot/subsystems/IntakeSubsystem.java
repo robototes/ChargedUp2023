@@ -23,7 +23,6 @@ public class IntakeSubsystem extends SubsystemBase {
 		public static final double INTAKE_CONE_DISTANCE = 0;
 		public static final Color INTAKE_CUBE_COLOR = new Color(145, 48, 255);
 		public static final Color INTAKE_CONE_COLOR = new Color(255, 245, 45);
-		public static final Color INTAKE_OUT_COLOR = new Color(0, 0, 0);
 
 		// enums
 		public static enum GamePieceType {
@@ -79,13 +78,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	public void intakeOut() {
 		setSpeed(INTAKE_OUT_SPEED);
-		setColor(INTAKE_OUT_COLOR);
 	}
 
 	public void intakeStop() {
 		setSpeed(0);
 	}
-	
 
 	public GamePieceType detectType() {
 		if (colorSensor.getColor().equals(INTAKE_CUBE_COLOR)) {
@@ -112,5 +109,5 @@ public class IntakeSubsystem extends SubsystemBase {
 		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045)
 				* 27.726; // equation found from docs to convert voltage to cm
 	}
- 
+
 }
