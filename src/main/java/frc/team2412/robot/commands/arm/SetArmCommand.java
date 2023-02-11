@@ -32,6 +32,6 @@ public class SetArmCommand extends CommandBase {
 
 	@Override
 	public boolean isFinished() {
-		return armSubsystem.armIsAtGoal();
+		return true;
 	}
 }

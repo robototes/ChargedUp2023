@@ -51,7 +51,7 @@ public class Hardware {
 	public static final Transform3d CAM_TO_ROBOT = ROBOT_TO_CAM.inverse();
 
 	// Arm devices are from range 20 - 29
-	public static final int ARM_MOTOR = 20, WRIST_MOTOR = 21;
+	public static final int ARM_MOTOR1 = 20, ARM_MOTOR2 = 21, WRIST_MOTOR = 22;
 	public static final int SHOULDER_ENCODER_PORT_A = 0,
 			SHOULDER_ENCODER_PORT_B = 1,
 			ELBOW_ENCODER_PORT_A = 2,

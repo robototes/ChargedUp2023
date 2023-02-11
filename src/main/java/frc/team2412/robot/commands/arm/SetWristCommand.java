@@ -56,6 +56,6 @@ public class SetWristCommand extends CommandBase {
 
 	@Override
 	public boolean isFinished() {
-		return armSubsystem.wristIsAtGoal();
+		return true;
 	}
 }

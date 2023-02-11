@@ -22,13 +22,31 @@ public class ArmSubsystem extends SubsystemBase {
 	public static class ArmConstants { // To find values later
 		// Mech problem basically
 
-		public static final double ARM_LENGTH = 0;
-		public static final double VIRTUAL_BAR_LENGTH = 0;
+		// pounds/lbs
+		public static final double INNER_ARM_MASS = 4.69;
+		public static final double OUTER_ARM_MASS = 5.03;
+		public static final double INTAKE_MASS = 5.57;
+
+		// Center of mass stuff
+
+		// inches
+		public static final double INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 11.218;
+		public static final double OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 15.712;
+		public static final double WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT =
+				10.85; // TODO: find distance
+		public static final double WRIST_CENTER_OF_MASS_ANGLE_OFFSET = -20.15; // TODO: find offset
+
+		public static final double INNER_ARM_LENGTH = 25;
+		public static final double OUTER_ARM_LENGTH = 27.25;
+
+		public static final double SHOULDER_ELBOW_GEAR_RATIO = 68 / 48;
 
 		// PID
+		// TODO: FIND ALL VALUES
 		public static final double ARM_K_P = 0;
 		public static final double ARM_K_I = 0;
 		public static final double ARM_K_D = 0;
+
 		public static final double WRIST_K_P = 0;
 		public static final double WRIST_K_I = 0;
 		public static final double WRIST_K_D = 0;
@@ -38,6 +56,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double ARM_K_G = 0;
 		public static final double ARM_K_S = 0;
 		public static final double ARM_K_V = 0;
+
 		public static final double WRIST_K_A = 0;
 		public static final double WRIST_K_G = 0;
 		public static final double WRIST_K_S = 0;
@@ -72,7 +91,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double MIN_WRIST_ANGLE = 20;
 		public static final double MAX_WRIST_ANGLE = 100;
 
-		// ENUM :
+		// ENUM
 
 		/*
 		 * TODO:
@@ -117,7 +136,8 @@ public class ArmSubsystem extends SubsystemBase {
 	private PositionType currentPosition;
 	private boolean manualOverride;
 
-	private final CANSparkMax armMotor;
+	private final CANSparkMax armMotor1;
+	private final CANSparkMax armMotor2;
 	private final CANSparkMax wristMotor;
 
 	private final Encoder shoulderEncoder;
@@ -126,13 +146,13 @@ public class ArmSubsystem extends SubsystemBase {
 	private final ProfiledPIDController armPID;
 	private final ProfiledPIDController wristPID;
 
-	private final ArmFeedforward armFeedforward;
 	private final ArmFeedforward wristFeedforward;
 
 	// Constructor
 
 	public ArmSubsystem() {
-		armMotor = new CANSparkMax(ARM_MOTOR, MotorType.kBrushless);
+		armMotor1 = new CANSparkMax(ARM_MOTOR1, MotorType.kBrushless);
+		armMotor2 = new CANSparkMax(ARM_MOTOR2, MotorType.kBrushless);
 		wristMotor = new CANSparkMax(WRIST_MOTOR, MotorType.kBrushless);
 
 		shoulderEncoder = new Encoder(SHOULDER_ENCODER_PORT_A, SHOULDER_ENCODER_PORT_B);
@@ -141,11 +161,14 @@ public class ArmSubsystem extends SubsystemBase {
 		armPID = new ProfiledPIDController(ARM_K_P, ARM_K_I, ARM_K_D, ARM_CONSTRAINTS);
 		wristPID = new ProfiledPIDController(WRIST_K_P, WRIST_K_I, WRIST_K_D, WRIST_CONSTRAINTS);
 
-		armFeedforward = new ArmFeedforward(ARM_K_A, ARM_K_G, ARM_K_S, ARM_K_V);
 		wristFeedforward = new ArmFeedforward(WRIST_K_A, WRIST_K_G, WRIST_K_S, WRIST_K_V);
 
-		armMotor.setIdleMode(IdleMode.kBrake);
+		armMotor2.follow(armMotor1, true);
+
+		armMotor1.setIdleMode(IdleMode.kBrake);
+		armMotor2.setIdleMode(IdleMode.kBrake);
 		wristMotor.setIdleMode(IdleMode.kBrake);
+
 		armPID.setTolerance(ARM_POS_TOLERANCE, ARM_VELOCITY_TOLERANCE);
 		wristPID.setTolerance(WRIST_POS_TOLERANCE, WRIST_VELOCITY_TOLERANCE);
 
@@ -154,12 +177,15 @@ public class ArmSubsystem extends SubsystemBase {
 
 		shoulderEncoder.reset();
 		wristEncoder.reset();
+
+		armPID.reset(getShoulderAngle());
+		wristPID.reset(getWristAngle());
 	}
 
 	// Methods
 
 	public void setArmMotor(double percentOutput) {
-		armMotor.set(
+		armMotor1.set(
 				MathUtil.clamp(MAX_ARM_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT));
 	}
 
@@ -193,7 +219,10 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	public double calculateArmFeedforward() {
-		return armFeedforward.calculate(shoulderEncoder.getDistance(), 0);
+		return ARM_K_S * Math.signum(armPID.getGoal().position - getShoulderAngle())
+				+ ARM_K_G * getAngleTowardsCenterOfMass()
+				+ ARM_K_V * 0
+				+ ARM_K_A * 0;
 	}
 
 	public double calculateWristFeedforward() {
@@ -201,16 +230,12 @@ public class ArmSubsystem extends SubsystemBase {
 				shoulderEncoder.getDistance() + wristEncoder.getDistance(), 0); // getRate = getVelocity?
 	}
 
-	public boolean armIsAtGoal() {
-		return armPID.atGoal();
-	}
-
-	public boolean wristIsAtGoal() {
-		return wristPID.atGoal();
-	}
-
 	public double getShoulderAngle() {
 		return shoulderEncoder.getDistance();
+	}
+
+	public double getElbowAngle() {
+		return shoulderEncoder.getDistance() * SHOULDER_ELBOW_GEAR_RATIO;
 	}
 
 	public double getWristAngle() {
@@ -225,6 +250,45 @@ public class ArmSubsystem extends SubsystemBase {
 		return percentOutput * Robot.getInstance().getVoltage();
 	}
 
+	public double getAngleTowardsCenterOfMass() {
+
+		// Get Coordinates of Centers of Mass
+
+		// intake = 5.57 lb
+		// angle offset for center of mass intake =
+		double innerArmCenterOfMassX = 11.218 * Math.cos(Math.toRadians(180 - getShoulderAngle()));
+		double innerArmCenterOfMassY = 11.218 * Math.sin(Math.toRadians(180 - getShoulderAngle()));
+
+		double outerArmCenterOfMassX =
+				15.722 * Math.cos(Math.toRadians(getElbowAngle() - getShoulderAngle()))
+						+ INNER_ARM_LENGTH * Math.cos(Math.toRadians(180 - getShoulderAngle()));
+		double outerArmCenterOfMassY =
+				15.722 * Math.sin(Math.toRadians(getElbowAngle() - getShoulderAngle()))
+						+ INNER_ARM_LENGTH * Math.sin(Math.toRadians(180 - getShoulderAngle()));
+
+		double intakeCenterOfMassX =
+				0 * Math.cos(Math.toRadians(180 - (getWristAngle() + WRIST_CENTER_OF_MASS_ANGLE_OFFSET)))
+						+ OUTER_ARM_LENGTH * Math.cos(Math.toRadians(getElbowAngle() - getShoulderAngle()))
+						+ INNER_ARM_LENGTH * Math.cos(Math.toRadians(180 - getShoulderAngle()));
+		double intakeCenterOfMassY =
+				0 * Math.sin(Math.toRadians(180 - (getWristAngle() + WRIST_CENTER_OF_MASS_ANGLE_OFFSET)))
+						+ OUTER_ARM_LENGTH * Math.sin(Math.toRadians(getElbowAngle() - getShoulderAngle()))
+						+ INNER_ARM_LENGTH * Math.sin(Math.toRadians(180 - getShoulderAngle()));
+
+		double centerOfMassX =
+				(INNER_ARM_MASS * innerArmCenterOfMassX
+								+ OUTER_ARM_MASS * outerArmCenterOfMassX
+								+ INTAKE_MASS * intakeCenterOfMassX)
+						/ (INNER_ARM_MASS + OUTER_ARM_MASS + INTAKE_MASS);
+		double centerOfMassY =
+				(INNER_ARM_MASS * innerArmCenterOfMassY
+								+ OUTER_ARM_MASS * outerArmCenterOfMassY
+								+ INTAKE_MASS * intakeCenterOfMassY)
+						/ (INNER_ARM_MASS + OUTER_ARM_MASS + INTAKE_MASS);
+
+		return Math.atan2(centerOfMassY, centerOfMassX);
+	}
+
 	/* TODO:
 	 * FeedForward for Arm and Wrist
 	 */
@@ -232,7 +296,7 @@ public class ArmSubsystem extends SubsystemBase {
 	public void periodic() {
 		if (!manualOverride) {
 			// for preset angle mode
-			armMotor.setVoltage(
+			armMotor1.setVoltage(
 					convertToVolts(
 							MathUtil.clamp(
 									calculateArmPID() + calculateArmFeedforward(),
