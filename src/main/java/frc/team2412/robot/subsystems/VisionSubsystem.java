@@ -14,7 +14,10 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -28,6 +31,8 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class VisionSubsystem extends SubsystemBase {
 	private PhotonCamera photonCamera;
 	private PhotonPipelineResult latestResult;
+	private Optional<EstimatedRobotPose> latestPose;
+	private PhotonPoseEstimator photonPoseEstimator;
 	private BiConsumer<Pose2d, Double> poseConsumer;
 	/** Null if no known robot pose, otherwise the last calculated robot pose from vision data. */
 	private Pose3d robotPose = null;
@@ -61,7 +66,9 @@ public class VisionSubsystem extends SubsystemBase {
 		var networkTables = NetworkTableInstance.getDefault();
 
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
-		latestResult = photonCamera.getLatestResult();
+		this.photonPoseEstimator = new PhotonPoseEstimator(
+					fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, photonCamera, Hardware.ROBOT_TO_CAM);
+		//latestResult = photonCamera.getLatestResult();
 
 		networkTables.addListener(
 				networkTables
@@ -73,12 +80,18 @@ public class VisionSubsystem extends SubsystemBase {
 	}
 
 	public void updateEvent(NetworkTableEvent event) {
-		latestResult = photonCamera.getLatestResult();
+		latestPose = photonPoseEstimator.update();
+		System.out.println(latestPose);
+		if (latestPose.isPresent()) {
+			lastTimestampSeconds = latestPose.get().timestampSeconds;
+			poseConsumer.accept(latestPose.get().estimatedPose.toPose2d(), lastTimestampSeconds);
+		}
+		/*latestResult = photonCamera.getLatestResult();
 		updatePoseCache();
 		if (robotPose != null) {
 			lastTimestampSeconds = latestResult.getTimestampSeconds();
 			poseConsumer.accept(robotPose.toPose2d(), lastTimestampSeconds);
-		}
+		}*/
 	}
 
 	@Log
