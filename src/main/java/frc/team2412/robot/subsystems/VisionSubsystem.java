@@ -2,7 +2,7 @@ package frc.team2412.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -13,12 +13,10 @@ import io.github.oblarg.oblog.annotations.Log;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 /**
  * All poses and transforms use the NWU (North-West-Up) coordinate system, where +X is
@@ -31,7 +29,8 @@ public class VisionSubsystem extends SubsystemBase {
 	private PhotonCamera photonCamera;
 	private Optional<EstimatedRobotPose> latestPose;
 	private PhotonPoseEstimator photonPoseEstimator;
-	private BiConsumer<Pose2d, Double> poseConsumer;
+	private SwerveDrivePoseEstimator poseEstimator;
+
 	private double lastTimestampSeconds = 0;
 	/*
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
@@ -55,8 +54,8 @@ public class VisionSubsystem extends SubsystemBase {
 		fieldLayout = temp;
 	}
 
-	public VisionSubsystem(BiConsumer<Pose2d, Double> poseConsumer) {
-		this.poseConsumer = poseConsumer;
+	public VisionSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
+		poseEstimator = initialPoseEstimator;
 
 		var networkTables = NetworkTableInstance.getDefault();
 
@@ -78,53 +77,14 @@ public class VisionSubsystem extends SubsystemBase {
 		latestPose = photonPoseEstimator.update();
 		if (latestPose.isPresent()) {
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
-			poseConsumer.accept(latestPose.get().estimatedPose.toPose2d(), lastTimestampSeconds);
+			poseEstimator.addVisionMeasurement(
+					latestPose.get().estimatedPose.toPose2d(), lastTimestampSeconds);
 		}
 	}
 
 	@Log
 	public boolean hasTargets() {
 		return latestPose.isPresent();
-	}
-
-	/**
-	 * Calculates the robot pose relative to the field, using the given target.
-	 *
-	 * <p>Returns null if target is null or if no valid field pose could be found for the target
-	 * (either the target doesn't have an ID or we don't have a pose associated with the ID).
-	 *
-	 * @param target The target to use to calculate robot pose.
-	 * @return The calculated robot pose.
-	 */
-	public static Pose3d getRobotPoseUsingTarget(PhotonTrackedTarget target) {
-		if (target == null || fieldLayout == null) {
-			return null;
-		}
-		// If target doesn't have fiducial ID, value is -1 (which shouldn't be in the layout)
-		Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
-		if (tagPose.isEmpty()) {
-			return null;
-		}
-		// getBestCameraToTarget() shouldn't be null
-		return tagPose
-				.get()
-				.transformBy(target.getBestCameraToTarget().inverse())
-				.transformBy(Hardware.CAM_TO_ROBOT);
-	}
-
-	public static Pose3d getAlternateRobotPoseUsingTarget(PhotonTrackedTarget target) {
-		if (target == null || fieldLayout == null) {
-			return null;
-		}
-		// If target doesn't have fiducial ID, value is -1 (which shouldn't be in the layout)
-		Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
-		if (tagPose.isEmpty()) {
-			return null;
-		}
-		return tagPose
-				.get()
-				.transformBy(target.getAlternateCameraToTarget().inverse())
-				.transformBy(Hardware.CAM_TO_ROBOT);
 	}
 
 	/**
