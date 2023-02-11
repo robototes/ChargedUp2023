@@ -109,5 +109,4 @@ public class IntakeSubsystem extends SubsystemBase {
 		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045)
 				* 27.726; // equation found from docs to convert voltage to cm
 	}
-
 }
