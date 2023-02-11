@@ -36,7 +36,7 @@ public class DriveCommand extends CommandBase {
 					.addPersistent("Field Oriented", true)
 					.withWidget(BuiltInWidgets.kToggleSwitch)
 					.getEntry();
-	private static GenericEntry cubeSpeed =
+	private static GenericEntry cubeSpeedEntry =
 			Shuffleboard.getTab("Drivebase")
 					.add("Cube Speed", true)
 					.withWidget(BuiltInWidgets.kToggleSwitch)
@@ -73,10 +73,10 @@ public class DriveCommand extends CommandBase {
 		double cubed_y = magnitude * Math.sin(angle);
 
 		drivebaseSubsystem.drive(
-				(cubeSpeed.getBoolean(false) ? cubed_x : x)
+				(cubeSpeedEntry.getBoolean(false) ? cubed_x : x)
 						* driveSpeedModifier
 						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC, // convert from percent to m/s
-				(cubeSpeed.getBoolean(false) ? cubed_y : y)
+				(cubeSpeedEntry.getBoolean(false) ? cubed_y : y)
 						* driveSpeedModifier
 						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC,
 				Rotation2d.fromRotations(
