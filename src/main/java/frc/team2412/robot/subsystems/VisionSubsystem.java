@@ -18,7 +18,6 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 /**
@@ -30,13 +29,9 @@ import org.photonvision.targeting.PhotonTrackedTarget;
  */
 public class VisionSubsystem extends SubsystemBase {
 	private PhotonCamera photonCamera;
-	private PhotonPipelineResult latestResult;
 	private Optional<EstimatedRobotPose> latestPose;
 	private PhotonPoseEstimator photonPoseEstimator;
 	private BiConsumer<Pose2d, Double> poseConsumer;
-	/** Null if no known robot pose, otherwise the last calculated robot pose from vision data. */
-	private Pose3d robotPose = null;
-
 	private double lastTimestampSeconds = 0;
 	/*
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
@@ -66,9 +61,9 @@ public class VisionSubsystem extends SubsystemBase {
 		var networkTables = NetworkTableInstance.getDefault();
 
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
-		this.photonPoseEstimator = new PhotonPoseEstimator(
-					fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, photonCamera, Hardware.ROBOT_TO_CAM);
-		//latestResult = photonCamera.getLatestResult();
+		this.photonPoseEstimator =
+				new PhotonPoseEstimator(
+						fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, photonCamera, Hardware.ROBOT_TO_CAM);
 
 		networkTables.addListener(
 				networkTables
@@ -81,22 +76,15 @@ public class VisionSubsystem extends SubsystemBase {
 
 	public void updateEvent(NetworkTableEvent event) {
 		latestPose = photonPoseEstimator.update();
-		System.out.println(latestPose);
 		if (latestPose.isPresent()) {
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
 			poseConsumer.accept(latestPose.get().estimatedPose.toPose2d(), lastTimestampSeconds);
 		}
-		/*latestResult = photonCamera.getLatestResult();
-		updatePoseCache();
-		if (robotPose != null) {
-			lastTimestampSeconds = latestResult.getTimestampSeconds();
-			poseConsumer.accept(robotPose.toPose2d(), lastTimestampSeconds);
-		}*/
 	}
 
 	@Log
 	public boolean hasTargets() {
-		return latestResult.hasTargets();
+		return latestPose.isPresent();
 	}
 
 	/**
@@ -139,22 +127,16 @@ public class VisionSubsystem extends SubsystemBase {
 				.transformBy(Hardware.CAM_TO_ROBOT);
 	}
 
-	/** Updates the robot pose cache. */
-	private void updatePoseCache() {
-		if (!hasTargets()) {
-			robotPose = null;
-		} else {
-			robotPose = getRobotPoseUsingTarget(latestResult.getBestTarget());
-		}
-	}
-
 	/**
 	 * Calculates the robot pose using the best target. Returns null if there is no known robot pose.
 	 *
 	 * @return The calculated robot pose in meters.
 	 */
 	public Pose3d getRobotPose() {
-		return robotPose;
+		if (latestPose.isPresent()) {
+			return latestPose.get().estimatedPose;
+		}
+		return null;
 	}
 
 	/**
