@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.function.DoubleSupplier;
 
 public class DriveCommand extends CommandBase {
+	private static final double TRIGGER_MODIFIER_DEFAULT = 0.7;
+
 	private final DrivebaseSubsystem drivebaseSubsystem;
 	private final DoubleSupplier forward;
 	private final DoubleSupplier strafe;
@@ -43,7 +45,7 @@ public class DriveCommand extends CommandBase {
 					.getEntry();
 	private static GenericEntry triggerModifierEntry =
 			Shuffleboard.getTab("Drivebase")
-					.add("Trigger Modifier", 0.7)
+					.add("Trigger Modifier", TRIGGER_MODIFIER_DEFAULT)
 					.withWidget(BuiltInWidgets.kNumberSlider)
 					.withProperties(Map.of("Min", 0, "Max", 1))
 					.getEntry();
@@ -68,7 +70,7 @@ public class DriveCommand extends CommandBase {
 	public void execute() {
 		double driveSpeedModifier =
 				driveSpeedEntry.getDouble(1.0)
-						* (1 - (speedLimiter.getAsDouble() * (1 - triggerModifierEntry.getDouble(0.7))));
+						* (1 - (speedLimiter.getAsDouble() * (1 - triggerModifierEntry.getDouble(TRIGGER_MODIFIER_DEFAULT))));
 
 		double x = deadbandCorrection(-forward.getAsDouble());
 		double y = deadbandCorrection(strafe.getAsDouble());
