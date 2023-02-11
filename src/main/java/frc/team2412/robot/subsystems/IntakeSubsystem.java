@@ -13,8 +13,8 @@ public class IntakeSubsystem extends SubsystemBase {
 	// CONSTANTS
 	public static class IntakeConstants {
 		// speeds
-		public static final double INTAKE_IN_SPEED = 0.5;
-		public static final double INTAKE_OUT_SPEED = 0.3;
+		public static final double INTAKE_IN_SPEED = 0.8;
+		public static final double INTAKE_OUT_SPEED = -0.8;
 
 		public static final double INTAKE_CUBE_DISTANCE = 0;
 		public static final double INTAKE_CONE_DISTANCE = 0;
@@ -38,33 +38,34 @@ public class IntakeSubsystem extends SubsystemBase {
 
 		}
 
-		// public final cone;
-		// public final cube;
-		// public final nothing;
+		// public final distance;
 
 	}
 	// HARDWARE
 
-	private final CANSparkMax motor;
+	private final CANSparkMax motor1;
+	private final CANSparkMax motor2;
 	// private final ColorSensorV3 colorSensor;
 	private final AnalogInput distanceSensor;
 
 	// CONSTRUCTOR
 	public IntakeSubsystem() {
-		motor = new CANSparkMax(INTAKE_MOTOR_1, MotorType.kBrushless);
+		motor1 = new CANSparkMax(INTAKE_MOTOR_1, MotorType.kBrushless);
+		motor2 = new CANSparkMax(INTAKE_MOTOR_2, MotorType.kBrushless);
 		// colorSensor = new ColorSensorV3(Port.kOnboard); //to find I2C port
-		// distanceSensor = new ();
-		motor.setIdleMode(IdleMode.kBrake);
+		motor1.setIdleMode(IdleMode.kBrake);
+		motor2.setIdleMode(IdleMode.kBrake);
 		distanceSensor = new AnalogInput(INTAKE_DISTANCE_SENSOR);
 	}
 
 	// METHODS
 	public void setSpeed(double speed) {
-		motor.set(speed);
+		motor1.set(speed);
+		motor2.set(-speed);
 	}
 
 	public double getSpeed() {
-		return motor.get();
+		return motor1.get();
 	}
 
 	public void intakeIn() {
