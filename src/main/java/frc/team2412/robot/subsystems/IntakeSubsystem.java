@@ -110,5 +110,4 @@ public class IntakeSubsystem extends SubsystemBase {
 				* 27.726; // equation found from docs to convert voltage to cm
 	}
 
-	public void rumble() {}
 }
