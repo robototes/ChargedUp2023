@@ -65,11 +65,18 @@ public class DriveCommand extends CommandBase {
 		double x = deadbandCorrection(-forward.getAsDouble());
 		double y = deadbandCorrection(strafe.getAsDouble());
 		double rot = deadbandCorrection(-rotation.getAsDouble());
+
+		// math for normalizing and cubing inputs
+		double magnitude = Math.pow(Math.min(Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2)), 1), 3);
+		double angle = Math.atan2(y, x);
+		double cubed_x = magnitude * Math.cos(angle);
+		double cubed_y = magnitude * Math.sin(angle);
+
 		drivebaseSubsystem.drive(
-				(cubeSpeed.getBoolean(false) ? Math.pow(x, 3) : x)
+				(cubeSpeed.getBoolean(false) ? cubed_x : x)
 						* driveSpeedModifier
 						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC, // convert from percent to m/s
-				(cubeSpeed.getBoolean(false) ? Math.pow(y, 3) : y)
+				(cubeSpeed.getBoolean(false) ? cubed_y : y)
 						* driveSpeedModifier
 						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC,
 				Rotation2d.fromRotations(

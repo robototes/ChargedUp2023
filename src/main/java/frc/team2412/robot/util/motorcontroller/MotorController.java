@@ -31,7 +31,7 @@ public abstract class MotorController {
 		POSITION(ControlMode.Position, ControlType.kPosition),
 		VELOCITY(ControlMode.Velocity, ControlType.kVelocity),
 		// CTRE does not have a voltage control mode, we just set it with motor.setVoltage()
-		VOLTAGE(null, ControlType.kVoltage), 
+		VOLTAGE(null, ControlType.kVoltage),
 		PERCENT(ControlMode.PercentOutput, ControlType.kDutyCycle);
 
 		private final ControlMode ctre;
