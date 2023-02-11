@@ -1,5 +1,6 @@
 package frc.team2412.robot;
 
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -33,6 +34,19 @@ public class Hardware {
 	public static final int GYRO_PORT = 13;
 
 	// Cameras
+	public static final String DRIVER_VISION_PATH;
+
+	static {
+		String path = null;
+		for (var camInfo : UsbCamera.enumerateUsbCameras()) {
+			// On bonk "0c" at the end was removed, don't know why
+			if (camInfo.name.contains(" C93")) {
+				path = camInfo.path;
+			}
+		}
+		DRIVER_VISION_PATH = path;
+	}
+
 	public static final String PHOTON_CAM = "OV5647";
 	public static final double cameraYawDegrees = -12;
 	// Rough measurements, origin is center of robot, +X is forward, +Y is left, +Z is up
