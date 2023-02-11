@@ -68,9 +68,12 @@ public class DriveCommand extends CommandBase {
 
 	@Override
 	public void execute() {
+		// this is so ugly spotless
 		double driveSpeedModifier =
 				driveSpeedEntry.getDouble(1.0)
-						* (1 - (speedLimiter.getAsDouble() * (1 - triggerModifierEntry.getDouble(TRIGGER_MODIFIER_DEFAULT))));
+						* (1
+								- (speedLimiter.getAsDouble()
+										* (1 - triggerModifierEntry.getDouble(TRIGGER_MODIFIER_DEFAULT))));
 
 		double x = deadbandCorrection(-forward.getAsDouble());
 		double y = deadbandCorrection(strafe.getAsDouble());
