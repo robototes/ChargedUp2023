@@ -88,7 +88,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						new TalonFXController(Hardware.DRIVEBASE_BACK_RIGHT_DRIVE_MOTOR)
 					};
 
-	private static final MotorController[] moduleAngleMotors =
+	private final MotorController[] moduleAngleMotors =
 			IS_COMP
 					? new BrushlessSparkMaxController[] {
 						new BrushlessSparkMaxController(Hardware.DRIVEBASE_FRONT_LEFT_ANGLE_MOTOR),
