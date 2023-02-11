@@ -6,7 +6,10 @@ import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.*;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
@@ -18,8 +21,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
 		public static final double INTAKE_CUBE_DISTANCE = 0;
 		public static final double INTAKE_CONE_DISTANCE = 0;
-		public static final double INTAKE_CUBE_COLOR = 0;
-		public static final double INTAKE_CONE_COLOR = 141;
+		public static final Color INTAKE_CUBE_COLOR = new Color(145, 48, 255);
+		public static final Color INTAKE_CONE_COLOR = new Color(255, 245, 45);
 
 		// enums
 		public static enum GamePieceType {
@@ -45,16 +48,17 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	private final CANSparkMax motor1;
 	private final CANSparkMax motor2;
-	// private final ColorSensorV3 colorSensor;
+	private final ColorSensorV3 colorSensor;
 	private final AnalogInput distanceSensor;
 
 	// CONSTRUCTOR
 	public IntakeSubsystem() {
 		motor1 = new CANSparkMax(INTAKE_MOTOR_1, MotorType.kBrushless);
 		motor2 = new CANSparkMax(INTAKE_MOTOR_2, MotorType.kBrushless);
-		// colorSensor = new ColorSensorV3(Port.kOnboard); //to find I2C port
 		motor1.setIdleMode(IdleMode.kBrake);
 		motor2.setIdleMode(IdleMode.kBrake);
+
+		colorSensor = new ColorSensorV3(Port.kMXP);
 		distanceSensor = new AnalogInput(INTAKE_DISTANCE_SENSOR);
 	}
 
@@ -81,23 +85,30 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	public GamePieceType detectType() {
-		// if () {
-		//     return GamePieceType.CUBE;
-		// }
-		// else if () {
-		//     return GamePieceType.CONE;
-		// }
-
+		if (colorSensor.getColor().equals(INTAKE_CUBE_COLOR)) {
+			return GamePieceType.CUBE;
+		} else if (colorSensor.getColor().equals(INTAKE_CONE_COLOR)) {
+			return GamePieceType.CONE;
+		}
 		return GamePieceType.NONE;
 	}
 
-	public boolean isSecured() { // Checks to see if the game piece is secured
+	public boolean
+			isSecured() { // Checks to see if the game piece is secured, returns true if the motor should
+		// stop
+		if (getDistance() < 12) { // units in cm
+			return true;
+		} else if (detectType() == GamePieceType.CUBE
+				&& getDistance() < 15) { // also arbitrary numbers right now
+			return true;
+		}
 		return false;
 	}
 
-	public void rumble() {}
-
 	public double getDistance() {
-		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045) * 27.726;
+		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045)
+				* 27.726; // equation found from docs to convert voltage to cm
 	}
+
+	public void rumble() {}
 }
