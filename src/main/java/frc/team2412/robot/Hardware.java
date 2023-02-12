@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public class Hardware {
+	public static final int CAN_TIMEOUT_MS = 20;
+
 	public static final int PDP_ID = 1;
 
 	// Drive devices are from range 1-19
@@ -23,14 +25,7 @@ public class Hardware {
 			DRIVEBASE_FRONT_RIGHT_ENCODER_PORT = 6,
 			DRIVEBASE_BACK_LEFT_ENCODER_PORT = 9,
 			DRIVEBASE_BACK_RIGHT_ENCODER_PORT = 12;
-	public static final Rotation2d DRIVEBASE_FRONT_LEFT_ENCODER_OFFSET =
-			Rotation2d.fromDegrees(337.236);
-	public static final Rotation2d DRIVEBASE_FRONT_RIGHT_ENCODER_OFFSET =
-			Rotation2d.fromDegrees(251.982);
-	public static final Rotation2d DRIVEBASE_BACK_LEFT_ENCODER_OFFSET =
-			Rotation2d.fromDegrees(205.839);
-	public static final Rotation2d DRIVEBASE_BACK_RIGHT_ENCODER_OFFSET =
-			Rotation2d.fromDegrees(311.396);
+
 	public static final int GYRO_PORT = 13;
 
 	// Cameras
@@ -77,13 +72,4 @@ public class Hardware {
 	public static final int INTAKE_MOTOR_1 = 30;
 
 	public static final int INTAKE_DISTANCE_SENSOR = 6, INTAKE_COLOR_SENSOR = 7;
-
-	public static final double GEAR_RATIO;
-
-	static {
-		GEAR_RATIO =
-				Robot.getInstance().isCompetition()
-						? 0 // TBD
-						: 8.14; // L1 drive ratio
-	}
 }
