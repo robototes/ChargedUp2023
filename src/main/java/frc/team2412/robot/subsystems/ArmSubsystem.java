@@ -253,9 +253,6 @@ public class ArmSubsystem extends SubsystemBase {
 	public double getAngleTowardsCenterOfMass() {
 
 		// Get Coordinates of Centers of Mass
-
-		// intake = 5.57 lb
-		// angle offset for center of mass intake =
 		double innerArmCenterOfMassX = 11.218 * Math.cos(Math.toRadians(180 - getShoulderAngle()));
 		double innerArmCenterOfMassY = 11.218 * Math.sin(Math.toRadians(180 - getShoulderAngle()));
 
@@ -275,6 +272,7 @@ public class ArmSubsystem extends SubsystemBase {
 						+ OUTER_ARM_LENGTH * Math.sin(Math.toRadians(getElbowAngle() - getShoulderAngle()))
 						+ INNER_ARM_LENGTH * Math.sin(Math.toRadians(180 - getShoulderAngle()));
 
+		// Calculate Average Center of Mass of Arm + Intake
 		double centerOfMassX =
 				(INNER_ARM_MASS * innerArmCenterOfMassX
 								+ OUTER_ARM_MASS * outerArmCenterOfMassX
@@ -286,16 +284,14 @@ public class ArmSubsystem extends SubsystemBase {
 								+ INTAKE_MASS * intakeCenterOfMassY)
 						/ (INNER_ARM_MASS + OUTER_ARM_MASS + INTAKE_MASS);
 
+		// Return Angle needed to face Center of Mass
 		return Math.atan2(centerOfMassY, centerOfMassX);
 	}
 
-	/* TODO:
-	 * FeedForward for Arm and Wrist
-	 */
 	@Override
 	public void periodic() {
+		// Periodic Arm movement for Preset Angle Control
 		if (!manualOverride) {
-			// for preset angle mode
 			armMotor1.setVoltage(
 					convertToVolts(
 							MathUtil.clamp(
