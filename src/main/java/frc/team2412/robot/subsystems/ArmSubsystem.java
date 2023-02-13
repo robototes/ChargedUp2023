@@ -105,10 +105,10 @@ public class ArmSubsystem extends SubsystemBase {
 		 * Scoring Wrist Angle
 		 */
 		public static enum PositionType {
-			ARM_LOW_POSITION(0, 0, 279.6, 0, 0),
-			ARM_MIDDLE_POSITION(87.42, 0, 279.6, 0, 80.27),
-			ARM_HIGH_POSITION(50, 0, 279.6, 0, 111),
-			ARM_SUBSTATION_POSITION(80, 0, 279.6, 0, 0); // ?
+			ARM_LOW_POSITION(0, 54, 72, 0, 262.63),
+			ARM_MIDDLE_POSITION(87.42, 54, 72, 142, 262.63),
+			ARM_HIGH_POSITION(50, 54, 72, 0, 111),
+			ARM_SUBSTATION_POSITION(80, 54, 72, 0, 0); // ?
 
 			public final double armAngle;
 			public final double retractedWristAngle;
@@ -253,22 +253,32 @@ public class ArmSubsystem extends SubsystemBase {
 	public double getAngleTowardsCenterOfMass() {
 
 		// Get Coordinates of Centers of Mass
-		double innerArmCenterOfMassX = 11.218 * Math.cos(Math.toRadians(180 - getShoulderAngle()));
-		double innerArmCenterOfMassY = 11.218 * Math.sin(Math.toRadians(180 - getShoulderAngle()));
+		double innerArmCenterOfMassX =
+				INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT
+						* Math.cos(Math.toRadians(180 - getShoulderAngle()));
+		double innerArmCenterOfMassY =
+				INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT
+						* Math.sin(Math.toRadians(180 - getShoulderAngle()));
 
 		double outerArmCenterOfMassX =
-				15.722 * Math.cos(Math.toRadians(getElbowAngle() - getShoulderAngle()))
+				OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT
+								* Math.cos(Math.toRadians(getElbowAngle() - getShoulderAngle()))
 						+ INNER_ARM_LENGTH * Math.cos(Math.toRadians(180 - getShoulderAngle()));
 		double outerArmCenterOfMassY =
-				15.722 * Math.sin(Math.toRadians(getElbowAngle() - getShoulderAngle()))
+				OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT
+								* Math.sin(Math.toRadians(getElbowAngle() - getShoulderAngle()))
 						+ INNER_ARM_LENGTH * Math.sin(Math.toRadians(180 - getShoulderAngle()));
 
 		double intakeCenterOfMassX =
-				0 * Math.cos(Math.toRadians(180 - (getWristAngle() + WRIST_CENTER_OF_MASS_ANGLE_OFFSET)))
+				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT
+								* Math.cos(
+										Math.toRadians(180 - (getWristAngle() + WRIST_CENTER_OF_MASS_ANGLE_OFFSET)))
 						+ OUTER_ARM_LENGTH * Math.cos(Math.toRadians(getElbowAngle() - getShoulderAngle()))
 						+ INNER_ARM_LENGTH * Math.cos(Math.toRadians(180 - getShoulderAngle()));
 		double intakeCenterOfMassY =
-				0 * Math.sin(Math.toRadians(180 - (getWristAngle() + WRIST_CENTER_OF_MASS_ANGLE_OFFSET)))
+				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT
+								* Math.sin(
+										Math.toRadians(180 - (getWristAngle() + WRIST_CENTER_OF_MASS_ANGLE_OFFSET)))
 						+ OUTER_ARM_LENGTH * Math.sin(Math.toRadians(getElbowAngle() - getShoulderAngle()))
 						+ INNER_ARM_LENGTH * Math.sin(Math.toRadians(180 - getShoulderAngle()));
 

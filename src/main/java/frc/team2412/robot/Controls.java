@@ -35,6 +35,7 @@ public class Controls {
 	public final Trigger armSubstationButton;
 
 	public final Trigger wristRetractButton;
+	// public final Trigger wristPrescoreButton;
 	public final Trigger wristScoreButton;
 
 	// intake
@@ -99,6 +100,7 @@ public class Controls {
 		armSubstationButton.onTrue(new SetArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION));
 
 		wristRetractButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_RETRACT_CUBE));
+		// wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_PRESCORE));
 		wristScoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_SCORE));
 	}
 
