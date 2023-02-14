@@ -94,19 +94,12 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	public boolean
-			isSecured() { // Checks to see if the game piece is secured, returns true if the motor should
-		// stop
-		if (getDistance() < 12) { // units in cm
-			return true;
-		} else if (detectType() == GamePieceType.CUBE
-				&& getDistance() < 15) { // also arbitrary numbers right now
-			return true;
-		}
-		return false;
+		// Checks to see if the game piece is secured, returns true if the motor should stop
+		return (getDistance() < 12 || (detectType() == GamePieceType.CUBE && getDistance() < 15));
 	}
 
 	public double getDistance() {
-		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045)
-				* 27.726; // equation found from docs to convert voltage to cm
+		// equation found from docs to convert voltage to cm
+		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045) * 27.726;
 	}
 }
