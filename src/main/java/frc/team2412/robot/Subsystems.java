@@ -55,6 +55,12 @@ public class Subsystems {
 			} else {
 				UsbCamera driverVisionCamera =
 						CameraServer.startAutomaticCapture("Driver vision", Hardware.DRIVER_VISION_PATH);
+				// Available resolutions:
+				// 640x480, 160x120, 176x144, 320x180, 320x240, 352x288, 424x240, 480x270, 640x360, 800x448
+				// < 30 YUYV FPS:
+				// 800x600, 848x480, 960x540, 1024x576, 1280x720, 1600x896, 1920x1080
+				// YUYV only:
+				// 2304x1296, 2304x1536
 				driverVisionCamera.setResolution(160, 120);
 			}
 		}
