@@ -9,6 +9,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
+import frc.team2412.robot.Robot;
 import io.github.oblarg.oblog.annotations.Log;
 import java.io.IOException;
 import java.util.EnumSet;
@@ -58,6 +59,10 @@ public class VisionSubsystem extends SubsystemBase {
 		poseEstimator = initialPoseEstimator;
 
 		var networkTables = NetworkTableInstance.getDefault();
+		if (Robot.isSimulation()) {
+			networkTables.stopServer();
+			networkTables.startClient4("localhost");
+		}
 
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
 		this.photonPoseEstimator =
@@ -76,6 +81,7 @@ public class VisionSubsystem extends SubsystemBase {
 	public void updateEvent(NetworkTableEvent event) {
 		latestPose = photonPoseEstimator.update();
 		if (latestPose.isPresent()) {
+			System.out.println(latestPose.get().estimatedPose);
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
 			poseEstimator.addVisionMeasurement(
 					latestPose.get().estimatedPose.toPose2d(), lastTimestampSeconds);
