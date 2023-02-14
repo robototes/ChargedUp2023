@@ -33,6 +33,7 @@ public class Hardware {
 	static {
 		String path = null;
 		for (var camInfo : UsbCamera.enumerateUsbCameras()) {
+			System.out.println("Found camera with name " + camInfo.name);
 			// On bonk "0c" at the end was removed, don't know why
 			if (camInfo.name.contains(" C93")) {
 				path = camInfo.path;

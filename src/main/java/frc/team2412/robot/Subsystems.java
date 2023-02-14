@@ -55,6 +55,8 @@ public class Subsystems {
 			} else {
 				UsbCamera driverVisionCamera =
 						CameraServer.startAutomaticCapture("Driver vision", Hardware.DRIVER_VISION_PATH);
+				var camInfo = driverVisionCamera.getInfo();
+				System.out.println("Connecting to " + camInfo.name + " device number " + camInfo.dev + " on path " + camInfo.path);
 				// Available resolutions:
 				// 640x480, 160x120, 176x144, 320x180, 320x240, 352x288, 424x240, 480x270, 640x360, 800x448
 				// < 30 YUYV FPS:
