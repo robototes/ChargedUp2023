@@ -53,6 +53,7 @@ public class Subsystems {
 			if (Hardware.DRIVER_VISION_PATH == null) {
 				DriverStation.reportWarning("No driver vision camera connected!", false);
 			} else {
+				System.out.println("Starting automatic capture");
 				UsbCamera driverVisionCamera =
 						CameraServer.startAutomaticCapture("Driver vision", Hardware.DRIVER_VISION_PATH);
 				var camInfo = driverVisionCamera.getInfo();

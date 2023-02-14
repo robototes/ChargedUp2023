@@ -32,6 +32,7 @@ public class Hardware {
 
 	static {
 		String path = null;
+		System.out.println("Searching for driver vision camera...");
 		for (var camInfo : UsbCamera.enumerateUsbCameras()) {
 			System.out.println("Found camera with name " + camInfo.name);
 			// On bonk "0c" at the end was removed, don't know why
@@ -39,6 +40,7 @@ public class Hardware {
 				path = camInfo.path;
 			}
 		}
+		System.out.println("Done searching for driver vision camera");
 		DRIVER_VISION_PATH = path;
 	}
 
