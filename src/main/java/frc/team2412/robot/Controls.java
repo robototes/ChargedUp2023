@@ -60,6 +60,7 @@ public class Controls {
 		driveController
 				.rightBumper()
 				.onTrue(new InstantCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem)));
+
 		driveController
 				.rightBumper()
 				.onFalse(new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
