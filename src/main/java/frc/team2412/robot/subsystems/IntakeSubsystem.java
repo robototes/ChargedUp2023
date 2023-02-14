@@ -9,8 +9,8 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.I2C.Port;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.awt.Color;
 
 public class IntakeSubsystem extends SubsystemBase {
 	// CONSTANTS
@@ -23,6 +23,8 @@ public class IntakeSubsystem extends SubsystemBase {
 		public static final double INTAKE_CONE_DISTANCE = 0;
 		public static final Color INTAKE_CUBE_COLOR = new Color(145, 48, 255);
 		public static final Color INTAKE_CONE_COLOR = new Color(255, 245, 45);
+
+		public static final int INTAKE_COLOR_THRESHOLD = 10;
 
 		// enums
 		public static enum GamePieceType {
@@ -44,8 +46,8 @@ public class IntakeSubsystem extends SubsystemBase {
 		// public final distance;
 
 	}
-	// HARDWARE
 
+	// HARDWARE
 	private final CANSparkMax motor1;
 	private final CANSparkMax motor2;
 	private final ColorSensorV3 colorSensor;
@@ -85,15 +87,32 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	public GamePieceType detectType() {
-		if (colorSensor.getColor().equals(INTAKE_CUBE_COLOR)) {
+		if (colorSensorEquals(INTAKE_CUBE_COLOR)) {
 			return GamePieceType.CUBE;
-		} else if (colorSensor.getColor().equals(INTAKE_CONE_COLOR)) {
+		} else if (colorSensorEquals(INTAKE_CONE_COLOR)) {
 			return GamePieceType.CONE;
 		}
 		return GamePieceType.NONE;
 	}
 
-	public boolean
+	public boolean colorSensorEquals(Color color1) {
+		// r
+		if (colorSensor.getRed() <= (color1.getRed() + INTAKE_COLOR_THRESHOLD)
+				&& colorSensor.getRed() >= (color1.getRed() - INTAKE_COLOR_THRESHOLD)) {
+			// g
+			if (colorSensor.getGreen() <= (color1.getGreen() + INTAKE_COLOR_THRESHOLD)
+					&& colorSensor.getGreen() >= (color1.getGreen() - INTAKE_COLOR_THRESHOLD)) {
+				// b
+				if (colorSensor.getBlue() <= (color1.getBlue() + INTAKE_COLOR_THRESHOLD)
+						&& colorSensor.getBlue() >= (color1.getBlue() - INTAKE_COLOR_THRESHOLD)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean isSecured() {
 		// Checks to see if the game piece is secured, returns true if the motor should stop
 		return (getDistance() < 12 || (detectType() == GamePieceType.CUBE && getDistance() < 15));
 	}
