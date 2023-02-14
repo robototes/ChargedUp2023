@@ -17,6 +17,7 @@ public class ManualArmOverrideCommand extends CommandBase {
 		this.armSubsystem = armSubsystem;
 		this.armJoystickInput = armJoystickInput;
 		this.wristJoystickInput = wristJoystickInput;
+		addRequirements(armSubsystem);
 	}
 
 	@Override

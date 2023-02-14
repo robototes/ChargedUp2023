@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team2412.robot.commands.arm.ManualArmOverrideCommand;
-import frc.team2412.robot.commands.arm.SetArmCommand;
+import frc.team2412.robot.commands.arm.SetFullArmCommand;
 import frc.team2412.robot.commands.arm.SetWristCommand;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
 import frc.team2412.robot.commands.intake.IntakeSetInCommand;
@@ -94,14 +94,23 @@ public class Controls {
 		armManualControl.toggleOnTrue(
 				new ManualArmOverrideCommand(
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
-		armLowButton.onTrue(new SetArmCommand(s.armSubsystem, ARM_LOW_POSITION));
-		armMiddleButton.onTrue(new SetArmCommand(s.armSubsystem, ARM_MIDDLE_POSITION));
-		armHighButton.onTrue(new SetArmCommand(s.armSubsystem, ARM_HIGH_POSITION));
-		armSubstationButton.onTrue(new SetArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION));
+		armLowButton.onTrue(
+				new SetFullArmCommand(s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
+		armMiddleButton.onTrue(
+				new SetFullArmCommand(
+						s.armSubsystem, s.intakeSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
+		armHighButton.onTrue(
+				new SetFullArmCommand(
+						s.armSubsystem, s.intakeSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
+		armSubstationButton.onTrue(
+				new SetFullArmCommand(
+						s.armSubsystem, s.intakeSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE));
 
-		wristRetractButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_RETRACT_CUBE));
-		// wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_PRESCORE));
-		wristScoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_SCORE));
+		wristRetractButton.onTrue(
+				new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_RETRACT));
+		// wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, s.intakeSubsystem,
+		// WRIST_PRESCORE));
+		wristScoreButton.onTrue(new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_SCORE));
 	}
 
 	public void bindIntakeControls() {

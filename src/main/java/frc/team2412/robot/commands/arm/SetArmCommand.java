@@ -14,15 +14,12 @@ public class SetArmCommand extends CommandBase {
 	public SetArmCommand(ArmSubsystem armSubsystem, PositionType positionType) {
 		this.armSubsystem = armSubsystem;
 		this.positionType = positionType;
-		addRequirements(armSubsystem);
 	}
 
 	@Override
 	public void initialize() {
 		armSubsystem.setPosition(positionType);
 		armSubsystem.setArmGoal(positionType.armAngle);
-		// Prepares wrist to score whenever position changes to save time
-		armSubsystem.setWristGoal(positionType.prescoringWristAngle);
 	}
 
 	@Override

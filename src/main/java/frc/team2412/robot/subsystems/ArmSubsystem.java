@@ -7,11 +7,11 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionTy
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxAbsoluteEncoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Robot;
 
@@ -140,8 +140,8 @@ public class ArmSubsystem extends SubsystemBase {
 	private final CANSparkMax armMotor2;
 	private final CANSparkMax wristMotor;
 
-	private final Encoder shoulderEncoder;
-	private final Encoder wristEncoder;
+	private final SparkMaxAbsoluteEncoder shoulderEncoder;
+	private final SparkMaxAbsoluteEncoder wristEncoder;
 
 	private final ProfiledPIDController armPID;
 	private final ProfiledPIDController wristPID;
@@ -155,8 +155,8 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor2 = new CANSparkMax(ARM_MOTOR2, MotorType.kBrushless);
 		wristMotor = new CANSparkMax(WRIST_MOTOR, MotorType.kBrushless);
 
-		shoulderEncoder = new Encoder(SHOULDER_ENCODER_PORT_A, SHOULDER_ENCODER_PORT_B);
-		wristEncoder = new Encoder(WRIST_ENCODER_PORT_A, WRIST_ENCODER_PORT_B);
+		shoulderEncoder = armMotor1.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+		wristEncoder = wristMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 
 		armPID = new ProfiledPIDController(ARM_K_P, ARM_K_I, ARM_K_D, ARM_CONSTRAINTS);
 		wristPID = new ProfiledPIDController(WRIST_K_P, WRIST_K_I, WRIST_K_D, WRIST_CONSTRAINTS);
@@ -174,9 +174,6 @@ public class ArmSubsystem extends SubsystemBase {
 
 		currentPosition = ARM_LOW_POSITION;
 		manualOverride = false;
-
-		shoulderEncoder.reset();
-		wristEncoder.reset();
 
 		armPID.reset(getShoulderAngle());
 		wristPID.reset(getWristAngle());
@@ -211,11 +208,11 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	public double calculateArmPID() {
-		return armPID.calculate(shoulderEncoder.getDistance(), armPID.getGoal());
+		return armPID.calculate(getShoulderAngle(), armPID.getGoal());
 	}
 
 	public double calculateWristPID() {
-		return armPID.calculate(wristEncoder.getDistance(), wristPID.getGoal());
+		return armPID.calculate(getWristAngle(), wristPID.getGoal());
 	}
 
 	public double calculateArmFeedforward() {
@@ -226,20 +223,19 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	public double calculateWristFeedforward() {
-		return wristFeedforward.calculate(
-				shoulderEncoder.getDistance() + wristEncoder.getDistance(), 0); // getRate = getVelocity?
+		return wristFeedforward.calculate(getShoulderAngle() - getElbowAngle() + getWristAngle(), 0);
 	}
 
 	public double getShoulderAngle() {
-		return shoulderEncoder.getDistance();
+		return shoulderEncoder.getPosition();
 	}
 
 	public double getElbowAngle() {
-		return shoulderEncoder.getDistance() * SHOULDER_ELBOW_GEAR_RATIO;
+		return shoulderEncoder.getPosition() * SHOULDER_ELBOW_GEAR_RATIO;
 	}
 
 	public double getWristAngle() {
-		return wristEncoder.getDistance();
+		return wristEncoder.getPosition();
 	}
 
 	public PositionType getPosition() {
