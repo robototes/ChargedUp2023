@@ -105,6 +105,7 @@ public class ArmSubsystem extends SubsystemBase {
 		 * Scoring Wrist Angle
 		 */
 		public static enum PositionType {
+			UNKNOWN_POSITION(0, 0, 0, 0, 0),
 			ARM_LOW_POSITION(0, 54, 72, 0, 262.63),
 			ARM_MIDDLE_POSITION(87.42, 54, 72, 142, 262.63),
 			ARM_HIGH_POSITION(50, 54, 72, 0, 111),
@@ -172,7 +173,7 @@ public class ArmSubsystem extends SubsystemBase {
 		armPID.setTolerance(ARM_POS_TOLERANCE, ARM_VELOCITY_TOLERANCE);
 		wristPID.setTolerance(WRIST_POS_TOLERANCE, WRIST_VELOCITY_TOLERANCE);
 
-		currentPosition = ARM_LOW_POSITION;
+		currentPosition = UNKNOWN_POSITION;
 		manualOverride = false;
 
 		armPID.reset(getShoulderAngle());

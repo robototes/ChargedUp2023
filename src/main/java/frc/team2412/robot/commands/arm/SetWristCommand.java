@@ -2,6 +2,7 @@ package frc.team2412.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team2412.robot.subsystems.ArmSubsystem;
+import frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType;
 
@@ -23,6 +24,10 @@ public class SetWristCommand extends CommandBase {
 			IntakeSubsystem intakeSubsystem,
 			WristPosition targetWristPosition) {
 		this.armSubsystem = armSubsystem;
+
+		if (armSubsystem.getPosition() == PositionType.UNKNOWN_POSITION) {
+			return;
+		}
 
 		switch (targetWristPosition) {
 			case WRIST_RETRACT:
