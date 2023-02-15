@@ -81,7 +81,6 @@ public class VisionSubsystem extends SubsystemBase {
 	public void updateEvent(NetworkTableEvent event) {
 		latestPose = photonPoseEstimator.update();
 		if (latestPose.isPresent()) {
-			System.out.println(latestPose.get().estimatedPose);
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
 			poseEstimator.addVisionMeasurement(
 					latestPose.get().estimatedPose.toPose2d(), lastTimestampSeconds);
