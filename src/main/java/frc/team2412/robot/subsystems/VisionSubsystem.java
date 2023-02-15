@@ -30,7 +30,7 @@ public class VisionSubsystem extends SubsystemBase {
 	private PhotonCamera photonCamera;
 	private Optional<EstimatedRobotPose> latestPose;
 	private PhotonPoseEstimator photonPoseEstimator;
-	private SwerveDrivePoseEstimator poseEstimator;
+	private final SwerveDrivePoseEstimator poseEstimator;
 
 	private double lastTimestampSeconds = 0;
 	/*
@@ -81,10 +81,11 @@ public class VisionSubsystem extends SubsystemBase {
 	public void updateEvent(NetworkTableEvent event) {
 		latestPose = photonPoseEstimator.update();
 		if (latestPose.isPresent()) {
-			System.out.println(latestPose.get().estimatedPose);
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
-			poseEstimator.addVisionMeasurement(
-					latestPose.get().estimatedPose.toPose2d(), lastTimestampSeconds);
+			synchronized (poseEstimator) {
+				poseEstimator.addVisionMeasurement(
+						latestPose.get().estimatedPose.toPose2d(), lastTimestampSeconds);
+			}
 		}
 	}
 

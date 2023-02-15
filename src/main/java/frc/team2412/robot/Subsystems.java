@@ -40,6 +40,8 @@ public class Subsystems {
 		poseEstimator =
 				new SwerveDrivePoseEstimator(
 						DrivebaseSubsystem.kinematics, new Rotation2d(), pseudoPositions, new Pose2d());
+		// Add value to pose buffer to prevent NoSuchElementException
+		poseEstimator.update(new Rotation2d(), pseudoPositions);
 
 		boolean comp = Robot.getInstance().isCompetition();
 
