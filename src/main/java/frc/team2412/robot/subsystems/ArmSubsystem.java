@@ -288,6 +288,7 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 	/**
 	 * Calculates the arm's feedforward using the calculated angle towards center of mass.
+	 *
 	 * @return The calculated feedforward.
 	 */
 	public double calculateArmFeedforward() {
@@ -314,6 +315,7 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 	/**
 	 * Gets current state or position of Arm Subsystem, used for extracting data from arm enum data
+	 *
 	 * @return The current position of the arm.
 	 */
 	public PositionType getPosition() {
@@ -321,6 +323,7 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 	/**
 	 * Converts the percentOutput into volts
+	 *
 	 * @param percentOutput The percentOutput to convert into volts with
 	 * @return percentOutput in volts;
 	 */
@@ -328,12 +331,14 @@ public class ArmSubsystem extends SubsystemBase {
 		return percentOutput * Robot.getInstance().getVoltage();
 	}
 	/**
-	 * Calculates the angle towards center of mass by averaging and weighing the individual arm parts (inner arm, outer arm, and intake) together.
+	 * Calculates the angle towards center of mass by averaging and weighing the individual arm parts
+	 * (inner arm, outer arm, and intake) together.
+	 *
 	 * @return The calculated angle in radians.
 	 */
 	public double getAngleTowardsCenterOfMass() {
 
-		// Get Coordinates of Centers of Mass
+		// Calculate Coordinates of Centers of Mass
 		double innerArmCenterOfMassX =
 				INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT
 						* Math.cos(Math.toRadians(180 - getShoulderAngle()));
