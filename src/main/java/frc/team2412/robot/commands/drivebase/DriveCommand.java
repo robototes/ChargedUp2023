@@ -80,13 +80,7 @@ public class DriveCommand extends CommandBase {
 										* (1 - triggerModifierEntry.getDouble(TRIGGER_MODIFIER_DEFAULT))));
 
 		if (autoBalance.getAsBoolean()) {
-			drivebaseSubsystem.drive(
-				0,
-				0,
-				new Rotation2d(),
-				fieldOrientedEntry.getBoolean(true),
-				true
-			);
+			drivebaseSubsystem.drive(0, 0, new Rotation2d(), fieldOrientedEntry.getBoolean(true), true);
 		} else {
 			double x = deadbandCorrection(-forward.getAsDouble());
 			double y = deadbandCorrection(strafe.getAsDouble());
@@ -98,20 +92,20 @@ public class DriveCommand extends CommandBase {
 			double cubed_x = magnitude * Math.cos(angle);
 			double cubed_y = magnitude * Math.sin(angle);
 
-		drivebaseSubsystem.drive(
-				(cubeSpeedEntry.getBoolean(false) ? cubed_x : x)
-						* driveSpeedModifier
-						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC, // convert from percent to m/s
-				(cubeSpeedEntry.getBoolean(false) ? cubed_y : y)
-						* driveSpeedModifier
-						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC,
-				Rotation2d.fromRotations(
-						rot
-								* rotationSpeedEntry.getDouble(1.0)
-								* DrivebaseSubsystem.MAX_ROTATIONS_PER_SEC
-										.getRotations()), // convert from percent to rotations per second
-				fieldOrientedEntry.getBoolean(true),
-				false);
+			drivebaseSubsystem.drive(
+					(cubeSpeedEntry.getBoolean(false) ? cubed_x : x)
+							* driveSpeedModifier
+							* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC, // convert from percent to m/s
+					(cubeSpeedEntry.getBoolean(false) ? cubed_y : y)
+							* driveSpeedModifier
+							* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC,
+					Rotation2d.fromRotations(
+							rot
+									* rotationSpeedEntry.getDouble(1.0)
+									* DrivebaseSubsystem.MAX_ROTATIONS_PER_SEC
+											.getRotations()), // convert from percent to rotations per second
+					fieldOrientedEntry.getBoolean(true),
+					false);
 		}
 	}
 

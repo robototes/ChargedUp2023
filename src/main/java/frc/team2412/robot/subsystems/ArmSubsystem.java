@@ -12,6 +12,10 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Robot;
 
@@ -39,7 +43,8 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double INNER_ARM_LENGTH = 25;
 		public static final double OUTER_ARM_LENGTH = 27.25;
 
-		public static final double SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO = 750 / 1;
+		// TODO: this is still incorrect, current delta between extended and retracted is 0.1809 but should be 0.25
+		public static final double SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO = 6 / 1;
 		public static final double WRIST_ENCODER_TO_WRIST_ANGLE_RATIO = 24 / 1;
 		public static final double SHOULDER_ELBOW_GEAR_RATIO = 68 / 48;
 
@@ -152,13 +157,21 @@ public class ArmSubsystem extends SubsystemBase {
 	private final CANSparkMax armMotor2;
 	private final CANSparkMax wristMotor;
 
-	private final SparkMaxAbsoluteEncoder shoulderEncoder;
+	private final DutyCycleEncoder shoulderEncoder;
 	private final SparkMaxAbsoluteEncoder wristEncoder;
 
 	private final ProfiledPIDController armPID;
 	private final SparkMaxPIDController wristPID;
 
 	private final ArmFeedforward wristFeedforward;
+
+	// Network Tables
+
+	NetworkTableInstance NTInstance;
+	NetworkTable NTDevices;
+
+	DoublePublisher shoulderEncoderPublisher;
+	DoublePublisher wristEncoderPublisher;
 
 	// Constructor
 
@@ -167,8 +180,10 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor2 = new CANSparkMax(ARM_MOTOR2, MotorType.kBrushless);
 		wristMotor = new CANSparkMax(WRIST_MOTOR, MotorType.kBrushless);
 
-		shoulderEncoder = armMotor1.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+		shoulderEncoder = new DutyCycleEncoder(SHOULDER_ENCODER_PORT_A);
 		wristEncoder = wristMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+
+		// TODO: set break mode
 
 		armPID = new ProfiledPIDController(ARM_K_P, ARM_K_I, ARM_K_D, ARM_CONSTRAINTS);
 		wristPID = wristMotor.getPIDController();
@@ -180,6 +195,18 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// armPID.reset(getShoulderAngle());
 		// wristPID.reset(getWristAngle());
+
+		// network tables
+
+		NTInstance = NetworkTableInstance.getDefault();
+
+		NTDevices = NTInstance.getTable("Devices");
+
+		shoulderEncoderPublisher = NTDevices.getDoubleTopic("Shoulder Encoder").publish();
+		wristEncoderPublisher = NTDevices.getDoubleTopic("Wrist Encoder").publish();
+
+		shoulderEncoderPublisher.set(0.0);
+		wristEncoderPublisher.set(0.0);
 	}
 
 	// Methods
@@ -266,11 +293,11 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	public double getShoulderAngle() {
-		return shoulderEncoder.getPosition() / SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO;
+		return shoulderEncoder.getDistance() / SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO;
 	}
 
 	public double getElbowAngle() {
-		return shoulderEncoder.getPosition() * SHOULDER_ELBOW_GEAR_RATIO;
+		return getShoulderAngle() * SHOULDER_ELBOW_GEAR_RATIO;
 	}
 
 	public double getWristAngle() {
@@ -349,5 +376,8 @@ public class ArmSubsystem extends SubsystemBase {
 					wristGoal, CANSparkMax.ControlType.kPosition, 0, calculateWristFeedforward());
 			// TODO: figure out PID Slot?
 		}
+
+		wristEncoderPublisher.set(getWristAngle());
+		shoulderEncoderPublisher.set(getShoulderAngle());
 	}
 }

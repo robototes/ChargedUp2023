@@ -86,8 +86,7 @@ public class Controls {
 								driveController::getLeftX,
 								driveController::getRightX,
 								driveController::getRightTriggerAxis,
-								driveController.leftBumper()
-								));
+								driveController.leftBumper()));
 		driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 	}
