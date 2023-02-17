@@ -5,9 +5,9 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.*;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -39,6 +39,8 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double INNER_ARM_LENGTH = 25;
 		public static final double OUTER_ARM_LENGTH = 27.25;
 
+		public static final double SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO = 750 / 1;
+		public static final double WRIST_ENCODER_TO_WRIST_ANGLE_RATIO = 24 / 1;
 		public static final double SHOULDER_ELBOW_GEAR_RATIO = 68 / 48;
 
 		// PID
@@ -47,9 +49,9 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double ARM_K_I = 0;
 		public static final double ARM_K_D = 0;
 
-		public static final double WRIST_K_P = 0;
-		public static final double WRIST_K_I = 0;
-		public static final double WRIST_K_D = 0;
+		public static final double WRIST_DEFAULT_P = 0;
+		public static final double WRIST_DEFAULT_I = 0;
+		public static final double WRIST_DEFAULT_D = 0;
 
 		// Feed Forward
 		public static final double ARM_K_A = 0;
@@ -63,6 +65,13 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double WRIST_K_V = 0;
 
 		// Constraints
+
+		public static final float ARM_FORWARD_LIMIT = 118 * (float) SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO;
+		public static final float ARM_REVERSE_LIMIT = 6 * (float) SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO;
+		public static final float WRIST_FORWARD_LIMIT =
+				307 * (float) WRIST_ENCODER_TO_WRIST_ANGLE_RATIO; // TODO: might not need ratio? figure out
+		public static final float WRIST_REVERSE_LIMIT = 62 * (float) WRIST_ENCODER_TO_WRIST_ANGLE_RATIO;
+
 		public static final int MIN_PERCENT_OUTPUT = -1;
 		public static final int MAX_PERCENT_OUTPUT = 1;
 
@@ -106,9 +115,9 @@ public class ArmSubsystem extends SubsystemBase {
 		 */
 		public static enum PositionType {
 			UNKNOWN_POSITION(0, 0, 0, 0, 0),
-			ARM_LOW_POSITION(0, 54, 72, 0, 262.63),
+			ARM_LOW_POSITION(0, 62, 72, 0, 262.63),
 			ARM_MIDDLE_POSITION(87.42, 54, 72, 142, 262.63),
-			ARM_HIGH_POSITION(50, 54, 72, 0, 111),
+			ARM_HIGH_POSITION(118, 54, 72, 180, 263),
 			ARM_SUBSTATION_POSITION(80, 54, 72, 0, 0); // ?
 
 			public final double armAngle;
@@ -136,6 +145,8 @@ public class ArmSubsystem extends SubsystemBase {
 
 	private PositionType currentPosition;
 	private boolean manualOverride;
+	private double armGoal;
+	private double wristGoal;
 
 	private final CANSparkMax armMotor1;
 	private final CANSparkMax armMotor2;
@@ -145,7 +156,7 @@ public class ArmSubsystem extends SubsystemBase {
 	private final SparkMaxAbsoluteEncoder wristEncoder;
 
 	private final ProfiledPIDController armPID;
-	private final ProfiledPIDController wristPID;
+	private final SparkMaxPIDController wristPID;
 
 	private final ArmFeedforward wristFeedforward;
 
@@ -160,64 +171,91 @@ public class ArmSubsystem extends SubsystemBase {
 		wristEncoder = wristMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 
 		armPID = new ProfiledPIDController(ARM_K_P, ARM_K_I, ARM_K_D, ARM_CONSTRAINTS);
-		wristPID = new ProfiledPIDController(WRIST_K_P, WRIST_K_I, WRIST_K_D, WRIST_CONSTRAINTS);
+		wristPID = wristMotor.getPIDController();
 
 		wristFeedforward = new ArmFeedforward(WRIST_K_A, WRIST_K_G, WRIST_K_S, WRIST_K_V);
-
-		armMotor2.follow(armMotor1, true);
-
-		armMotor1.setIdleMode(IdleMode.kBrake);
-		armMotor2.setIdleMode(IdleMode.kBrake);
-		wristMotor.setIdleMode(IdleMode.kBrake);
-
-		armPID.setTolerance(ARM_POS_TOLERANCE, ARM_VELOCITY_TOLERANCE);
-		wristPID.setTolerance(WRIST_POS_TOLERANCE, WRIST_VELOCITY_TOLERANCE);
 
 		currentPosition = UNKNOWN_POSITION;
 		manualOverride = false;
 
-		armPID.reset(getShoulderAngle());
-		wristPID.reset(getWristAngle());
+		// armPID.reset(getShoulderAngle());
+		// wristPID.reset(getWristAngle());
 	}
 
 	// Methods
 
-	public void setArmMotor(double percentOutput) {
-		armMotor1.set(
-				MathUtil.clamp(MAX_ARM_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT));
-	}
+	public void configMotors() {
 
-	public void setWristMotor(double percentOutput) {
-		wristMotor.set(
-				MathUtil.clamp(MAX_WRIST_VELOCITY + percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT));
-	}
+		armMotor1.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+		armMotor1.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+		armMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, ARM_FORWARD_LIMIT);
+		armMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, ARM_REVERSE_LIMIT);
+		armMotor1.setSmartCurrentLimit(10);
 
-	public void setPosition(PositionType position) {
-		currentPosition = position;
+		wristMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+
+		armMotor2.follow(armMotor1, true);
+		setWristPID(WRIST_DEFAULT_P, WRIST_DEFAULT_I, WRIST_DEFAULT_D);
 	}
 
 	public void setManualOverride(boolean override) {
 		manualOverride = override;
 	}
 
+	public void setArmPID(double p, double i, double d) {
+		armPID.setP(p);
+		armPID.setI(i);
+		armPID.setD(d);
+	}
+
+	public void setWristPID(double p, double i, double d) {
+		wristPID.setP(p);
+		wristPID.setI(i);
+		wristPID.setD(d);
+	}
+
+	public void setArmMotor(double percentOutput) {
+		percentOutput =
+				MathUtil.clamp(MAX_ARM_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT);
+		armMotor1.set(percentOutput);
+	}
+
+	public void setWristMotor(double percentOutput) {
+		percentOutput =
+				MathUtil.clamp(MAX_WRIST_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT);
+		wristPID.setReference(
+				percentOutput, CANSparkMax.ControlType.kDutyCycle, 0, calculateWristFeedforward());
+	}
+
+	public void setPosition(PositionType position) {
+		currentPosition = position;
+	}
+
 	public void setArmGoal(double targetAngle) {
-		armPID.setGoal(MathUtil.clamp(targetAngle, MIN_ARM_ANGLE, MAX_ARM_ANGLE));
+		targetAngle = MathUtil.clamp(targetAngle, MIN_ARM_ANGLE, MAX_ARM_ANGLE);
+		armPID.setGoal(targetAngle);
 	}
 
 	public void setWristGoal(double targetAngle) {
-		wristPID.setGoal(MathUtil.clamp(targetAngle, MIN_WRIST_ANGLE, MAX_WRIST_ANGLE));
+		// wristPID.setGoal(MathUtil.clamp(targetAngle, MIN_WRIST_ANGLE, MAX_WRIST_ANGLE));
+		wristPID.setReference(
+				targetAngle * SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO,
+				CANSparkMax.ControlType.kPosition,
+				0,
+				convertToVolts(calculateWristFeedforward()));
+		wristGoal = targetAngle;
 	}
 
 	public double calculateArmPID() {
 		return armPID.calculate(getShoulderAngle(), armPID.getGoal());
 	}
 
-	public double calculateWristPID() {
-		return armPID.calculate(getWristAngle(), wristPID.getGoal());
-	}
+	// public double calculateWristPID() {
+	// 	return armPID.calculate(getWristAngle(), wristPID.getGoal());
+	// }
 
 	public double calculateArmFeedforward() {
-		return ARM_K_S * Math.signum(armPID.getGoal().position - getShoulderAngle())
+		return ARM_K_S * Math.signum(armGoal - getShoulderAngle())
 				+ ARM_K_G * getAngleTowardsCenterOfMass()
 				+ ARM_K_V * 0
 				+ ARM_K_A * 0;
@@ -228,7 +266,7 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	public double getShoulderAngle() {
-		return shoulderEncoder.getPosition();
+		return shoulderEncoder.getPosition() / SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO;
 	}
 
 	public double getElbowAngle() {
@@ -299,18 +337,17 @@ public class ArmSubsystem extends SubsystemBase {
 	public void periodic() {
 		// Periodic Arm movement for Preset Angle Control
 		if (!manualOverride) {
+
 			armMotor1.setVoltage(
 					convertToVolts(
 							MathUtil.clamp(
 									calculateArmPID() + calculateArmFeedforward(),
 									MIN_PERCENT_OUTPUT,
 									MAX_PERCENT_OUTPUT)));
-			wristMotor.setVoltage(
-					convertToVolts(
-							MathUtil.clamp(
-									calculateWristPID() + calculateWristFeedforward(),
-									MIN_PERCENT_OUTPUT,
-									MAX_PERCENT_OUTPUT)));
+
+			wristPID.setReference(
+					wristGoal, CANSparkMax.ControlType.kPosition, 0, calculateWristFeedforward());
+			// TODO: figure out PID Slot?
 		}
 	}
 }
