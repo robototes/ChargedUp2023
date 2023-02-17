@@ -1,11 +1,16 @@
 package frc.team2412.robot;
 
 import static frc.team2412.robot.Controls.ControlConstants.*;
+import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.*;
+import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.team2412.robot.commands.arm.ManualArmOverrideCommand;
+import frc.team2412.robot.commands.arm.SetFullArmCommand;
+import frc.team2412.robot.commands.arm.SetWristCommand;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
 import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
@@ -18,6 +23,20 @@ public class Controls {
 	}
 
 	private final CommandXboxController driveController;
+	private final CommandXboxController codriveController;
+
+	// Arm
+
+	public final Trigger armManualControl;
+
+	public final Trigger armLowButton;
+	public final Trigger armMiddleButton;
+	public final Trigger armHighButton;
+	public final Trigger armSubstationButton;
+
+	public final Trigger wristRetractButton;
+	// public final Trigger wristPrescoreButton;
+	public final Trigger wristScoreButton;
 
 	// intake
 	public final Trigger intakeInButton;
@@ -28,7 +47,18 @@ public class Controls {
 
 	public Controls(Subsystems s) {
 		driveController = new CommandXboxController(CONTROLLER_PORT);
+		codriveController = new CommandXboxController(CODRIVER_CONTROLLER_PORT);
 		this.s = s;
+
+		armManualControl = codriveController.rightStick();
+
+		armLowButton = codriveController.y();
+		armMiddleButton = codriveController.x();
+		armHighButton = codriveController.a();
+		armSubstationButton = codriveController.b();
+
+		wristRetractButton = driveController.povRight();
+		wristScoreButton = driveController.povLeft();
 
 		intakeInButton = driveController.a();
 		intakeOutButton = driveController.y();
@@ -40,6 +70,9 @@ public class Controls {
 
 		if (Subsystems.SubsystemConstants.INTAKE_ENABLED) {
 			bindIntakeControls();
+		}
+		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
+			bindArmControls();
 		}
 	}
 
@@ -57,6 +90,29 @@ public class Controls {
 								));
 		driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
+	}
+
+	public void bindArmControls() {
+		armManualControl.toggleOnTrue(
+				new ManualArmOverrideCommand(
+						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
+		armLowButton.onTrue(
+				new SetFullArmCommand(s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
+		armMiddleButton.onTrue(
+				new SetFullArmCommand(
+						s.armSubsystem, s.intakeSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
+		armHighButton.onTrue(
+				new SetFullArmCommand(
+						s.armSubsystem, s.intakeSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
+		armSubstationButton.onTrue(
+				new SetFullArmCommand(
+						s.armSubsystem, s.intakeSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE));
+
+		wristRetractButton.onTrue(
+				new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_RETRACT));
+		// wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, s.intakeSubsystem,
+		// WRIST_PRESCORE));
+		wristScoreButton.onTrue(new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_SCORE));
 	}
 
 	public void bindIntakeControls() {
