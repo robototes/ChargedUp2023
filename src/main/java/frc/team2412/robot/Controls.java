@@ -15,6 +15,8 @@ import frc.team2412.robot.commands.drivebase.DriveCommand;
 import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetStopCommand;
+import frc.team2412.robot.commands.led.LEDPurpleCommand;
+import frc.team2412.robot.commands.led.LEDYellowCommand;
 
 public class Controls {
 	public static class ControlConstants {
@@ -43,6 +45,9 @@ public class Controls {
 	public final Trigger intakeOutButton;
 	public final Trigger intakeStopButton;
 
+	public final Trigger ledPurple;
+	public final Trigger ledYellow;
+
 	private final Subsystems s;
 
 	public Controls(Subsystems s) {
@@ -64,6 +69,9 @@ public class Controls {
 		intakeOutButton = driveController.y();
 		intakeStopButton = driveController.b();
 
+		ledPurple = driveController.rightBumper();
+		ledYellow = driveController.leftBumper();
+
 		if (Subsystems.SubsystemConstants.DRIVEBASE_ENABLED) {
 			bindDrivebaseControls();
 		}
@@ -73,6 +81,9 @@ public class Controls {
 		}
 		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
 			bindArmControls();
+		}
+		if (Subsystems.SubsystemConstants.LED_ENABLED) {
+			bindLEDControls();
 		}
 	}
 
@@ -115,8 +126,14 @@ public class Controls {
 	}
 
 	public void bindIntakeControls() {
-		intakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
+		intakeInButton.onTrue(
+				new IntakeSetInCommand(s.intakeSubsystem).until(s.intakeSubsystem::isSecured));
 		intakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
 		intakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
+	}
+
+	public void bindLEDControls() {
+		ledPurple.onTrue(new LEDPurpleCommand(s.ledSubsystem));
+		ledYellow.onTrue(new LEDYellowCommand(s.ledSubsystem));
 	}
 }
