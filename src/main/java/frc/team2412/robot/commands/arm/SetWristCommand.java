@@ -26,7 +26,7 @@ public class SetWristCommand extends CommandBase {
 		this.armSubsystem = armSubsystem;
 
 		if (armSubsystem.getPosition() == PositionType.UNKNOWN_POSITION) {
-			return;
+			// return;
 		}
 
 		switch (targetWristPosition) {

@@ -16,8 +16,8 @@ public class IntakeSubsystem extends SubsystemBase {
 	// CONSTANTS
 	public static class IntakeConstants {
 		// speeds
-		public static final double INTAKE_IN_SPEED = 0.8;
-		public static final double INTAKE_OUT_SPEED = -0.8;
+		public static final double INTAKE_IN_SPEED = 0.1;
+		public static final double INTAKE_OUT_SPEED = -0.1;
 
 		public static final double INTAKE_CUBE_DISTANCE = 0;
 		public static final double INTAKE_CONE_DISTANCE = 0;
@@ -60,7 +60,7 @@ public class IntakeSubsystem extends SubsystemBase {
 		motor1.setIdleMode(IdleMode.kBrake);
 		motor2.setIdleMode(IdleMode.kBrake);
 
-		colorSensor = new ColorSensorV3(Port.kMXP);
+		colorSensor = new ColorSensorV3(Port.kOnboard);
 		distanceSensor = new AnalogInput(INTAKE_DISTANCE_SENSOR);
 	}
 
