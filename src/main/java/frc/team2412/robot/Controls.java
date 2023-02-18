@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team2412.robot.commands.arm.ManualArmOverrideCommand;
+import frc.team2412.robot.commands.arm.ResetArmCommand;
 import frc.team2412.robot.commands.arm.SetFullArmCommand;
 import frc.team2412.robot.commands.arm.SetWristCommand;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
@@ -35,6 +36,7 @@ public class Controls {
 	public final Trigger armMiddleButton;
 	public final Trigger armHighButton;
 	public final Trigger armSubstationButton;
+	public final Trigger armResetButton;
 
 	public final Trigger wristRetractButton;
 	// public final Trigger wristPrescoreButton;
@@ -61,6 +63,7 @@ public class Controls {
 		armMiddleButton = codriveController.x();
 		armHighButton = codriveController.a();
 		armSubstationButton = codriveController.b();
+		armResetButton = codriveController.start();
 
 		wristRetractButton = driveController.povRight();
 		wristScoreButton = driveController.povLeft();
@@ -75,7 +78,6 @@ public class Controls {
 		if (Subsystems.SubsystemConstants.DRIVEBASE_ENABLED) {
 			bindDrivebaseControls();
 		}
-
 		if (Subsystems.SubsystemConstants.INTAKE_ENABLED) {
 			bindIntakeControls();
 		}
@@ -116,6 +118,7 @@ public class Controls {
 		armSubstationButton.onTrue(
 				new SetFullArmCommand(
 						s.armSubsystem, s.intakeSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE));
+		armResetButton.whileTrue(new ResetArmCommand(s.armSubsystem));
 
 		wristRetractButton.onTrue(
 				new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_RETRACT));
