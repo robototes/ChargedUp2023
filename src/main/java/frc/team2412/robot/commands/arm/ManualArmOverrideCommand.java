@@ -23,12 +23,13 @@ public class ManualArmOverrideCommand extends CommandBase {
 	@Override
 	public void initialize() {
 		armSubsystem.setManualOverride(true);
+		System.out.println("init manual control");
 	}
 
 	@Override
 	public void execute() {
-		armSubsystem.setArmMotor(armJoystickInput.getAsDouble());
-		armSubsystem.setWristMotor(wristJoystickInput.getAsDouble());
+		armSubsystem.setArmMotor(deadbandCorrection(armJoystickInput.getAsDouble()));
+		armSubsystem.setWristMotor(deadbandCorrection(wristJoystickInput.getAsDouble()));
 	}
 
 	@Override
@@ -39,5 +40,9 @@ public class ManualArmOverrideCommand extends CommandBase {
 	@Override
 	public boolean isFinished() {
 		return false;
+	}
+
+	public double deadbandCorrection(double input) {
+		return Math.abs(input) < 0.05 ? 0 : (input - Math.signum(input) * 0.05) / 0.95;
 	}
 }

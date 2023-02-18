@@ -76,15 +76,12 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double MAX_WRIST_ANGLE = 62;
 		public static final double MIN_WRIST_ANGLE = 307;
 
-		public static final float ARM_FORWARD_LIMIT =
-				(float) MAX_ARM_ANGLE * (float) SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO;
-		public static final float ARM_REVERSE_LIMIT =
-				(float) MIN_ARM_ANGLE * (float) SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO;
-		// TODO: might not need ratio?
+		public static final float ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO = 125;
+		public static final float ARM_FORWARD_LIMIT = 156;
+		public static final float ARM_REVERSE_LIMIT = 1;
 		public static final float WRIST_FORWARD_LIMIT =
-				(float) MAX_WRIST_ANGLE * (float) WRIST_ENCODER_TO_WRIST_ANGLE_RATIO;
-		public static final float WRIST_REVERSE_LIMIT =
-				(float) MIN_WRIST_ANGLE * (float) WRIST_ENCODER_TO_WRIST_ANGLE_RATIO;
+				0.93f * 90; // TODO: might not need ratio? figure out
+		public static final float WRIST_REVERSE_LIMIT = 0.309f * 90;
 
 		public static final int MIN_PERCENT_OUTPUT = -1;
 		public static final int MAX_PERCENT_OUTPUT = 1;
@@ -95,11 +92,11 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double ARM_VELOCITY_TOLERANCE = 0.2;
 		public static final double WRIST_VELOCITY_TOLERANCE = 0.2;
 
-		public static final double MAX_ARM_VELOCITY = 5;
-		public static final double MAX_ARM_ACCELERATION = 5;
+		public static final double MAX_ARM_VELOCITY = 0.1;
+		public static final double MAX_ARM_ACCELERATION = 0.5;
 
-		public static final double MAX_WRIST_VELOCITY = 5;
-		public static final double MAX_WRIST_ACCELERATION = 5;
+		public static final double MAX_WRIST_VELOCITY = .2;
+		public static final double MAX_WRIST_ACCELERATION = 0.5;
 
 		public static final Constraints ARM_CONSTRAINTS =
 				new Constraints(MAX_ARM_ACCELERATION, MAX_ARM_VELOCITY);
@@ -224,6 +221,9 @@ public class ArmSubsystem extends SubsystemBase {
 
 	public void configMotors() {
 
+		armMotor1.setInverted(false);
+		armMotor1.getEncoder().setPosition(0);
+
 		armMotor1.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
 		armMotor1.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
 		armMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, ARM_FORWARD_LIMIT);
@@ -235,9 +235,14 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor2.setSmartCurrentLimit(10);
 		armMotor2.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
+		wristMotor.setInverted(true);
+		wristMotor.getEncoder().setPosition(getWristAngle() * 90);
+
 		wristMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
+		wristMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
 		wristMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, WRIST_FORWARD_LIMIT);
 		wristMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, WRIST_REVERSE_LIMIT);
+		wristMotor.setSmartCurrentLimit(20);
 
 		setWristPID(WRIST_DEFAULT_P, WRIST_DEFAULT_I, WRIST_DEFAULT_D);
 	}
@@ -261,8 +266,9 @@ public class ArmSubsystem extends SubsystemBase {
 	public void setWristMotor(double percentOutput) {
 		percentOutput =
 				MathUtil.clamp(MAX_WRIST_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT);
+		System.out.println(percentOutput);
 		wristPID.setReference(
-				percentOutput, CANSparkMax.ControlType.kDutyCycle, 0, calculateWristFeedforward());
+				percentOutput, CANSparkMax.ControlType.kDutyCycle, 0); // calculateWristFeedforward());
 	}
 
 	public void setPosition(PositionType position) {
@@ -401,7 +407,7 @@ public class ArmSubsystem extends SubsystemBase {
 		}
 
 		wristEncoderPublisher.set(getWristAngle());
-		shoulderEncoderPublisher.set(getShoulderAngle());
+		shoulderEncoderPublisher.set(shoulderEncoder.getAbsolutePosition());
 
 		wristAnglePublisher.set(getWristAngle() * 360);
 		shoulderAnglePublisher.set(getShoulderAngle() * 360);
