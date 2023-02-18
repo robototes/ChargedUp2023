@@ -92,30 +92,34 @@ public class Robot extends TimedRobot {
 
 		PathPlannerServer.startServer(5811);
 
-		autoBuilder =
-				new SwerveAutoBuilder(
-						subsystems.drivebaseSubsystem::getPose, // Pose2d supplier
-						subsystems.drivebaseSubsystem
-								::resetPose, // Pose2d consumer, used to reset odometry at the beginning of
-						// auto
-						subsystems.drivebaseSubsystem.getKinematics(), // SwerveDriveKinematics
-						new PIDConstants(
-								5.0, 0.0,
-								0.0), // PID constants to correct for translation error (used to create the X and Y
-						// PID controllers)
-						new PIDConstants(
-								0.5, 0.0,
-								0.0), // PID constants to correct for rotation error (used to create the rotation
-						// controller)
-						subsystems.drivebaseSubsystem
-								::drive, // Module states consumer used to output to the drive subsystem
-						new HashMap<String, Command>(),
-						true, // Should the path be automatically mirrored depending on alliance color.
-						// Optional, defaults to true
-						subsystems
-								.drivebaseSubsystem // The drive subsystem. Used to properly set the requirements of
-						// path following commands
-						);
+		if (subsystems.drivebaseSubsystem != null) {
+			autoBuilder =
+					new SwerveAutoBuilder(
+							subsystems.drivebaseSubsystem::getPose, // Pose2d supplier
+							subsystems.drivebaseSubsystem
+									::resetPose, // Pose2d consumer, used to reset odometry at the beginning of
+							// auto
+							subsystems.drivebaseSubsystem.getKinematics(), // SwerveDriveKinematics
+							new PIDConstants(
+									5.0, 0.0,
+									0.0), // PID constants to correct for translation error (used to create the X and
+							// Y
+							// PID controllers)
+							new PIDConstants(
+									0.5, 0.0,
+									0.0), // PID constants to correct for rotation error (used to create the rotation
+							// controller)
+							subsystems.drivebaseSubsystem
+									::drive, // Module states consumer used to output to the drive subsystem
+							new HashMap<String, Command>(),
+							true, // Should the path be automatically mirrored depending on alliance color.
+							// Optional, defaults to true
+							subsystems
+									.drivebaseSubsystem // The drive subsystem. Used to properly set the requirements
+							// of
+							// path following commands
+							);
+		}
 	}
 
 	@Override
@@ -131,10 +135,12 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		Shuffleboard.startRecording();
 		// Basic auto path that travels 1 meter, and then balances on the charge station
-		new SequentialCommandGroup(
-						PathPlannerTestCommand.getAutoCommand(),
-						new AutoBalanceCommand(subsystems.drivebaseSubsystem))
-				.schedule();
+		if (subsystems.drivebaseSubsystem != null) {
+			new SequentialCommandGroup(
+							PathPlannerTestCommand.getAutoCommand(),
+							new AutoBalanceCommand(subsystems.drivebaseSubsystem))
+					.schedule();
+		}
 	}
 
 	@Override
