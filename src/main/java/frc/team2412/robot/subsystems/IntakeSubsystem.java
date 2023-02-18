@@ -34,6 +34,7 @@ public class IntakeSubsystem extends SubsystemBase {
 			NONE(new Color(0, 0, 0), 0);
 
 			public final Color color;
+			// TODO: find distance from sensor values
 			public final double distanceFromSensor;
 
 			GamePieceType(Color color, double distanceFromSensor) {
@@ -112,7 +113,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	public boolean isSecured() {
 		// Checks to see if the game piece is secured, returns true if the motor should stop
-		return (getDistance() < 12 || (detectType() == GamePieceType.CUBE && getDistance() < 15));
+		return (getDistance() < GamePieceType.CONE.distanceFromSensor
+				|| (detectType() == GamePieceType.CUBE
+						&& getDistance() < GamePieceType.CUBE.distanceFromSensor));
 	}
 
 	public double getDistance() {
