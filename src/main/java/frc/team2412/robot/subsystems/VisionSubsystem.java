@@ -4,6 +4,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -27,6 +31,33 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
  * <p>At some point we should discuss how we want to handle the different alliances.
  */
 public class VisionSubsystem extends SubsystemBase {
+	private static final boolean IS_COMP = Robot.getInstance().isCompetition();
+	// Rough measurements, origin is center of robot, +X is forward, +Y is left, +Z is up
+	// TODO Get final CAD measurements
+	public static final Transform3d ROBOT_TO_CAM =
+			IS_COMP
+					? new Transform3d(
+							new Translation3d(
+									// 7 inches from back of robot, back is -half of length (30 in.)
+									Units.inchesToMeters(-30.0 / 2 + 7),
+									// 7 inches from left, left is +half of width (26 in.)
+									Units.inchesToMeters(26.0 / 2 - 7),
+									// 30 inches above the ground
+									Units.inchesToMeters(30)),
+							// Camera has a slight yaw, -12 degrees following right-hand rule (thumb points to
+							// +Z/up, fingers curl in positive rotation)
+							new Rotation3d(0, 0, Math.toRadians(-12)))
+					: new Transform3d(
+							new Translation3d(
+									// 0.5 inches from front of robot, front is +half of length (24 in.)
+									Units.inchesToMeters(24 * 0.5 - 0.5),
+									// Around 1 inch to the right
+									Units.inchesToMeters(1),
+									// 26.5 inches above the ground
+									Units.inchesToMeters(26.5)),
+							// Camera's pointed backwards
+							new Rotation3d(0, 0, Math.toRadians(180)));
+
 	private PhotonCamera photonCamera;
 	private Optional<EstimatedRobotPose> latestPose;
 	private PhotonPoseEstimator photonPoseEstimator;
@@ -67,7 +98,7 @@ public class VisionSubsystem extends SubsystemBase {
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
 		this.photonPoseEstimator =
 				new PhotonPoseEstimator(
-						fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, photonCamera, Hardware.ROBOT_TO_CAM);
+						fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, photonCamera, ROBOT_TO_CAM);
 
 		networkTables.addListener(
 				networkTables
