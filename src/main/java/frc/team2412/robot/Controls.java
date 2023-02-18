@@ -84,6 +84,7 @@ public class Controls {
 		}
 		if (Subsystems.SubsystemConstants.LED_ENABLED) {
 			bindLEDControls();
+		}
 		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
 			bindArmControls();
 		}

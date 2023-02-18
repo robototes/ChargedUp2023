@@ -2,6 +2,7 @@ package frc.team2412.robot.subsystems;
 
 import static frc.team2412.robot.Hardware.*;
 import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.*;
+import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -22,28 +23,24 @@ public class IntakeSubsystem extends SubsystemBase {
 
 		public static final double INTAKE_CUBE_DISTANCE = 0;
 		public static final double INTAKE_CONE_DISTANCE = 0;
-		public static final Color INTAKE_CUBE_COLOR = new Color(145, 48, 255);
-		public static final Color INTAKE_CONE_COLOR = new Color(255, 245, 45);
 
 		public static final int INTAKE_COLOR_THRESHOLD = 10;
 
 		// enums
+
 		public static enum GamePieceType {
-			CUBE,
-			CONE,
-			NONE;
+			CUBE(new Color(145, 48, 255), 15),
+			CONE(new Color(255, 245, 45), 12),
+			NONE(new Color(0, 0, 0), 0);
 
-			/*
-			 * for reference hi cammy eggy
-			 * String example;
-			 *
-			 * GamePieceType(String example) {
-			 * this.example = example;
-			 * }
-			 */
+			public final Color color;
+			public final double distanceFromSensor;
 
+			GamePieceType(Color color, double distanceFromSensor) {
+				this.color = color;
+				this.distanceFromSensor = distanceFromSensor;
+			}
 		}
-
 		// public final distance;
 
 	}
@@ -88,24 +85,24 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	public GamePieceType detectType() {
-		if (colorSensorEquals(INTAKE_CUBE_COLOR)) {
+		if (colorSensorEquals(CUBE.color)) {
 			return GamePieceType.CUBE;
-		} else if (colorSensorEquals(INTAKE_CONE_COLOR)) {
+		} else if (colorSensorEquals(CUBE.color)) {
 			return GamePieceType.CONE;
 		}
 		return GamePieceType.NONE;
 	}
 
-	public boolean colorSensorEquals(Color color1) {
+	public boolean colorSensorEquals(Color color) {
 		// r
-		if (colorSensor.getRed() <= (color1.getRed() + INTAKE_COLOR_THRESHOLD)
-				&& colorSensor.getRed() >= (color1.getRed() - INTAKE_COLOR_THRESHOLD)) {
+		if (colorSensor.getRed() <= (color.getRed() + INTAKE_COLOR_THRESHOLD)
+				&& colorSensor.getRed() >= (color.getRed() - INTAKE_COLOR_THRESHOLD)) {
 			// g
-			if (colorSensor.getGreen() <= (color1.getGreen() + INTAKE_COLOR_THRESHOLD)
-					&& colorSensor.getGreen() >= (color1.getGreen() - INTAKE_COLOR_THRESHOLD)) {
+			if (colorSensor.getGreen() <= (color.getGreen() + INTAKE_COLOR_THRESHOLD)
+					&& colorSensor.getGreen() >= (color.getGreen() - INTAKE_COLOR_THRESHOLD)) {
 				// b
-				if (colorSensor.getBlue() <= (color1.getBlue() + INTAKE_COLOR_THRESHOLD)
-						&& colorSensor.getBlue() >= (color1.getBlue() - INTAKE_COLOR_THRESHOLD)) {
+				if (colorSensor.getBlue() <= (color.getBlue() + INTAKE_COLOR_THRESHOLD)
+						&& colorSensor.getBlue() >= (color.getBlue() - INTAKE_COLOR_THRESHOLD)) {
 					return true;
 				}
 			}

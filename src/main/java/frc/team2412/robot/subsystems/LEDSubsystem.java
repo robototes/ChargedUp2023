@@ -1,6 +1,7 @@
 package frc.team2412.robot.subsystems;
 
 import static frc.team2412.robot.Hardware.*;
+import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType.*;
 import static frc.team2412.robot.subsystems.LEDSubsystem.LEDConstants.*;
 
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -13,13 +14,13 @@ public class LEDSubsystem extends SubsystemBase {
 		public static final int BUFFER_LENGTH = 72;
 
 		// private final RGB PURPLE_RGB = 145, 48, 255;
-		public static final int pR = 145;
-		public static final int pG = 48;
-		public static final int pB = 255;
+		// public static final int pR = 145;
+		// public static final int pG = 48;
+		// public static final int pB = 255;
 		// private final RGB YELLOW_RGB = 255, 245, 45;
-		public static final int yR = 255;
-		public static final int yG = 245;
-		public static final int yB = 45;
+		// public static final int yR = 255;
+		// public static final int yG = 245;
+		// public static final int yB = 45;
 	}
 
 	private final AddressableLED leds;
