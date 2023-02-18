@@ -33,20 +33,19 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 public class VisionSubsystem extends SubsystemBase {
 	private static final boolean IS_COMP = Robot.getInstance().isCompetition();
 	// Rough measurements, origin is center of robot, +X is forward, +Y is left, +Z is up
-	// TODO Get final CAD measurements
 	public static final Transform3d ROBOT_TO_CAM =
 			IS_COMP
 					? new Transform3d(
 							new Translation3d(
-									// 7 inches from back of robot, back is -half of length (30 in.)
-									Units.inchesToMeters(-30.0 / 2 + 7),
-									// 7 inches from left, left is +half of width (26 in.)
-									Units.inchesToMeters(26.0 / 2 - 7),
-									// 30 inches above the ground
-									Units.inchesToMeters(30)),
-							// Camera has a slight yaw, -12 degrees following right-hand rule (thumb points to
-							// +Z/up, fingers curl in positive rotation)
-							new Rotation3d(0, 0, Math.toRadians(-12)))
+									// 6 inches from back of robot, back is -half of length (30 in.)
+									Units.inchesToMeters(-30.0 / 2 + 6),
+									// 7.5 inches from left, left is +half of width (26 in.)
+									Units.inchesToMeters(26.0 / 2 - 7.5),
+									// 29 inches above the ground
+									Units.inchesToMeters(29)),
+							// Camera has a slight yaw, -6.5 degrees following right-hand rule (thumb points to
+							// +Z/up, fingers curl in positive rotation (CCW looking down))
+							new Rotation3d(0, 0, Math.toRadians(-6.5)))
 					: new Transform3d(
 							new Translation3d(
 									// 0.5 inches from front of robot, front is +half of length (24 in.)
