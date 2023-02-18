@@ -135,10 +135,12 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		Shuffleboard.startRecording();
 		// Basic auto path that travels 1 meter, and then balances on the charge station
-		new SequentialCommandGroup(
-						PathPlannerTestCommand.getAutoCommand(),
-						new AutoBalanceCommand(subsystems.drivebaseSubsystem))
-				.schedule();
+		if (subsystems.drivebaseSubsystem != null) {
+			new SequentialCommandGroup(
+							PathPlannerTestCommand.getAutoCommand(),
+							new AutoBalanceCommand(subsystems.drivebaseSubsystem))
+					.schedule();
+		}
 	}
 
 	@Override
