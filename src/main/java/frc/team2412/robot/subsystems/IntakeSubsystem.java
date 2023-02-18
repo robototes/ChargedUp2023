@@ -87,7 +87,7 @@ public class IntakeSubsystem extends SubsystemBase {
 	public GamePieceType detectType() {
 		if (colorSensorEquals(CUBE.color)) {
 			return GamePieceType.CUBE;
-		} else if (colorSensorEquals(CUBE.color)) {
+		} else if (colorSensorEquals(CONE.color)) {
 			return GamePieceType.CONE;
 		}
 		return GamePieceType.NONE;
