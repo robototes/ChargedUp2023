@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
 import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
+import frc.team2412.robot.commands.intake.IntakeOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetInCommand;
-import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetStopCommand;
 import frc.team2412.robot.commands.led.LEDPurpleCommand;
 import frc.team2412.robot.commands.led.LEDYellowCommand;
@@ -76,7 +76,7 @@ public class Controls {
 
 		intakeInButton.onTrue(
 				new IntakeSetInCommand(s.intakeSubsystem).until(s.intakeSubsystem::isSecured));
-		intakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem));
+		intakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
 		intakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
 	}
 
