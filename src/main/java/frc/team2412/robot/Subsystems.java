@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
+import frc.team2412.robot.subsystems.LEDSubsystem;
 import frc.team2412.robot.subsystems.VisionSubsystem;
 
 public class Subsystems {
@@ -20,6 +21,7 @@ public class Subsystems {
 		public static final boolean ARM_ENABLED = false;
 		public static final boolean INTAKE_ENABLED = false;
 		public static final boolean VISION_ENABLED = false;
+		public static final boolean LED_ENABLED = false;
 		public static final boolean DRIVER_VIS_ENABLED = false;
 	}
 
@@ -27,6 +29,7 @@ public class Subsystems {
 	public ArmSubsystem armSubsystem;
 	public IntakeSubsystem intakeSubsystem;
 	public VisionSubsystem visionSubsystem;
+	public LEDSubsystem ledSubsystem;
 
 	public SwerveDrivePoseEstimator poseEstimator;
 
@@ -81,6 +84,9 @@ public class Subsystems {
 		}
 		if (INTAKE_ENABLED) {
 			intakeSubsystem = new IntakeSubsystem();
+		}
+		if (LED_ENABLED) {
+			ledSubsystem = new LEDSubsystem();
 		}
 	}
 }
