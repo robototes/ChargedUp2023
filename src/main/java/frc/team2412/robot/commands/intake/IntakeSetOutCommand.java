@@ -1,7 +1,6 @@
 package frc.team2412.robot.commands.intake;
 
 import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_OUT_SPEED;
-import static frc.team2412.robot.subsystems.LEDSubsystem.LEDConstants.*;
 
 import frc.team2412.robot.subsystems.IntakeSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType;
