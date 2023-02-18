@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
+import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
 import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetStopCommand;
@@ -70,6 +71,9 @@ public class Controls {
 	}
 
 	public void bindIntakeControls() {
+		CommandScheduler.getInstance()
+				.setDefaultCommand(s.intakeSubsystem, new IntakeDefaultCommand(s.intakeSubsystem));
+
 		intakeInButton.onTrue(
 				new IntakeSetInCommand(s.intakeSubsystem).until(s.intakeSubsystem::isSecured));
 		intakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
