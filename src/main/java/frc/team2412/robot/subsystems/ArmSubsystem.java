@@ -5,6 +5,7 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.*;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -92,7 +93,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double ARM_VELOCITY_TOLERANCE = 0.2;
 		public static final double WRIST_VELOCITY_TOLERANCE = 0.2;
 
-		public static final double MAX_ARM_VELOCITY = 0.1;
+		public static final double MAX_ARM_VELOCITY = 1;
 		public static final double MAX_ARM_ACCELERATION = 0.5;
 
 		public static final double MAX_WRIST_VELOCITY = .2;
@@ -228,11 +229,11 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor1.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
 		armMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, ARM_FORWARD_LIMIT);
 		armMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, ARM_REVERSE_LIMIT);
-		armMotor1.setSmartCurrentLimit(10);
+		armMotor1.setSmartCurrentLimit(20);
 		armMotor1.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
 		armMotor2.follow(armMotor1, true);
-		armMotor2.setSmartCurrentLimit(10);
+		armMotor2.setSmartCurrentLimit(20);
 		armMotor2.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
 		wristMotor.setInverted(true);
@@ -255,6 +256,20 @@ public class ArmSubsystem extends SubsystemBase {
 		wristPID.setP(p);
 		wristPID.setI(i);
 		wristPID.setD(d);
+	}
+
+	public void disableShoulderLimits() {
+		armMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
+		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
+	}
+
+	public void enableShoulderLimits() {
+		armMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
+		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
+	}
+
+	public void resetArmEncoder() {
+		armMotor1.getEncoder().setPosition(0);
 	}
 
 	public void setArmMotor(double percentOutput) {
