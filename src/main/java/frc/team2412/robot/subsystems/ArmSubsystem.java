@@ -45,9 +45,9 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// TODO: this is still incorrect, current delta between extended and retracted is 0.1809 but
 		// should be 0.25
-		public static final double SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO = 6 / 1;
+		public static final double SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO = 4 / 1;
 		public static final double WRIST_ENCODER_TO_WRIST_ANGLE_RATIO = 24 / 1;
-		public static final double SHOULDER_ELBOW_GEAR_RATIO = 68 / 48;
+		public static final double SHOULDER_ELBOW_GEAR_RATIO = 64 / 48;
 
 		// PID
 		// TODO: Tune PID
@@ -80,9 +80,8 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final float ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO = 125;
 		public static final float ARM_FORWARD_LIMIT = 156;
 		public static final float ARM_REVERSE_LIMIT = 1;
-		public static final float WRIST_FORWARD_LIMIT =
-				0.93f * 90; // TODO: might not need ratio? figure out
-		public static final float WRIST_REVERSE_LIMIT = 0.309f * 90;
+		public static final float WRIST_FORWARD_LIMIT = 58;
+		public static final float WRIST_REVERSE_LIMIT = 2;
 
 		public static final int MIN_PERCENT_OUTPUT = -1;
 		public static final int MAX_PERCENT_OUTPUT = 1;
@@ -185,7 +184,10 @@ public class ArmSubsystem extends SubsystemBase {
 		wristMotor = new CANSparkMax(WRIST_MOTOR, MotorType.kBrushless);
 
 		shoulderEncoder = new DutyCycleEncoder(SHOULDER_ENCODER_PORT_A);
+		shoulderEncoder.reset();
 		wristEncoder = wristMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
+		wristEncoder.setZeroOffset(0.055);
+		wristEncoder.setInverted(true);
 
 		armPID = new ProfiledPIDController(ARM_K_P, ARM_K_I, ARM_K_D, ARM_CONSTRAINTS);
 		wristPID = wristMotor.getPIDController();
@@ -236,7 +238,6 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor2.setSmartCurrentLimit(20);
 		armMotor2.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
-		wristMotor.setInverted(true);
 		wristMotor.getEncoder().setPosition(getWristAngle() * 90);
 
 		wristMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
@@ -270,6 +271,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	public void resetArmEncoder() {
 		armMotor1.getEncoder().setPosition(0);
+		shoulderEncoder.reset();
 	}
 
 	public void setArmMotor(double percentOutput) {
@@ -324,7 +326,7 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	public double getShoulderAngle() {
-		return shoulderEncoder.getDistance() / SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO;
+		return shoulderEncoder.get() / SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO;
 	}
 
 	public double getElbowAngle() {
@@ -422,7 +424,7 @@ public class ArmSubsystem extends SubsystemBase {
 		}
 
 		wristEncoderPublisher.set(getWristAngle());
-		shoulderEncoderPublisher.set(shoulderEncoder.getAbsolutePosition());
+		shoulderEncoderPublisher.set(getShoulderAngle());
 
 		wristAnglePublisher.set(getWristAngle() * 360);
 		shoulderAnglePublisher.set(getShoulderAngle() * 360);
