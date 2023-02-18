@@ -76,7 +76,7 @@ public class Controls {
 
 		intakeInButton.onTrue(
 				new IntakeSetInCommand(s.intakeSubsystem).until(s.intakeSubsystem::isSecured));
-		intakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
+		intakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem));
 		intakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
 	}
 
