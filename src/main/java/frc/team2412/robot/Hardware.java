@@ -44,7 +44,7 @@ public class Hardware {
 	public static final double cameraYawDegrees = -12;
 
 	// Arm devices are from range 20 - 29
-	public static final int ARM_MOTOR = 20, WRIST_MOTOR = 21;
+	public static final int ARM_MOTOR1 = 20, ARM_MOTOR2 = 21, WRIST_MOTOR = 22;
 	public static final int SHOULDER_ENCODER_PORT_A = 0,
 			SHOULDER_ENCODER_PORT_B = 1,
 			ELBOW_ENCODER_PORT_A = 2,
@@ -53,7 +53,9 @@ public class Hardware {
 			WRIST_ENCODER_PORT_B = 5;
 
 	// Intake devices are ports 30-39
-	public static final int INTAKE_MOTOR_1 = 30;
-
+	public static final int INTAKE_MOTOR_1 = 30, INTAKE_MOTOR_2 = 31;
 	public static final int INTAKE_DISTANCE_SENSOR = 6, INTAKE_COLOR_SENSOR = 7;
+
+	// LED strip is PWM port 8
+	public static final int LED_STRIP = 8;
 }
