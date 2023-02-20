@@ -1,5 +1,6 @@
 package frc.team2412.robot;
 
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -27,6 +28,22 @@ public class Hardware {
 	public static final int GYRO_PORT = 13;
 
 	// Cameras
+	public static final String DRIVER_VISION_PATH;
+
+	static {
+		String path = null;
+		System.out.println("Searching for driver vision camera...");
+		for (var camInfo : UsbCamera.enumerateUsbCameras()) {
+			System.out.println("Found camera with name " + camInfo.name);
+			// On bonk "0c" at the end was removed, don't know why
+			if (camInfo.name.contains(" C93")) {
+				path = camInfo.path;
+			}
+		}
+		System.out.println("Done searching for driver vision camera");
+		DRIVER_VISION_PATH = path;
+	}
+
 	public static final String PHOTON_CAM = "OV5647";
 	public static final double cameraYawDegrees = -12;
 	// Rough measurements, origin is center of robot, +X is forward, +Y is left, +Z is up
@@ -45,7 +62,7 @@ public class Hardware {
 	public static final Transform3d CAM_TO_ROBOT = ROBOT_TO_CAM.inverse();
 
 	// Arm devices are from range 20 - 29
-	public static final int ARM_MOTOR = 20, WRIST_MOTOR = 21;
+	public static final int ARM_MOTOR1 = 20, ARM_MOTOR2 = 21, WRIST_MOTOR = 22;
 	public static final int SHOULDER_ENCODER_PORT_A = 0,
 			SHOULDER_ENCODER_PORT_B = 1,
 			ELBOW_ENCODER_PORT_A = 2,
@@ -54,7 +71,9 @@ public class Hardware {
 			WRIST_ENCODER_PORT_B = 5;
 
 	// Intake devices are ports 30-39
-	public static final int INTAKE_MOTOR_1 = 30;
-
+	public static final int INTAKE_MOTOR_1 = 56, INTAKE_MOTOR_2 = 55;
 	public static final int INTAKE_DISTANCE_SENSOR = 6, INTAKE_COLOR_SENSOR = 7;
+
+	// LED strip is PWM port 8
+	public static final int LED_STRIP = 8;
 }
