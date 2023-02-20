@@ -1,4 +1,4 @@
- package frc.team2412.robot.util;
+package frc.team2412.robot.util;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -36,7 +36,8 @@ public class DriverAssist {
 	private static final List<Pose2d> alignmentPosesList = List.of(alignmentPoses);
 
 	private static boolean isPoseTooFar(Pose2d robotPose, Pose2d alignmentPose) {
-		return robotPose.getTranslation().getDistance(alignmentPose.getTranslation()) > MAX_ALIGNMENT_DISTANCE_METERS;
+		return robotPose.getTranslation().getDistance(alignmentPose.getTranslation())
+				> MAX_ALIGNMENT_DISTANCE_METERS;
 	}
 
 	public static boolean alignRobot(DrivebaseSubsystem drivebaseSubsystem) {
