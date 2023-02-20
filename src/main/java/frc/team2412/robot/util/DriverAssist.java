@@ -57,8 +57,8 @@ public class DriverAssist {
 								drivebaseSubsystem.getVelocity()),
 						new PathPoint(
 								alignmentPose.getTranslation(),
-								Rotation2d.fromDegrees(180),
-								alignmentPose.getRotation()));
+								alignmentPose.getRotation(), // Direction of movement
+								alignmentPose.getRotation())); // Final heading
 
 		Command followAlignmentCommand =
 				new PPSwerveControllerCommand(
