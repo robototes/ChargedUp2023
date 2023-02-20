@@ -1,4 +1,4 @@
-package frc.team2412.robot.util;
+ package frc.team2412.robot.util;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -33,19 +33,15 @@ public class DriverAssist {
 		new Pose2d(new Translation2d(14.97965, 5.7531), Rotation2d.fromDegrees(0)), // Near slider
 		new Pose2d(new Translation2d(14.97965, 7.8359), Rotation2d.fromDegrees(0)), // Far slider
 	};
+	private static final List<Pose2d> alignmentPosesList = List.of(alignmentPoses);
 
 	private static boolean isPoseTooFar(Pose2d robotPose, Pose2d alignmentPose) {
-		if (robotPose.getTranslation().getDistance(alignmentPose.getTranslation())
-				> MAX_ALIGNMENT_DISTANCE_METERS) {
-			return true;
-		} else {
-			return false;
-		}
+		return robotPose.getTranslation().getDistance(alignmentPose.getTranslation()) > MAX_ALIGNMENT_DISTANCE_METERS;
 	}
 
 	public static boolean alignRobot(DrivebaseSubsystem drivebaseSubsystem) {
 		Pose2d currentPose = drivebaseSubsystem.getPose();
-		Pose2d alignmentPose = currentPose.nearest(List.of(alignmentPoses));
+		Pose2d alignmentPose = currentPose.nearest(alignmentPosesList);
 		if (isPoseTooFar(currentPose, alignmentPose)) {
 			return false;
 		}
@@ -55,10 +51,7 @@ public class DriverAssist {
 						ASSIST_CONSTRAINTS,
 						new PathPoint(
 								currentPose.getTranslation(),
-								Rotation2d.fromRadians(
-										Math.atan2(
-												alignmentPose.getY() - currentPose.getY(),
-												alignmentPose.getX() - currentPose.getX())),
+								alignmentPose.minus(currentPose).getTranslation().getAngle(),
 								currentPose.getRotation(),
 								drivebaseSubsystem.getVelocity()),
 						new PathPoint(
