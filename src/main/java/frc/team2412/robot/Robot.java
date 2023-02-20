@@ -94,30 +94,30 @@ public class Robot extends TimedRobot {
 	public SwerveAutoBuilder getAutoBuilder(HashMap<String, Command> eventMap) {
 		if (subsystems.drivebaseSubsystem != null) {
 			return new SwerveAutoBuilder(
-				subsystems.drivebaseSubsystem::getPose, // Pose2d supplier
-				subsystems.drivebaseSubsystem
-						::resetPose, // Pose2d consumer, used to reset odometry at the beginning of
-				// auto
-				subsystems.drivebaseSubsystem.getKinematics(), // SwerveDriveKinematics
-				new PIDConstants(
-						5.0, 0.0,
-						0.0), // PID constants to correct for translation error (used to create the X and
-				// Y
-				// PID controllers)
-				new PIDConstants(
-						0.5, 0.0,
-						0.0), // PID constants to correct for rotation error (used to create the rotation
-				// controller)
-				subsystems.drivebaseSubsystem
-						::drive, // Module states consumer used to output to the drive subsystem
-				eventMap,
-				true, // Should the path be automatically mirrored depending on alliance color.
-				// Optional, defaults to true
-				subsystems
-						.drivebaseSubsystem // The drive subsystem. Used to properly set the requirements
-				// of
-				// path following commands
-				);
+					subsystems.drivebaseSubsystem::getPose, // Pose2d supplier
+					subsystems.drivebaseSubsystem
+							::resetPose, // Pose2d consumer, used to reset odometry at the beginning of
+					// auto
+					subsystems.drivebaseSubsystem.getKinematics(), // SwerveDriveKinematics
+					new PIDConstants(
+							5.0, 0.0,
+							0.0), // PID constants to correct for translation error (used to create the X and
+					// Y
+					// PID controllers)
+					new PIDConstants(
+							0.5, 0.0,
+							0.0), // PID constants to correct for rotation error (used to create the rotation
+					// controller)
+					subsystems.drivebaseSubsystem
+							::drive, // Module states consumer used to output to the drive subsystem
+					eventMap,
+					true, // Should the path be automatically mirrored depending on alliance color.
+					// Optional, defaults to true
+					subsystems
+							.drivebaseSubsystem // The drive subsystem. Used to properly set the requirements
+					// of
+					// path following commands
+					);
 		} else {
 			return null;
 		}
