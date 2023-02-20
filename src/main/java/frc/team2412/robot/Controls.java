@@ -104,7 +104,7 @@ public class Controls {
 		driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 
-    // TODO Resolve control conflict with purple LED...
+		// TODO Resolve control conflict with purple LED...
 		driveController
 				.rightBumper()
 				.onTrue(new InstantCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem)));

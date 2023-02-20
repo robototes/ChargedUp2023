@@ -30,6 +30,8 @@ public class DriverAssist {
 		new Pose2d(new Translation2d(2.0, 3.86), Rotation2d.fromDegrees(180)), // 5th cone scoring area
 		new Pose2d(new Translation2d(2.0, 4.43), Rotation2d.fromDegrees(180)), // 3rd cube scoring area
 		new Pose2d(new Translation2d(2.0, 4.98), Rotation2d.fromDegrees(180)), // 6th cone scoring area
+		new Pose2d(new Translation2d(14.97965, 5.7531), Rotation2d.fromDegrees(0)), // Near slider
+		new Pose2d(new Translation2d(14.97965, 7.8359), Rotation2d.fromDegrees(0)), // Far slider
 	};
 
 	private static boolean isPoseTooFar(Pose2d robotPose, Pose2d alignmentPose) {
