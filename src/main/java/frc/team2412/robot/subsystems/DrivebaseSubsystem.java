@@ -345,8 +345,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private void resetPose(Pose2d pose, Rotation2d gyroAngle) {
 		synchronized (poseEstimator) {
 			poseEstimator.resetPosition(gyroAngle, getModulePositions(), pose);
-			// Add entry to pose buffer to avoid NoSuchElementException
-			poseEstimator.update(gyroscope.getAngle(), getModulePositions());
 		}
 		this.pose = pose;
 	}
