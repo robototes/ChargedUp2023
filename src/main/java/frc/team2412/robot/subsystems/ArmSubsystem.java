@@ -16,6 +16,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Robot;
@@ -176,6 +177,11 @@ public class ArmSubsystem extends SubsystemBase {
 	DoublePublisher shoulderAnglePublisher;
 	DoublePublisher wristAnglePublisher;
 
+	DoublePublisher armPIDPublisher;
+	DoublePublisher armFeedforwardPublisher;
+
+	StringPublisher armGoalPublisher;
+
 	// Constructor
 
 	public ArmSubsystem() {
@@ -218,6 +224,11 @@ public class ArmSubsystem extends SubsystemBase {
 		wristEncoderPublisher.set(0.0);
 		shoulderAnglePublisher.set(0.0);
 		wristAnglePublisher.set(0.0);
+
+		armPIDPublisher.set(0.0);
+		armFeedforwardPublisher.set(0.0);
+
+		armGoalPublisher.set(0.0 + " rotations | " + 0.0 + " degrees");
 	}
 
 	// Methods
@@ -428,5 +439,14 @@ public class ArmSubsystem extends SubsystemBase {
 
 		wristAnglePublisher.set(getWristAngle() * 360);
 		shoulderAnglePublisher.set(getShoulderAngle() * 360);
+
+		armPIDPublisher.set(calculateArmPID());
+		armFeedforwardPublisher.set(calculateArmFeedforward());
+
+		armGoalPublisher.set(
+				armPID.getSetpoint().position
+						+ " rotations | "
+						+ (armPID.getSetpoint().position * 360)
+						+ " degrees");
 	}
 }
