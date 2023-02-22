@@ -295,9 +295,7 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
 	}
 
-	/**
-	 * Resets the arm encoder's current position.
-	 */
+	/** Resets the arm encoder's current position. */
 	public void resetArmEncoder() {
 		armMotor1.getEncoder().setPosition(0);
 		shoulderEncoder.reset();
@@ -306,6 +304,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	/**
 	 * Sets the arm motor's output.
+	 *
 	 * @param percentOutput a value between 0-1.
 	 */
 	public void setArmMotor(double percentOutput) {
@@ -316,6 +315,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	/**
 	 * Sets the wrist motor's output.
+	 *
 	 * @param percentOutput a value between 0-1.
 	 */
 	public void setWristMotor(double percentOutput) {
@@ -325,15 +325,14 @@ public class ArmSubsystem extends SubsystemBase {
 				percentOutput, CANSparkMax.ControlType.kDutyCycle, 0); // calculateWristFeedforward());
 	}
 
-	/**
-	 * Sets current position of the arm. Used for condition checking, nothing really else.
-	 */
+	/** Sets current position of the arm. Used for condition checking, nothing really else. */
 	public void setPosition(PositionType position) {
 		currentPosition = position;
 	}
 
 	/**
 	 * Sets goal for arm PID.
+	 *
 	 * @param targetPos Measured in encoder rotations.
 	 */
 	public void setArmGoal(double targetPos) {
@@ -343,6 +342,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	/**
 	 * Sets goal for wrist PID.
+	 *
 	 * @param targetPos Measured in encoder rotations.
 	 */
 	public void setWristGoal(double targetPos) {
@@ -356,6 +356,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	/**
 	 * Uses the current target/goal of Arm PID in order to calculate output for the arm motors.
+	 *
 	 * @return The calculated Arm PID output.
 	 */
 	public double calculateArmPID() {
@@ -376,6 +377,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	/**
 	 * Uses the current target/goal of Arm PID in order to calculate output for the arm motors.
+	 *
 	 * @return The calculated Arm PID output./
 	 */
 	public double calculateWristFeedforward() {
@@ -384,6 +386,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	/**
 	 * Gets the current shoulder encoder position.
+	 *
 	 * @return Current shoulder encoder position
 	 */
 	public double getShoulderAngle() {
@@ -392,6 +395,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	/**
 	 * Gets the current elbow encoder position.
+	 *
 	 * @return Current elbow encoder position
 	 */
 	public double getElbowAngle() {
@@ -400,6 +404,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	/**
 	 * Gets the current wrist encoder position.
+	 *
 	 * @return Current wrist encoder position
 	 */
 	public double getWristAngle() {
@@ -417,6 +422,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	/**
 	 * Returns whether or not arm/wrist manual override is on.
+	 *
 	 * @return If manual override is on.
 	 */
 	public boolean getManualOverride() {
