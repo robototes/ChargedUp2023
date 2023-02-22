@@ -8,6 +8,10 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ColorSensorV3;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,8 +22,8 @@ public class IntakeSubsystem extends SubsystemBase {
 	public static class IntakeConstants {
 		// speeds
 		public static final double INTAKE_HOLD_SPEED = 0.1;
-		public static final double INTAKE_IN_SPEED = 0.8;
-		public static final double INTAKE_OUT_SPEED = -0.8;
+		public static final double INTAKE_IN_SPEED = 0.1;
+		public static final double INTAKE_OUT_SPEED = -0.1;
 
 		public static final double INTAKE_CUBE_DISTANCE = 0;
 		public static final double INTAKE_CONE_DISTANCE = 0;
@@ -29,8 +33,8 @@ public class IntakeSubsystem extends SubsystemBase {
 		// enums
 
 		public static enum GamePieceType {
-			CUBE(new Color(145, 48, 255), 15),
-			CONE(new Color(255, 245, 45), 12),
+			CUBE(new Color(64, 108, 81), 30),
+			CONE(new Color(84, 127, 42), 30),
 			NONE(new Color(0, 0, 0), 0);
 
 			public final Color color;
@@ -46,6 +50,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	}
 
+	NetworkTableInstance NTInstance;
+	NetworkTable NTDevices;
+
+	StringPublisher gamePieceTypePublisher;
+	DoublePublisher distancePublisher;
+	StringPublisher colorPublisher;
+
 	// HARDWARE
 	private final CANSparkMax motor1;
 	private final CANSparkMax motor2;
@@ -59,8 +70,22 @@ public class IntakeSubsystem extends SubsystemBase {
 		motor1.setIdleMode(IdleMode.kBrake);
 		motor2.setIdleMode(IdleMode.kBrake);
 
-		colorSensor = new ColorSensorV3(Port.kMXP);
+		colorSensor = new ColorSensorV3(Port.kOnboard);
 		distanceSensor = new AnalogInput(INTAKE_DISTANCE_SENSOR);
+
+		// Network Table
+
+		NTInstance = NetworkTableInstance.getDefault();
+
+		NTDevices = NTInstance.getTable("Devices");
+
+		gamePieceTypePublisher = NTDevices.getStringTopic("Game Piece").publish();
+		colorPublisher = NTDevices.getStringTopic("color").publish();
+		distancePublisher = NTDevices.getDoubleTopic("Distance").publish();
+
+		gamePieceTypePublisher.set("NONE");
+		colorPublisher.set("no color");
+		distancePublisher.set(0.0);
 	}
 
 	// METHODS
@@ -121,5 +146,12 @@ public class IntakeSubsystem extends SubsystemBase {
 	public double getDistance() {
 		// equation found from docs to convert voltage to cm
 		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045) * 27.726;
+	}
+
+	@Override
+	public void periodic() {
+		gamePieceTypePublisher.set(detectType().toString());
+		colorPublisher.set(colorSensor.getColor().toString());
+		distancePublisher.set(getDistance());
 	}
 }
