@@ -216,7 +216,7 @@ public class ArmSubsystem extends SubsystemBase {
 		armPID.reset(getShoulderAngle());
 		// wristPID.reset(getWristAngle());
 
-		// network tables
+		// Network Tables
 
 		NTInstance = NetworkTableInstance.getDefault();
 
@@ -295,18 +295,29 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
 	}
 
+	/**
+	 * Resets the arm encoder's current position.
+	 */
 	public void resetArmEncoder() {
 		armMotor1.getEncoder().setPosition(0);
 		shoulderEncoder.reset();
 		hasResetted = true;
 	}
 
+	/**
+	 * Sets the arm motor's output.
+	 * @param percentOutput a value between 0-1.
+	 */
 	public void setArmMotor(double percentOutput) {
 		percentOutput =
 				MathUtil.clamp(MAX_ARM_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT);
 		armMotor1.set(percentOutput);
 	}
 
+	/**
+	 * Sets the wrist motor's output.
+	 * @param percentOutput a value between 0-1.
+	 */
 	public void setWristMotor(double percentOutput) {
 		percentOutput =
 				MathUtil.clamp(MAX_WRIST_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT);
@@ -314,15 +325,26 @@ public class ArmSubsystem extends SubsystemBase {
 				percentOutput, CANSparkMax.ControlType.kDutyCycle, 0); // calculateWristFeedforward());
 	}
 
+	/**
+	 * Sets current position of the arm. Used for condition checking, nothing really else.
+	 */
 	public void setPosition(PositionType position) {
 		currentPosition = position;
 	}
 
+	/**
+	 * Sets goal for arm PID.
+	 * @param targetPos Measured in encoder rotations.
+	 */
 	public void setArmGoal(double targetPos) {
 		// targetPos = MathUtil.clamp(targetPos, MIN_ARM_ANGLE, MAX_ARM_ANGLE);
 		armPID.setGoal(targetPos);
 	}
 
+	/**
+	 * Sets goal for wrist PID.
+	 * @param targetPos Measured in encoder rotations.
+	 */
 	public void setWristGoal(double targetPos) {
 		wristPID.setReference(
 				targetPos * WRIST_MOTOR_TO_WRIST_ENCODER_RATIO,
@@ -332,9 +354,14 @@ public class ArmSubsystem extends SubsystemBase {
 		wristGoal = targetPos * WRIST_MOTOR_TO_WRIST_ENCODER_RATIO;
 	}
 
+	/**
+	 * Uses the current target/goal of Arm PID in order to calculate output for the arm motors.
+	 * @return The calculated Arm PID output.
+	 */
 	public double calculateArmPID() {
 		return armPID.calculate(getShoulderAngle(), armPID.getGoal());
 	}
+
 	/**
 	 * Calculates the arm's feedforward using the calculated angle towards center of mass.
 	 *
@@ -347,21 +374,38 @@ public class ArmSubsystem extends SubsystemBase {
 				+ ARM_K_A * 0;
 	}
 
+	/**
+	 * Uses the current target/goal of Arm PID in order to calculate output for the arm motors.
+	 * @return The calculated Arm PID output./
+	 */
 	public double calculateWristFeedforward() {
 		return wristFeedforward.calculate(getShoulderAngle() - getElbowAngle() + getWristAngle(), 0);
 	}
 
+	/**
+	 * Gets the current shoulder encoder position.
+	 * @return Current shoulder encoder position
+	 */
 	public double getShoulderAngle() {
 		return shoulderEncoder.get() / SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO;
 	}
 
+	/**
+	 * Gets the current elbow encoder position.
+	 * @return Current elbow encoder position
+	 */
 	public double getElbowAngle() {
 		return getShoulderAngle() * SHOULDER_ELBOW_GEAR_RATIO;
 	}
 
+	/**
+	 * Gets the current wrist encoder position.
+	 * @return Current wrist encoder position
+	 */
 	public double getWristAngle() {
 		return wristEncoder.getPosition();
 	}
+
 	/**
 	 * Gets current state or position of Arm Subsystem, used for extracting data from arm enum data
 	 *
@@ -371,9 +415,14 @@ public class ArmSubsystem extends SubsystemBase {
 		return currentPosition;
 	}
 
+	/**
+	 * Returns whether or not arm/wrist manual override is on.
+	 * @return If manual override is on.
+	 */
 	public boolean getManualOverride() {
 		return manualOverride;
 	}
+
 	/**
 	 * Converts the percentOutput into volts
 	 *
@@ -383,6 +432,7 @@ public class ArmSubsystem extends SubsystemBase {
 	public double convertToVolts(double percentOutput) {
 		return percentOutput * Robot.getInstance().getVoltage();
 	}
+
 	/**
 	 * Calculates the angle towards center of mass by averaging and weighing the individual arm parts
 	 * (inner arm, outer arm, and intake) together.
