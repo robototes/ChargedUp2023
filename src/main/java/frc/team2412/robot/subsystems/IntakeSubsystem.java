@@ -122,18 +122,17 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	public boolean colorSensorEquals(Color color) {
-		// r
-		if (colorSensor.getRed() <= (color.getRed() + INTAKE_COLOR_THRESHOLD)
-				&& colorSensor.getRed() >= (color.getRed() - INTAKE_COLOR_THRESHOLD)) {
-			// g
-			if (colorSensor.getGreen() <= (color.getGreen() + INTAKE_COLOR_THRESHOLD)
-					&& colorSensor.getGreen() >= (color.getGreen() - INTAKE_COLOR_THRESHOLD)) {
-				// b
-				if (colorSensor.getBlue() <= (color.getBlue() + INTAKE_COLOR_THRESHOLD)
-						&& colorSensor.getBlue() >= (color.getBlue() - INTAKE_COLOR_THRESHOLD)) {
-					return true;
-				}
-			}
+		float[] colorSensorHSB = new float[2];
+		float[] colorHSB = new float[2];
+		colorSensorHSB =
+				Color.RGBtoHSB(
+						(int) colorSensor.getColor().red,
+						(int) colorSensor.getColor().green,
+						(int) colorSensor.getColor().blue,
+						colorSensorHSB);
+		colorHSB = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), colorHSB);
+		if (Math.abs(colorHSB[0] - colorSensorHSB[0]) <= INTAKE_COLOR_THRESHOLD) {
+			return true;
 		}
 		return false;
 	}
