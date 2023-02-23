@@ -218,7 +218,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			boolean autoBalance) {
 		// Auto balancing will only be used in autonomous
 		if (autoBalance) {
-			forward -= balanceController.update(gyroscope.getRawRoll().getDegrees());
+			forward += balanceController.update(gyroscope.getRawRoll().getDegrees());
 		}
 
 		ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);

@@ -137,6 +137,7 @@ public class Robot extends TimedRobot {
 		Shuffleboard.startRecording();
 		// Basic auto path that travels 1 meter, and then balances on the charge station
 		if (subsystems.drivebaseSubsystem != null) {
+			subsystems.drivebaseSubsystem.resetGyroAngle();
 			new SequentialCommandGroup(
 							PathPlannerTestCommand.getAutoCommand(),
 							new AutoBalanceCommand(subsystems.drivebaseSubsystem))

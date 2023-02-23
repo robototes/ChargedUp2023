@@ -16,7 +16,7 @@ public class PathPlannerTestCommand {
 	 */
 	public static Command getAutoCommand() {
 		List<PathPlannerTrajectory> pathGroup =
-				PathPlanner.loadPathGroup("FullAuto", new PathConstraints(1, 0.3));
+				PathPlanner.loadPathGroup("MiddleLeaveCom&Charge", new PathConstraints(1, 0.3));
 		HashMap<String, Command> eventMap = new HashMap<String, Command>();
 		eventMap.put(
 				"AutoBalance", new AutoBalanceCommand(Robot.getInstance().subsystems.drivebaseSubsystem));
