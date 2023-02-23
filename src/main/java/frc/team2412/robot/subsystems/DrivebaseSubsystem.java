@@ -11,6 +11,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -42,8 +45,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	};
 	private static final Rotation2d[] COMP_DRIVEBASE_ENCODER_OFFSETS = {
 		Rotation2d.fromDegrees(-111.796),
-		Rotation2d.fromDegrees(-343.388),
-		Rotation2d.fromDegrees(-21.796),
+		Rotation2d.fromDegrees(-28),
+		// Rotation2d.fromDegrees(-343.388),
+		Rotation2d.fromDegrees(-41),
+		// Rotation2d.fromDegrees(-21.796),
 		Rotation2d.fromDegrees(-332.841)
 	};
 
@@ -147,6 +152,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private Field2d field = new Field2d();
 
+	private DoublePublisher frontLeftVelocityPublisher;
+	private DoublePublisher frontRightVelocityPublisher;
+	private DoublePublisher backLeftVelocityPublisher;
+	private DoublePublisher backRightVelocityPublisher;
+
+	private NetworkTableInstance networkTableInstance;
+	private NetworkTable networkTableDrivebase;
+
 	public DrivebaseSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
 		gyroscope = IS_COMP ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
 		// Bonk's gyro has positive as counter-clockwise
@@ -177,7 +190,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			driveMotor.setNeutralMode(MotorController.MotorNeutralMode.BRAKE);
 
 			if (IS_COMP) {
-				driveMotor.setControlMode(MotorControlMode.VOLTAGE);
+				driveMotor.setControlMode(MotorControlMode.VELOCITY);
+				driveMotor.setPID(1 / 2048, 0.001 / 2048, 0.1 / 20660.0);
 			} else {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
 				driveMotor.setPID(0.1, 0.001, 1023.0 / 20660.0);
@@ -191,7 +205,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.setNeutralMode(MotorNeutralMode.BRAKE);
 			// Configure PID values
 			if (IS_COMP) {
-				steeringMotor.setPID(0.15, 0, 0);
+				steeringMotor.setPID(0.15, 0, 1.0);
 			} else {
 				steeringMotor.setPID(0.15, 0.00, 1.0);
 			}
@@ -210,6 +224,23 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		// configure shuffleboard
 		SmartDashboard.putData("Field", field);
+
+		networkTableInstance = NetworkTableInstance.getDefault();
+		networkTableDrivebase = networkTableInstance.getTable("Drivebase");
+
+		frontLeftVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front left velocity").publish();
+		frontRightVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front right velocity").publish();
+		backLeftVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back left velocity").publish();
+		backRightVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back right velocity").publish();
+
+		frontLeftVelocityPublisher.set(0.0);
+		frontRightVelocityPublisher.set(0.0);
+		backLeftVelocityPublisher.set(0.0);
+		backRightVelocityPublisher.set(0.0);
 	}
 
 	/** Drives the robot using forward, strafe, and rotation. Units in meters */
@@ -238,14 +269,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] moduleStates = getModuleStates(chassisSpeeds);
-		if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
-				&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
-				&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
-			moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-			moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-			moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-			moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-		}
+		// if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
+		// 		&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
+		// 		&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
+		// 	moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+		// 	moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+		// 	moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+		// 	moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+		// }
 		drive(moduleStates);
 	}
 
@@ -264,19 +295,24 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		// Set motor speeds and angles
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			if (IS_COMP) {
-				moduleDriveMotors[i].set(
-						states[i].speedMetersPerSecond / MAX_DRIVE_SPEED_METERS_PER_SEC * 12); // set voltage
-			} else {
-				moduleDriveMotors[i].set(
-						states[i].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT); // set velocity
-			}
+			// if (IS_COMP) {
+			// 	moduleDriveMotors[i].set(
+			// 			states[i].speedMetersPerSecond / MAX_DRIVE_SPEED_METERS_PER_SEC * 12); // set voltage
+			// } else {
+			moduleDriveMotors[i].set(
+					states[i].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT); // set velocity
+			// }
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
 			moduleAngleMotors[i].set(states[i].angle.getRotations() * STEER_REDUCTION);
 		}
 
 		currentStates = states;
+
+		frontLeftVelocityPublisher.set(moduleDriveMotors[0].getIntegratedEncoderPosition());
+		frontRightVelocityPublisher.set(moduleDriveMotors[1].getIntegratedEncoderPosition());
+		backLeftVelocityPublisher.set(moduleDriveMotors[2].getIntegratedEncoderPosition());
+		backRightVelocityPublisher.set(moduleDriveMotors[3].getIntegratedEncoderPosition());
 	}
 
 	/**

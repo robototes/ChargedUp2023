@@ -96,8 +96,8 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double MAX_ARM_VELOCITY = 1;
 		public static final double MAX_ARM_ACCELERATION = 0.5;
 
-		public static final double MAX_WRIST_VELOCITY = .2;
-		public static final double MAX_WRIST_ACCELERATION = 0.5;
+		public static final double MAX_WRIST_VELOCITY = 1;
+		public static final double MAX_WRIST_ACCELERATION = 0.7;
 
 		public static final Constraints ARM_CONSTRAINTS =
 				new Constraints(MAX_ARM_ACCELERATION, MAX_ARM_VELOCITY);
@@ -177,6 +177,9 @@ public class ArmSubsystem extends SubsystemBase {
 	DoublePublisher shoulderAnglePublisher;
 	DoublePublisher wristAnglePublisher;
 
+	DoublePublisher armPIDPublisher;
+	DoublePublisher armFeedforwardPublisher;
+
 	// Constructor
 
 	public ArmSubsystem() {
@@ -215,10 +218,15 @@ public class ArmSubsystem extends SubsystemBase {
 		shoulderAnglePublisher = NTDevices.getDoubleTopic("Shoulder Angle").publish();
 		wristAnglePublisher = NTDevices.getDoubleTopic("Wrist Angle").publish();
 
+		armPIDPublisher = NTDevices.getDoubleTopic("Arm PID").publish();
+		armFeedforwardPublisher = NTDevices.getDoubleTopic("Arm Feedforward").publish();
+
 		shoulderEncoderPublisher.set(0.0);
 		wristEncoderPublisher.set(0.0);
 		shoulderAnglePublisher.set(0.0);
 		wristAnglePublisher.set(0.0);
+		armPIDPublisher.set(0.0);
+		armFeedforwardPublisher.set(0.0);
 	}
 
 	// Methods
@@ -430,5 +438,8 @@ public class ArmSubsystem extends SubsystemBase {
 
 		wristAnglePublisher.set(getWristAngle() * 360);
 		shoulderAnglePublisher.set(getShoulderAngle() * 360);
+
+		armPIDPublisher.set(calculateArmPID());
+		armFeedforwardPublisher.set(calculateArmFeedforward());
 	}
 }
