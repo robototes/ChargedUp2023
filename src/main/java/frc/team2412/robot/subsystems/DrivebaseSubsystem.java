@@ -226,7 +226,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.setNeutralMode(MotorNeutralMode.BRAKE);
 			// Configure PID values
 			if (IS_COMP) {
-				steeringMotor.setPID(0.15, 0, 0.5);
+				steeringMotor.setPID(0.1, 0, 0.5);
 			} else {
 				steeringMotor.setPID(0.15, 0.00, 1.0);
 			}
