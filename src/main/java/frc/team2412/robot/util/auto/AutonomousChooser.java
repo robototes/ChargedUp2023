@@ -9,7 +9,7 @@ public class AutonomousChooser {
 	private final SendableChooser<Command> autonomousModeChooser = new SendableChooser<>();
 
 	public AutonomousChooser() {
-		autonomousModeChooser.addOption(
+		autonomousModeChooser.setDefaultOption(
 				"Community", AutonomousTrajectories.getCommunityAutoPathCommand());
 		autonomousModeChooser.addOption(
 				"ChargeStation", AutonomousTrajectories.getChargedAutoPathCommand());
@@ -17,10 +17,10 @@ public class AutonomousChooser {
 		ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");
 
 		autonomousTab.add("Choose Auto Mode", autonomousModeChooser).withPosition(0, 0).withSize(2, 1);
+
 	}
 
 	public Command getAuto() {
-		System.out.println(autonomousModeChooser.getSelected());
 		return autonomousModeChooser.getSelected();
 	}
 }
