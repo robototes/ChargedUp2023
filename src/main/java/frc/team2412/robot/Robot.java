@@ -15,9 +15,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.team2412.robot.commands.autonomous.AutoBalanceCommand;
-import frc.team2412.robot.commands.autonomous.PathPlannerTestCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
+import frc.team2412.robot.util.auto.AutonomousChooser;
 import io.github.oblarg.oblog.Logger;
 import java.util.HashMap;
 
@@ -41,6 +41,7 @@ public class Robot extends TimedRobot {
 	public Subsystems subsystems;
 
 	private final RobotType robotType;
+	public AutonomousChooser autonomousChooser;
 
 	protected Robot(RobotType type) {
 		instance = this;
@@ -71,6 +72,7 @@ public class Robot extends TimedRobot {
 
 		subsystems = new Subsystems();
 		controls = new Controls(subsystems);
+		autonomousChooser = new AutonomousChooser();
 
 		Shuffleboard.startRecording();
 
@@ -139,8 +141,7 @@ public class Robot extends TimedRobot {
 		if (subsystems.drivebaseSubsystem != null) {
 			subsystems.drivebaseSubsystem.resetGyroAngle();
 			new SequentialCommandGroup(
-							 PathPlannerTestCommand.getAutoCommand(),
-							new AutoBalanceCommand(subsystems.drivebaseSubsystem))
+							autonomousChooser.getAuto(), new AutoBalanceCommand(subsystems.drivebaseSubsystem))
 					.schedule();
 		}
 	}
