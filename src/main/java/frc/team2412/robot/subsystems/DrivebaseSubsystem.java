@@ -44,12 +44,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		Rotation2d.fromDegrees(311.396)
 	};
 	private static final Rotation2d[] COMP_DRIVEBASE_ENCODER_OFFSETS = {
-		Rotation2d.fromDegrees(-111.796),
-		Rotation2d.fromDegrees(-28),
-		// Rotation2d.fromDegrees(-343.388),
-		Rotation2d.fromDegrees(-41),
-		// Rotation2d.fromDegrees(-21.796),
-		Rotation2d.fromDegrees(-332.841)
+		// ALIGNMENT WITH BEVELS FACING RIGHT
+		Rotation2d.fromDegrees(248.1),
+		Rotation2d.fromDegrees(53.5),
+		Rotation2d.fromDegrees(316.7),
+		Rotation2d.fromDegrees(27.5)
+		// Rotation2d.fromDegrees(-111.796),
+		// Rotation2d.fromDegrees(-28 + 90),
+		// // OLD Rotation2d.fromDegrees(-343.388),
+		// Rotation2d.fromDegrees(-41),
+		// // OLDRotation2d.fromDegrees(-21.796),
+		// Rotation2d.fromDegrees(-332.841)
 	};
 
 	// max drive speed is from SDS website and not calculated with robot weight
@@ -152,10 +157,25 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private Field2d field = new Field2d();
 
-	private DoublePublisher frontLeftVelocityPublisher;
-	private DoublePublisher frontRightVelocityPublisher;
-	private DoublePublisher backLeftVelocityPublisher;
-	private DoublePublisher backRightVelocityPublisher;
+	private DoublePublisher frontLeftActualVelocityPublisher;
+	private DoublePublisher frontRightActualVelocityPublisher;
+	private DoublePublisher backLeftActualVelocityPublisher;
+	private DoublePublisher backRightActualVelocityPublisher;
+
+	private DoublePublisher frontLeftTargetVelocityPublisher;
+	private DoublePublisher frontRightTargetVelocityPublisher;
+	private DoublePublisher backLeftTargetVelocityPublisher;
+	private DoublePublisher backRightTargetVelocityPublisher;
+
+	private DoublePublisher frontLeftActualAnglePublisher;
+	private DoublePublisher frontRightActualAnglePublisher;
+	private DoublePublisher backLeftActualAnglePublisher;
+	private DoublePublisher backRightActualAnglePublisher;
+
+	private DoublePublisher frontLeftTargetAnglePublisher;
+	private DoublePublisher frontRightTargetAnglePublisher;
+	private DoublePublisher backLeftTargetAnglePublisher;
+	private DoublePublisher backRightTargetAnglePublisher;
 
 	private NetworkTableInstance networkTableInstance;
 	private NetworkTable networkTableDrivebase;
@@ -191,7 +211,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 			if (IS_COMP) {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
-				driveMotor.setPID(1 / 2048, 0.001 / 2048, 0.1 / 20660.0);
+				driveMotor.setPID(0.0007, 0, 0);
+				driveMotor.setMeasurementPeriod(8);
 			} else {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
 				driveMotor.setPID(0.1, 0.001, 1023.0 / 20660.0);
@@ -205,7 +226,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.setNeutralMode(MotorNeutralMode.BRAKE);
 			// Configure PID values
 			if (IS_COMP) {
-				steeringMotor.setPID(0.15, 0, 1.0);
+				steeringMotor.setPID(0.15, 0, 0.5);
 			} else {
 				steeringMotor.setPID(0.15, 0.00, 1.0);
 			}
@@ -228,19 +249,61 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		networkTableInstance = NetworkTableInstance.getDefault();
 		networkTableDrivebase = networkTableInstance.getTable("Drivebase");
 
-		frontLeftVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Front left velocity").publish();
-		frontRightVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Front right velocity").publish();
-		backLeftVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Back left velocity").publish();
-		backRightVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Back right velocity").publish();
+		frontLeftActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front left actual velocity").publish();
+		frontRightActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front right actual velocity").publish();
+		backLeftActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back left actual velocity").publish();
+		backRightActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back right actual velocity").publish();
 
-		frontLeftVelocityPublisher.set(0.0);
-		frontRightVelocityPublisher.set(0.0);
-		backLeftVelocityPublisher.set(0.0);
-		backRightVelocityPublisher.set(0.0);
+		frontLeftTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front left target velocity").publish();
+		frontRightTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front right target velocity").publish();
+		backLeftTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back left target velocity").publish();
+		backRightTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back right target velocity").publish();
+
+		frontLeftActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front left actual angle").publish();
+		frontRightActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front right actual angle").publish();
+		backLeftActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back left actual angle").publish();
+		backRightActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back right actual angle").publish();
+
+		frontLeftTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front left target angle").publish();
+		frontRightTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front right target angle").publish();
+		backLeftTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back left target angle").publish();
+		backRightTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back right target angle").publish();
+
+		frontLeftActualVelocityPublisher.set(0.0);
+		frontRightActualVelocityPublisher.set(0.0);
+		backLeftActualVelocityPublisher.set(0.0);
+		backRightActualVelocityPublisher.set(0.0);
+
+		frontLeftTargetVelocityPublisher.set(0.0);
+		frontRightTargetVelocityPublisher.set(0.0);
+		backLeftTargetVelocityPublisher.set(0.0);
+		backRightTargetVelocityPublisher.set(0.0);
+
+		frontLeftActualAnglePublisher.set(0.0);
+		frontRightActualAnglePublisher.set(0.0);
+		backLeftActualAnglePublisher.set(0.0);
+		backRightActualAnglePublisher.set(0.0);
+
+		frontLeftTargetAnglePublisher.set(0.0);
+		frontRightTargetAnglePublisher.set(0.0);
+		backLeftTargetAnglePublisher.set(0.0);
+		backRightTargetAnglePublisher.set(0.0);
 	}
 
 	/** Drives the robot using forward, strafe, and rotation. Units in meters */
@@ -264,19 +327,20 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		} else {
 			chassisSpeeds = new ChassisSpeeds(forward, -strafe, rotation.getRadians());
 		}
+
 		drive(chassisSpeeds);
 	}
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] moduleStates = getModuleStates(chassisSpeeds);
-		// if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
-		// 		&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
-		// 		&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
-		// 	moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-		// 	moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-		// 	moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-		// 	moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-		// }
+		if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
+				&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
+				&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
+			moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+			moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+			moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+			moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+		}
 		drive(moduleStates);
 	}
 
@@ -309,10 +373,33 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		currentStates = states;
 
-		frontLeftVelocityPublisher.set(moduleDriveMotors[0].getIntegratedEncoderPosition());
-		frontRightVelocityPublisher.set(moduleDriveMotors[1].getIntegratedEncoderPosition());
-		backLeftVelocityPublisher.set(moduleDriveMotors[2].getIntegratedEncoderPosition());
-		backRightVelocityPublisher.set(moduleDriveMotors[3].getIntegratedEncoderPosition());
+		frontLeftActualVelocityPublisher.set(
+				moduleDriveMotors[0].getVelocity() / DRIVE_VELOCITY_COEFFICIENT);
+		frontRightActualVelocityPublisher.set(
+				moduleDriveMotors[1].getVelocity() / DRIVE_VELOCITY_COEFFICIENT);
+		backLeftActualVelocityPublisher.set(
+				moduleDriveMotors[2].getVelocity() / DRIVE_VELOCITY_COEFFICIENT);
+		backRightActualVelocityPublisher.set(
+				moduleDriveMotors[3].getVelocity() / DRIVE_VELOCITY_COEFFICIENT);
+
+		frontLeftTargetVelocityPublisher.set(
+				states[0].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT);
+		frontRightTargetVelocityPublisher.set(
+				states[1].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT);
+		backLeftTargetVelocityPublisher.set(
+				states[2].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT);
+		backRightTargetVelocityPublisher.set(
+				states[3].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT);
+
+		frontLeftActualAnglePublisher.set(getModuleAngles()[0].getDegrees());
+		frontRightActualAnglePublisher.set(getModuleAngles()[1].getDegrees());
+		backLeftActualAnglePublisher.set(getModuleAngles()[2].getDegrees());
+		backRightActualAnglePublisher.set(getModuleAngles()[3].getDegrees());
+
+		frontLeftTargetAnglePublisher.set(states[0].angle.getDegrees());
+		frontRightTargetAnglePublisher.set(states[1].angle.getDegrees());
+		backLeftTargetAnglePublisher.set(states[2].angle.getDegrees());
+		backRightTargetAnglePublisher.set(states[3].angle.getDegrees());
 	}
 
 	/**
@@ -418,5 +505,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void periodic() {
 		pose = poseEstimator.update(gyroscope.getAngle(), getModulePositions());
 		field.setRobotPose(pose);
+		System.out.println(
+				"foront left: "
+						+ moduleEncoders[0].getAbsolutePosition()
+						+ "   back left: "
+						+ moduleEncoders[1].getAbsolutePosition()
+						+ "  front right: "
+						+ moduleEncoders[2].getAbsolutePosition()
+						+ "   back right: "
+						+ moduleEncoders[3].getAbsolutePosition());
 	}
 }
