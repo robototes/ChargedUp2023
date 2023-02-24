@@ -139,7 +139,7 @@ public class Robot extends TimedRobot {
 		if (subsystems.drivebaseSubsystem != null) {
 			subsystems.drivebaseSubsystem.resetGyroAngle();
 			new SequentialCommandGroup(
-							PathPlannerTestCommand.getAutoCommand(),
+							 PathPlannerTestCommand.getAutoCommand(),
 							new AutoBalanceCommand(subsystems.drivebaseSubsystem))
 					.schedule();
 		}

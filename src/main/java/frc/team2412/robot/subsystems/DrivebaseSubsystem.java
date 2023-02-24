@@ -63,9 +63,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public static final double STEER_REDUCTION =
 			IS_COMP ? 150.0 / 7.0 : (32.0 / 15.0) * (60.0 / 10.0);
 
-	private static final double TIP_F = 0.01;
-	private static final double TIP_P = 0.05;
-	private static final double TIP_TOLERANCE = 5;
+	private static final double TIP_F = 0.02;
+	private static final double TIP_P = 0.1;
+	private static final double TIP_TOLERANCE = 2.5;
 
 	private static final double DRIVE_VELOCITY_COEFFICIENT =
 			DRIVE_REDUCTION / (Math.PI * WHEEL_DIAMETER_METERS); // meters to motor rotations
