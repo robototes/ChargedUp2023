@@ -10,9 +10,12 @@ public class AutonomousChooser {
 
 	public AutonomousChooser() {
 		autonomousModeChooser.setDefaultOption(
-				"Community", AutonomousTrajectories.getCommunityAutoPathCommand());
+				"BottomCommunity", AutonomousTrajectories.getTopCommunityAutoPath());
+		autonomousModeChooser.addOption("ChargeStation", AutonomousTrajectories.getChargedAutoPath());
 		autonomousModeChooser.addOption(
-				"ChargeStation", AutonomousTrajectories.getChargedAutoPathCommand());
+				"TopCommunity", AutonomousTrajectories.getBotCommunityAutoPath());
+		autonomousModeChooser.addOption("TopScore", AutonomousTrajectories.getTopScoreAutoPath());
+		autonomousModeChooser.addOption("BotScore", AutonomousTrajectories.getBotScoreAutoPath());
 
 		ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");
 
