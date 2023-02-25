@@ -56,6 +56,7 @@ public class SetWristCommand extends CommandBase {
 	@Override
 	public void initialize() {
 		armSubsystem.setWristGoal(targetWristAngle);
+		System.out.println("Hi community");
 	}
 
 	@Override

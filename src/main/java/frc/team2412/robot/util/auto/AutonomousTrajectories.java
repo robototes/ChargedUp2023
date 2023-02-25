@@ -12,8 +12,8 @@ import frc.team2412.robot.Robot;
 import frc.team2412.robot.Subsystems;
 import frc.team2412.robot.commands.arm.SetWristCommand;
 import frc.team2412.robot.commands.autonomous.AutoBalanceCommand;
-import frc.team2412.robot.commands.intake.IntakeOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetInCommand;
+import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,12 +21,11 @@ public class AutonomousTrajectories {
 	private static final Subsystems s = Robot.getInstance().subsystems;
 	public static final SetWristCommand wristOut =
 			new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_SCORE);
-	public static final IntakeOutCommand intakeOut =
-			new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem);
+	public static final IntakeSetOutCommand intakeOut = new IntakeSetOutCommand(s.intakeSubsystem);
 	public static final SetWristCommand wristIn =
 			new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_RETRACT);
 	public static final SequentialCommandGroup score =
-			new SequentialCommandGroup(wristOut, intakeOut, wristIn);
+			new SequentialCommandGroup(wristOut, intakeOut.withTimeout(1.5), wristIn);
 	public static final Command intake =
 			new IntakeSetInCommand(s.intakeSubsystem).until(s.intakeSubsystem::isSecured);
 
