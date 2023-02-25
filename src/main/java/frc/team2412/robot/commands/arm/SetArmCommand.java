@@ -18,8 +18,10 @@ public class SetArmCommand extends CommandBase {
 
 	@Override
 	public void initialize() {
-		armSubsystem.setPosition(positionType);
-		armSubsystem.setArmGoal(positionType.armAngle);
+		if (!armSubsystem.getManualOverride()) {
+			armSubsystem.setPosition(positionType);
+			armSubsystem.setArmGoal(positionType.armAngle);
+		}
 	}
 
 	@Override
