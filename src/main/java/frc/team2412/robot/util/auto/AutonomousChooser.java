@@ -17,7 +17,6 @@ public class AutonomousChooser {
 		ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");
 
 		autonomousTab.add("Choose Auto Mode", autonomousModeChooser).withPosition(0, 0).withSize(2, 1);
-
 	}
 
 	public Command getAuto() {
