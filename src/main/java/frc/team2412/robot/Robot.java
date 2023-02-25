@@ -15,9 +15,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.team2412.robot.commands.autonomous.AutoBalanceCommand;
-import frc.team2412.robot.commands.autonomous.PathPlannerTestCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
+import frc.team2412.robot.util.auto.AutonomousChooser;
 import io.github.oblarg.oblog.Logger;
 import java.util.HashMap;
 
@@ -41,8 +41,7 @@ public class Robot extends TimedRobot {
 	public Subsystems subsystems;
 
 	private final RobotType robotType;
-
-	public static SwerveAutoBuilder autoBuilder;
+	public AutonomousChooser autonomousChooser;
 
 	protected Robot(RobotType type) {
 		instance = this;
@@ -73,6 +72,7 @@ public class Robot extends TimedRobot {
 
 		subsystems = new Subsystems();
 		controls = new Controls(subsystems);
+		autonomousChooser = new AutonomousChooser();
 
 		Shuffleboard.startRecording();
 
@@ -91,34 +91,37 @@ public class Robot extends TimedRobot {
 				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
 
 		PathPlannerServer.startServer(5811);
+	}
 
+	public SwerveAutoBuilder getAutoBuilder(HashMap<String, Command> eventMap) {
 		if (subsystems.drivebaseSubsystem != null) {
-			autoBuilder =
-					new SwerveAutoBuilder(
-							subsystems.drivebaseSubsystem::getPose, // Pose2d supplier
-							subsystems.drivebaseSubsystem
-									::resetPose, // Pose2d consumer, used to reset odometry at the beginning of
-							// auto
-							subsystems.drivebaseSubsystem.getKinematics(), // SwerveDriveKinematics
-							new PIDConstants(
-									5.0, 0.0,
-									0.0), // PID constants to correct for translation error (used to create the X and
-							// Y
-							// PID controllers)
-							new PIDConstants(
-									0.5, 0.0,
-									0.0), // PID constants to correct for rotation error (used to create the rotation
-							// controller)
-							subsystems.drivebaseSubsystem
-									::drive, // Module states consumer used to output to the drive subsystem
-							new HashMap<String, Command>(),
-							true, // Should the path be automatically mirrored depending on alliance color.
-							// Optional, defaults to true
-							subsystems
-									.drivebaseSubsystem // The drive subsystem. Used to properly set the requirements
-							// of
-							// path following commands
-							);
+			return new SwerveAutoBuilder(
+					subsystems.drivebaseSubsystem::getPose, // Pose2d supplier
+					subsystems.drivebaseSubsystem
+							::resetPose, // Pose2d consumer, used to reset odometry at the beginning of
+					// auto
+					subsystems.drivebaseSubsystem.getKinematics(), // SwerveDriveKinematics
+					new PIDConstants(
+							5.0, 0.0,
+							0.0), // PID constants to correct for translation error (used to create the X and
+					// Y
+					// PID controllers)
+					new PIDConstants(
+							0.5, 0.0,
+							0.0), // PID constants to correct for rotation error (used to create the rotation
+					// controller)
+					subsystems.drivebaseSubsystem
+							::drive, // Module states consumer used to output to the drive subsystem
+					eventMap,
+					true, // Should the path be automatically mirrored depending on alliance color.
+					// Optional, defaults to true
+					subsystems
+							.drivebaseSubsystem // The drive subsystem. Used to properly set the requirements
+					// of
+					// path following commands
+					);
+		} else {
+			return null;
 		}
 	}
 
@@ -136,9 +139,9 @@ public class Robot extends TimedRobot {
 		Shuffleboard.startRecording();
 		// Basic auto path that travels 1 meter, and then balances on the charge station
 		if (subsystems.drivebaseSubsystem != null) {
+			subsystems.drivebaseSubsystem.resetGyroAngle();
 			new SequentialCommandGroup(
-							PathPlannerTestCommand.getAutoCommand(),
-							new AutoBalanceCommand(subsystems.drivebaseSubsystem))
+							autonomousChooser.getAuto(), new AutoBalanceCommand(subsystems.drivebaseSubsystem))
 					.schedule();
 		}
 	}
