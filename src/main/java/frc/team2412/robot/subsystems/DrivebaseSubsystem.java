@@ -2,6 +2,7 @@ package frc.team2412.robot.subsystems;
 
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -46,7 +47,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private static final Rotation2d[] COMP_DRIVEBASE_ENCODER_OFFSETS = {
 		// ALIGNMENT WITH BEVELS FACING RIGHT
 		Rotation2d.fromDegrees(248.1),
-		Rotation2d.fromDegrees(53.5),
+		Rotation2d.fromDegrees(298.62),
 		Rotation2d.fromDegrees(316.7),
 		Rotation2d.fromDegrees(27.5)
 		// Rotation2d.fromDegrees(-111.796),
@@ -54,7 +55,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		// // OLD Rotation2d.fromDegrees(-343.388),
 		// Rotation2d.fromDegrees(-41),
 		// // OLDRotation2d.fromDegrees(-21.796),
-		// Rotation2d.fromDegrees(-332.841)
+		// Rotation2d.fromDegrees(-332.841)[\]
 	};
 
 	// max drive speed is from SDS website and not calculated with robot weight
@@ -177,6 +178,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private DoublePublisher backLeftTargetAnglePublisher;
 	private DoublePublisher backRightTargetAnglePublisher;
 
+	private PIDController compTranslationalPID = new PIDController(0.0007, 0, 0);
+	private PIDController compRotationalPID = new PIDController(0.1, 0, 0.5);
+
 	private NetworkTableInstance networkTableInstance;
 	private NetworkTable networkTableDrivebase;
 
@@ -211,7 +215,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 			if (IS_COMP) {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
-				driveMotor.setPID(0.0007, 0, 0);
+				driveMotor.setPID(
+						compTranslationalPID.getP(), compTranslationalPID.getI(), compTranslationalPID.getD());
 				driveMotor.setMeasurementPeriod(8);
 			} else {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
@@ -226,7 +231,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.setNeutralMode(MotorNeutralMode.BRAKE);
 			// Configure PID values
 			if (IS_COMP) {
-				steeringMotor.setPID(0.1, 0, 0.5);
+				steeringMotor.setPID(
+						compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD());
 			} else {
 				steeringMotor.setPID(0.15, 0.00, 1.0);
 			}
@@ -243,67 +249,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
 
-		// configure shuffleboard
-		SmartDashboard.putData("Field", field);
-
-		networkTableInstance = NetworkTableInstance.getDefault();
-		networkTableDrivebase = networkTableInstance.getTable("Drivebase");
-
-		frontLeftActualVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Front left actual velocity").publish();
-		frontRightActualVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Front right actual velocity").publish();
-		backLeftActualVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Back left actual velocity").publish();
-		backRightActualVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Back right actual velocity").publish();
-
-		frontLeftTargetVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Front left target velocity").publish();
-		frontRightTargetVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Front right target velocity").publish();
-		backLeftTargetVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Back left target velocity").publish();
-		backRightTargetVelocityPublisher =
-				networkTableDrivebase.getDoubleTopic("Back right target velocity").publish();
-
-		frontLeftActualAnglePublisher =
-				networkTableDrivebase.getDoubleTopic("Front left actual angle").publish();
-		frontRightActualAnglePublisher =
-				networkTableDrivebase.getDoubleTopic("Front right actual angle").publish();
-		backLeftActualAnglePublisher =
-				networkTableDrivebase.getDoubleTopic("Back left actual angle").publish();
-		backRightActualAnglePublisher =
-				networkTableDrivebase.getDoubleTopic("Back right actual angle").publish();
-
-		frontLeftTargetAnglePublisher =
-				networkTableDrivebase.getDoubleTopic("Front left target angle").publish();
-		frontRightTargetAnglePublisher =
-				networkTableDrivebase.getDoubleTopic("Front right target angle").publish();
-		backLeftTargetAnglePublisher =
-				networkTableDrivebase.getDoubleTopic("Back left target angle").publish();
-		backRightTargetAnglePublisher =
-				networkTableDrivebase.getDoubleTopic("Back right target angle").publish();
-
-		frontLeftActualVelocityPublisher.set(0.0);
-		frontRightActualVelocityPublisher.set(0.0);
-		backLeftActualVelocityPublisher.set(0.0);
-		backRightActualVelocityPublisher.set(0.0);
-
-		frontLeftTargetVelocityPublisher.set(0.0);
-		frontRightTargetVelocityPublisher.set(0.0);
-		backLeftTargetVelocityPublisher.set(0.0);
-		backRightTargetVelocityPublisher.set(0.0);
-
-		frontLeftActualAnglePublisher.set(0.0);
-		frontRightActualAnglePublisher.set(0.0);
-		backLeftActualAnglePublisher.set(0.0);
-		backRightActualAnglePublisher.set(0.0);
-
-		frontLeftTargetAnglePublisher.set(0.0);
-		frontRightTargetAnglePublisher.set(0.0);
-		backLeftTargetAnglePublisher.set(0.0);
-		backRightTargetAnglePublisher.set(0.0);
+		// configure network tables
+		configureNetworkTables();
 	}
 
 	/** Drives the robot using forward, strafe, and rotation. Units in meters */
@@ -333,14 +280,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] moduleStates = getModuleStates(chassisSpeeds);
-		if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
-				&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
-				&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
-			moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-			moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-			moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-			moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-		}
+		// if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
+		// 		&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
+		// 		&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
+		// 	moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+		// 	moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+		// 	moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+		// 	moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+		// }
 		drive(moduleStates);
 	}
 
@@ -390,11 +337,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 				states[2].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT);
 		backRightTargetVelocityPublisher.set(
 				states[3].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT);
-
-		frontLeftActualAnglePublisher.set(getModuleAngles()[0].getDegrees());
-		frontRightActualAnglePublisher.set(getModuleAngles()[1].getDegrees());
-		backLeftActualAnglePublisher.set(getModuleAngles()[2].getDegrees());
-		backRightActualAnglePublisher.set(getModuleAngles()[3].getDegrees());
 
 		frontLeftTargetAnglePublisher.set(states[0].angle.getDegrees());
 		frontRightTargetAnglePublisher.set(states[1].angle.getDegrees());
@@ -501,18 +443,97 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		}
 	}
 
+	private void configureNetworkTables() {
+		SmartDashboard.putData("Field", field);
+
+		networkTableInstance = NetworkTableInstance.getDefault();
+		networkTableDrivebase = networkTableInstance.getTable("Drivebase");
+
+		frontLeftActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front left actual velocity").publish();
+		frontRightActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front right actual velocity").publish();
+		backLeftActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back left actual velocity").publish();
+		backRightActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back right actual velocity").publish();
+
+		frontLeftTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front left target velocity").publish();
+		frontRightTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front right target velocity").publish();
+		backLeftTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back left target velocity").publish();
+		backRightTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back right target velocity").publish();
+
+		frontLeftActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front left actual angle").publish();
+		frontRightActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front right actual angle").publish();
+		backLeftActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back left actual angle").publish();
+		backRightActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back right actual angle").publish();
+
+		frontLeftTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front left target angle").publish();
+		frontRightTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front right target angle").publish();
+		backLeftTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back left target angle").publish();
+		backRightTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back right target angle").publish();
+
+		frontLeftActualVelocityPublisher.set(0.0);
+		frontRightActualVelocityPublisher.set(0.0);
+		backLeftActualVelocityPublisher.set(0.0);
+		backRightActualVelocityPublisher.set(0.0);
+
+		frontLeftTargetVelocityPublisher.set(0.0);
+		frontRightTargetVelocityPublisher.set(0.0);
+		backLeftTargetVelocityPublisher.set(0.0);
+		backRightTargetVelocityPublisher.set(0.0);
+
+		frontLeftActualAnglePublisher.set(0.0);
+		frontRightActualAnglePublisher.set(0.0);
+		backLeftActualAnglePublisher.set(0.0);
+		backRightActualAnglePublisher.set(0.0);
+
+		frontLeftTargetAnglePublisher.set(0.0);
+		frontRightTargetAnglePublisher.set(0.0);
+		backLeftTargetAnglePublisher.set(0.0);
+		backRightTargetAnglePublisher.set(0.0);
+
+		SmartDashboard.putData("Translational PID", compTranslationalPID);
+		SmartDashboard.putData("Rotational PID", compRotationalPID);
+	}
+
+	private double oldTranslationalSetpoint = 0.0;
+	private double oldRotationalSetpoint = 0.0;
+
 	@Override
 	public void periodic() {
 		pose = poseEstimator.update(gyroscope.getAngle(), getModulePositions());
 		field.setRobotPose(pose);
-		System.out.println(
-				"foront left: "
-						+ moduleEncoders[0].getAbsolutePosition()
-						+ "   back left: "
-						+ moduleEncoders[1].getAbsolutePosition()
-						+ "  front right: "
-						+ moduleEncoders[2].getAbsolutePosition()
-						+ "   back right: "
-						+ moduleEncoders[3].getAbsolutePosition());
+
+		for (MotorController motor : moduleDriveMotors) {
+			if (compTranslationalPID.getSetpoint() != oldTranslationalSetpoint) {
+				motor.setPID(
+						compTranslationalPID.getP(), compTranslationalPID.getI(), compTranslationalPID.getD());
+				oldTranslationalSetpoint = compTranslationalPID.getSetpoint();
+			}
+		}
+		for (MotorController motor : moduleAngleMotors) {
+			if (compRotationalPID.getSetpoint() != oldRotationalSetpoint) {
+				motor.setPID(compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD());
+				oldRotationalSetpoint = compRotationalPID.getSetpoint();
+			}
+		}
+
+		frontLeftActualAnglePublisher.set(getModuleAngles()[0].getDegrees());
+		frontRightActualAnglePublisher.set(getModuleAngles()[1].getDegrees());
+		backLeftActualAnglePublisher.set(getModuleAngles()[2].getDegrees());
+		backRightActualAnglePublisher.set(getModuleAngles()[3].getDegrees());
 	}
 }

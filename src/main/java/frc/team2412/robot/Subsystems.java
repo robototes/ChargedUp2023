@@ -77,7 +77,7 @@ public class Subsystems {
 			}
 		}
 		if (!comp) {
-			return;
+			// return;
 		}
 		if (ARM_ENABLED) {
 			armSubsystem = new ArmSubsystem();

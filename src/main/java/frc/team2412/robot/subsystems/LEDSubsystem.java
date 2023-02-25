@@ -33,6 +33,8 @@ public class LEDSubsystem extends SubsystemBase {
 		// creates buffer
 		buffer = new AddressableLEDBuffer(BUFFER_LENGTH);
 
+		leds.start();
+
 		// TODO we start a starting color
 	}
 
@@ -51,5 +53,6 @@ public class LEDSubsystem extends SubsystemBase {
 		}
 		// Sets the led to the buffer
 		leds.setData(buffer);
+		System.out.println(buffer.getLED(1));
 	}
 }
