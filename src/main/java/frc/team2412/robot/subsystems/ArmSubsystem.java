@@ -13,9 +13,11 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Robot;
@@ -51,23 +53,23 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// PID
 		// TODO: Tune PID
-		public static final double ARM_K_P = 0;
+		public static final double ARM_K_P = 8;
 		public static final double ARM_K_I = 0;
-		public static final double ARM_K_D = 0;
+		public static final double ARM_K_D = 1;
 
-		public static final double WRIST_DEFAULT_P = 0;
+		public static final double WRIST_DEFAULT_P = 0.1;
 		public static final double WRIST_DEFAULT_I = 0;
-		public static final double WRIST_DEFAULT_D = 0;
+		public static final double WRIST_DEFAULT_D = 0.5;
 
 		// Feed Forward
 		public static final double ARM_K_A = 0;
-		public static final double ARM_K_G = 0;
-		public static final double ARM_K_S = 0;
+		public static final double ARM_K_G = 0.1;
+		public static final double ARM_K_S = 0.1;
 		public static final double ARM_K_V = 0;
 
 		public static final double WRIST_K_A = 0;
-		public static final double WRIST_K_G = 0;
-		public static final double WRIST_K_S = 0;
+		public static final double WRIST_K_G = 0.1;
+		public static final double WRIST_K_S = 0.1;
 		public static final double WRIST_K_V = 0;
 
 		// Constraints
@@ -78,6 +80,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double MIN_WRIST_ANGLE = 307;
 
 		public static final float ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO = 125;
+		public static final float WRIST_MOTOR_TO_WRIST_ENCODER_RATIO = 90;
 		public static final float ARM_FORWARD_LIMIT = 156;
 		public static final float ARM_REVERSE_LIMIT = 1;
 		public static final float WRIST_FORWARD_LIMIT = 58;
@@ -118,12 +121,13 @@ public class ArmSubsystem extends SubsystemBase {
 		 * Prescore Wrist Angle
 		 * Scoring Wrist Angle
 		 */
+		// 190 wrist 106 shoulder
 		public static enum PositionType {
 			UNKNOWN_POSITION(0, 0.30, 0.30, 0.39, 0.5),
-			ARM_LOW_POSITION(0, 62, 72, 0, 262.63),
-			ARM_MIDDLE_POSITION(87.42, 54, 72, 142, 262.63),
-			ARM_HIGH_POSITION(118, 54, 72, 180, 263),
-			ARM_SUBSTATION_POSITION(80, 54, 72, 0, 0); // ?
+			ARM_LOW_POSITION(0, 0.30, 0.30, 0.39, 0.5),
+			ARM_MIDDLE_POSITION(0.18, 0.30, 0.30, 0.459, 0.543),
+			ARM_HIGH_POSITION(0.294, 0.30, 0.30, 0.349, 0.34),
+			ARM_SUBSTATION_POSITION(0.26, 0.30, 0.30, 0.5, 0.585); // ?
 
 			public final double armAngle;
 			public final double retractedWristAngle;
@@ -150,6 +154,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	private PositionType currentPosition;
 	private boolean manualOverride;
+	private boolean hasResetted;
 	private double armGoal;
 	private double wristGoal;
 
@@ -176,6 +181,19 @@ public class ArmSubsystem extends SubsystemBase {
 	DoublePublisher shoulderAnglePublisher;
 	DoublePublisher wristAnglePublisher;
 
+	DoublePublisher armPIDPublisher;
+	DoublePublisher armFeedforwardPublisher;
+
+	StringPublisher armGoalPublisher;
+	StringPublisher armPositionPublisher;
+
+	BooleanPublisher armManualOverridePublisher;
+
+	StringPublisher wristGoalPublisher;
+	StringPublisher wristPositionPublisher;
+
+	BooleanPublisher armEncoderHasResetPublisher;
+
 	// Constructor
 
 	public ArmSubsystem() {
@@ -197,12 +215,13 @@ public class ArmSubsystem extends SubsystemBase {
 		configMotors();
 
 		currentPosition = UNKNOWN_POSITION;
-		manualOverride = false;
+		manualOverride = true;
+		hasResetted = false;
 
-		// armPID.reset(getShoulderAngle());
+		armPID.reset(getShoulderAngle());
 		// wristPID.reset(getWristAngle());
 
-		// network tables
+		// Network Tables
 
 		NTInstance = NetworkTableInstance.getDefault();
 
@@ -214,10 +233,25 @@ public class ArmSubsystem extends SubsystemBase {
 		shoulderAnglePublisher = NTDevices.getDoubleTopic("Shoulder Angle").publish();
 		wristAnglePublisher = NTDevices.getDoubleTopic("Wrist Angle").publish();
 
+		armPIDPublisher = NTDevices.getDoubleTopic("Arm PID").publish();
+		armFeedforwardPublisher = NTDevices.getDoubleTopic("Arm Feedforward").publish();
+		armGoalPublisher = NTDevices.getStringTopic("Arm Goal").publish();
+		armPositionPublisher = NTDevices.getStringTopic("Position").publish();
+
+		wristGoalPublisher = NTDevices.getStringTopic("Wrist Goal").publish();
+
+		armManualOverridePublisher = NTDevices.getBooleanTopic("Manual Override").publish();
+		armEncoderHasResetPublisher = NTDevices.getBooleanTopic("Arm Encoder Resetted").publish();
+
 		shoulderEncoderPublisher.set(0.0);
 		wristEncoderPublisher.set(0.0);
 		shoulderAnglePublisher.set(0.0);
 		wristAnglePublisher.set(0.0);
+		armPIDPublisher.set(0.0);
+		armFeedforwardPublisher.set(0.0);
+
+		armGoalPublisher.set(0.0 + " rotations | " + 0.0 + " degrees");
+		armGoalPublisher.set(0.0 + " rotations | " + 0.0 + " degrees");
 	}
 
 	// Methods
@@ -240,6 +274,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 		wristMotor.getEncoder().setPosition(getWristAngle() * 90);
 
+		wristMotor.setInverted(false);
 		wristMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
 		wristMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
 		wristMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, WRIST_FORWARD_LIMIT);
@@ -248,7 +283,11 @@ public class ArmSubsystem extends SubsystemBase {
 
 		setWristPID(WRIST_DEFAULT_P, WRIST_DEFAULT_I, WRIST_DEFAULT_D);
 	}
-
+	/**
+	 * Sets Arm Manual Override to be on or off.
+	 *
+	 * @param override the value to set Manual Override as.
+	 */
 	public void setManualOverride(boolean override) {
 		manualOverride = override;
 	}
@@ -269,46 +308,74 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
 	}
 
+	/** Resets the shoulder encoder's current position. */
 	public void resetArmEncoder() {
 		armMotor1.getEncoder().setPosition(0);
 		shoulderEncoder.reset();
+		hasResetted = true;
 	}
 
+	/**
+	 * Sets the arm motor's output.
+	 *
+	 * @param percentOutput a value between 0-1.
+	 */
 	public void setArmMotor(double percentOutput) {
 		percentOutput =
 				MathUtil.clamp(MAX_ARM_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT);
 		armMotor1.set(percentOutput);
 	}
 
+	/**
+	 * Sets the wrist motor's output.
+	 *
+	 * @param percentOutput a value between 0-1.
+	 */
 	public void setWristMotor(double percentOutput) {
 		percentOutput =
 				MathUtil.clamp(MAX_WRIST_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT);
-		System.out.println(percentOutput);
 		wristPID.setReference(
 				percentOutput, CANSparkMax.ControlType.kDutyCycle, 0); // calculateWristFeedforward());
 	}
 
+	/** Sets current position of the arm. Used for condition checking, nothing really else. */
 	public void setPosition(PositionType position) {
 		currentPosition = position;
 	}
 
-	public void setArmGoal(double targetAngle) {
-		targetAngle = MathUtil.clamp(targetAngle, MIN_ARM_ANGLE, MAX_ARM_ANGLE);
-		armPID.setGoal(targetAngle);
+	/**
+	 * Sets goal for arm PID.
+	 *
+	 * @param targetPos Measured in encoder rotations.
+	 */
+	public void setArmGoal(double targetPos) {
+		// targetPos = MathUtil.clamp(targetPos, MIN_ARM_ANGLE, MAX_ARM_ANGLE);
+		armPID.setGoal(targetPos);
 	}
 
-	public void setWristGoal(double targetAngle) {
+	/**
+	 * Sets goal for wrist PID.
+	 *
+	 * @param targetPos Measured in encoder rotations.
+	 */
+	public void setWristGoal(double targetPos) {
 		wristPID.setReference(
-				targetAngle * SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO,
+				targetPos * WRIST_MOTOR_TO_WRIST_ENCODER_RATIO,
 				CANSparkMax.ControlType.kPosition,
 				0,
-				convertToVolts(calculateWristFeedforward()));
-		wristGoal = targetAngle;
+				calculateWristFeedforward());
+		wristGoal = targetPos * WRIST_MOTOR_TO_WRIST_ENCODER_RATIO;
 	}
 
+	/**
+	 * Uses the current target/goal of Arm PID in order to calculate output for the arm motors.
+	 *
+	 * @return The calculated Arm PID output.
+	 */
 	public double calculateArmPID() {
 		return armPID.calculate(getShoulderAngle(), armPID.getGoal());
 	}
+
 	/**
 	 * Calculates the arm's feedforward using the calculated angle towards center of mass.
 	 *
@@ -321,21 +388,42 @@ public class ArmSubsystem extends SubsystemBase {
 				+ ARM_K_A * 0;
 	}
 
+	/**
+	 * Uses the current target/goal of Arm PID in order to calculate output for the arm motors.
+	 *
+	 * @return The calculated Arm PID output./
+	 */
 	public double calculateWristFeedforward() {
 		return wristFeedforward.calculate(getShoulderAngle() - getElbowAngle() + getWristAngle(), 0);
 	}
 
+	/**
+	 * Gets the current shoulder encoder position.
+	 *
+	 * @return Current shoulder encoder position
+	 */
 	public double getShoulderAngle() {
 		return shoulderEncoder.get() / SHOULDER_ENCODER_TO_ARM_ANGLE_RATIO;
 	}
 
+	/**
+	 * Gets the current elbow encoder position.
+	 *
+	 * @return Current elbow encoder position
+	 */
 	public double getElbowAngle() {
 		return getShoulderAngle() * SHOULDER_ELBOW_GEAR_RATIO;
 	}
 
+	/**
+	 * Gets the current wrist encoder position.
+	 *
+	 * @return Current wrist encoder position
+	 */
 	public double getWristAngle() {
 		return wristEncoder.getPosition();
 	}
+
 	/**
 	 * Gets current state or position of Arm Subsystem, used for extracting data from arm enum data
 	 *
@@ -344,6 +432,16 @@ public class ArmSubsystem extends SubsystemBase {
 	public PositionType getPosition() {
 		return currentPosition;
 	}
+
+	/**
+	 * Returns whether or not arm/wrist manual override is on.
+	 *
+	 * @return If manual override is on.
+	 */
+	public boolean getManualOverride() {
+		return manualOverride;
+	}
+
 	/**
 	 * Converts the percentOutput into volts
 	 *
@@ -353,6 +451,7 @@ public class ArmSubsystem extends SubsystemBase {
 	public double convertToVolts(double percentOutput) {
 		return percentOutput * Robot.getInstance().getVoltage();
 	}
+
 	/**
 	 * Calculates the angle towards center of mass by averaging and weighing the individual arm parts
 	 * (inner arm, outer arm, and intake) together.
@@ -410,7 +509,9 @@ public class ArmSubsystem extends SubsystemBase {
 	@Override
 	public void periodic() {
 		// Periodic Arm movement for Preset Angle Control
-		if (!manualOverride) {
+		if (!manualOverride
+				&& hasResetted
+				&& !(currentPosition.equals(PositionType.UNKNOWN_POSITION))) {
 
 			armMotor1.setVoltage(
 					convertToVolts(
@@ -418,15 +519,30 @@ public class ArmSubsystem extends SubsystemBase {
 									calculateArmPID() + calculateArmFeedforward(),
 									MIN_PERCENT_OUTPUT,
 									MAX_PERCENT_OUTPUT)));
+			System.out.println(calculateArmPID() + calculateArmFeedforward());
 
 			wristPID.setReference(
 					wristGoal, CANSparkMax.ControlType.kPosition, 0, calculateWristFeedforward());
 		}
 
-		wristEncoderPublisher.set(getWristAngle());
+		wristEncoderPublisher.set(wristEncoder.getPosition());
 		shoulderEncoderPublisher.set(getShoulderAngle());
 
 		wristAnglePublisher.set(getWristAngle() * 360);
 		shoulderAnglePublisher.set(getShoulderAngle() * 360);
+
+		armPIDPublisher.set(calculateArmPID());
+		armFeedforwardPublisher.set(calculateArmFeedforward());
+
+		armGoalPublisher.set(
+				armPID.getGoal().position
+						+ " rotations | "
+						+ (armPID.getGoal().position * 360)
+						+ " degrees");
+		wristGoalPublisher.set(wristGoal + " rotations | " + (wristGoal * 360) + " degrees");
+		armPositionPublisher.set(currentPosition.toString());
+		armManualOverridePublisher.set(manualOverride);
+
+		armEncoderHasResetPublisher.set(hasResetted);
 	}
 }

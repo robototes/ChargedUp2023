@@ -13,4 +13,9 @@ public class IntakeDefaultCommand extends IntakeSetCommand {
 				intakeSubsystem,
 				intakeSubsystem.detectType() == GamePieceType.NONE ? 0 : INTAKE_HOLD_SPEED);
 	}
+
+	@Override
+	public boolean isFinished() {
+		return true;
+	}
 }

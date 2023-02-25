@@ -70,9 +70,9 @@ public class Hardware {
 			WRIST_ENCODER_PORT_A = 4,
 			WRIST_ENCODER_PORT_B = 5;
 
-	// Intake devices are ports 30-39
-	public static final int INTAKE_MOTOR_1 = 30, INTAKE_MOTOR_2 = 31;
-	public static final int INTAKE_DISTANCE_SENSOR = 6, INTAKE_COLOR_SENSOR = 7;
+	// Intake devices are ports 50-59
+	public static final int INTAKE_MOTOR_1 = 55, INTAKE_MOTOR_2 = 56;
+	public static final int INTAKE_DISTANCE_SENSOR = 0;
 
 	// LED strip is PWM port 8
 	public static final int LED_STRIP = 8;
