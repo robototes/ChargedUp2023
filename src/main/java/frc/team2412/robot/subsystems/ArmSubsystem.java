@@ -119,7 +119,7 @@ public class ArmSubsystem extends SubsystemBase {
 		 * Scoring Wrist Angle
 		 */
 		public static enum PositionType {
-			UNKNOWN_POSITION(0, 0, 0, 0, 0),
+			UNKNOWN_POSITION(0, 0.30, 0.30, 0.39, 0.5),
 			ARM_LOW_POSITION(0, 62, 72, 0, 262.63),
 			ARM_MIDDLE_POSITION(87.42, 54, 72, 142, 262.63),
 			ARM_HIGH_POSITION(118, 54, 72, 180, 263),
