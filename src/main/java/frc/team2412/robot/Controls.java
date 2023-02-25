@@ -111,9 +111,7 @@ public class Controls {
 		armManualControlOn.onTrue(
 				new ManualArmOverrideOnCommand(
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
-		armManualControlOff.onTrue(
-				new ManualArmOverrideOffCommand(
-						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
+		armManualControlOff.onTrue(new ManualArmOverrideOffCommand(s.armSubsystem));
 		armLowButton.onTrue(
 				new SetFullArmCommand(s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION, WRIST_PRESCORE));
 		armMiddleButton.onTrue(

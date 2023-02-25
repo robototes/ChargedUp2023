@@ -308,9 +308,7 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
 	}
 
-	/**
-	 * Resets the shoulder encoder's current position.
-	 */
+	/** Resets the shoulder encoder's current position. */
 	public void resetArmEncoder() {
 		armMotor1.getEncoder().setPosition(0);
 		shoulderEncoder.reset();
