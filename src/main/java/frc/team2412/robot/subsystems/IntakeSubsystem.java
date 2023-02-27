@@ -21,6 +21,7 @@ public class IntakeSubsystem extends SubsystemBase {
 	// CONSTANTS
 	public static class IntakeConstants {
 		// speeds
+		// TODO: get better hold speed?
 		public static final double INTAKE_HOLD_SPEED = 0.1;
 		public static final double INTAKE_IN_SPEED = 0.3;
 		public static final double INTAKE_OUT_SPEED = -0.1;
@@ -100,6 +101,10 @@ public class IntakeSubsystem extends SubsystemBase {
 		return motor1.get();
 	}
 
+	public double getHoldSpeed() {
+		return (!hasObject() ? 0 : INTAKE_HOLD_SPEED);
+	}
+
 	public void intakeIn() {
 		setSpeed(INTAKE_IN_SPEED);
 	}
@@ -148,6 +153,13 @@ public class IntakeSubsystem extends SubsystemBase {
 	public double getDistance() {
 		// equation found from docs to convert voltage to cm
 		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045) * 27.726;
+	}
+
+	public boolean hasObject() {
+		if (getDistance() < 24) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
