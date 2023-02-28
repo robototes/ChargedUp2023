@@ -5,7 +5,7 @@ import frc.team2412.robot.subsystems.IntakeSubsystem;
 
 public class IntakeSetCommand extends CommandBase {
 
-	private IntakeSubsystem intakeSubsystem;
+	protected IntakeSubsystem intakeSubsystem;
 	private double speed;
 
 	public IntakeSetCommand(IntakeSubsystem intakeSubsystem, double speed) {

@@ -75,7 +75,7 @@ public class ArmSubsystem extends SubsystemBase {
 		// Constraints
 
 		public static final double MAX_ARM_ANGLE = 118;
-		public static final double MIN_ARM_ANGLE = 0;
+		public static final double MIN_ARM_ANGLE = 6;
 		public static final double MAX_WRIST_ANGLE = 62;
 		public static final double MIN_WRIST_ANGLE = 307;
 
@@ -481,7 +481,7 @@ public class ArmSubsystem extends SubsystemBase {
 		double outerArmCenterOfMassX =
 				OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT
 								* Math.cos(Math.toRadians((getElbowPosition() - getShoulderPosition()) * 360))
-						+ INNER_ARM_LENGTH * Math.cos((Math.toRadians(180 - getShoulderPosition() * 360)));
+						+ INNER_ARM_LENGTH * Math.cos(Math.toRadians(180 - getShoulderPosition() * 360));
 		double outerArmCenterOfMassY =
 				OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT
 								* Math.sin(Math.toRadians((getElbowPosition() - getShoulderPosition()) * 360))

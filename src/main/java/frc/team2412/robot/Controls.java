@@ -137,8 +137,7 @@ public class Controls {
 		CommandScheduler.getInstance()
 				.setDefaultCommand(s.intakeSubsystem, new IntakeDefaultCommand(s.intakeSubsystem));
 
-		intakeInButton.onTrue(
-				new IntakeSetInCommand(s.intakeSubsystem).until(s.intakeSubsystem::isSecured));
+		intakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
 		if (Subsystems.SubsystemConstants.LED_ENABLED) {
 			intakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
 		} else {

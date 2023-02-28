@@ -24,7 +24,7 @@ public class IntakeSubsystem extends SubsystemBase {
 		// TODO: get better hold speed?
 		public static final double INTAKE_HOLD_SPEED = 0.1;
 		public static final double INTAKE_IN_SPEED = 0.3;
-		public static final double INTAKE_OUT_SPEED = -0.1;
+		public static final double INTAKE_OUT_SPEED = -0.2;
 
 		public static final double INTAKE_CUBE_DISTANCE = 0;
 		public static final double INTAKE_CONE_DISTANCE = 0;
@@ -72,6 +72,10 @@ public class IntakeSubsystem extends SubsystemBase {
 		motor2 = new CANSparkMax(INTAKE_MOTOR_2, MotorType.kBrushless);
 		motor1.setIdleMode(IdleMode.kBrake);
 		motor2.setIdleMode(IdleMode.kBrake);
+
+		// need cause motors run opposite direciton.
+		motor1.setInverted(true);
+		motor2.setInverted(true);
 
 		colorSensor = new ColorSensorV3(Port.kOnboard);
 		distanceSensor = new AnalogInput(INTAKE_DISTANCE_SENSOR);
