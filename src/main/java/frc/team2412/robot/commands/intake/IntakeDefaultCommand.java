@@ -11,9 +11,8 @@ public class IntakeDefaultCommand extends IntakeSetCommand {
 
 	@Override
 	public void execute() {
-		setSpeed(intakeSubsystem.getHoldSpeed());
+		intakeSubsystem.setSpeed(intakeSubsystem.getHoldSpeed());
 		// set motor speed using super initialize?
-		super.initialize();
 	}
 
 	@Override

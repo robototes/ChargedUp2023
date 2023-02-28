@@ -14,10 +14,6 @@ public class IntakeSetCommand extends CommandBase {
 		addRequirements(intakeSubsystem);
 	}
 
-	public void setSpeed(double percentOutput) {
-		speed = percentOutput;
-	}
-
 	@Override
 	public void initialize() {
 		// set motor speed to speed
