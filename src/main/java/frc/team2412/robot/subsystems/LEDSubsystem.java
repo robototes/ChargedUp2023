@@ -19,14 +19,14 @@ public class LEDSubsystem extends SubsystemBase {
 	private final AddressableLEDBuffer buffer;
 
 	public LEDSubsystem() {
-		// TODO maybe pass in buffer length
+		// TODO: maybe pass in buffer length
 		leds = new AddressableLED(LED_STRIP); // initialization of the AdressableLED
 		leds.setLength(BUFFER_LENGTH); // Sets the LED Strip length once
 
 		// creates buffer
 		buffer = new AddressableLEDBuffer(BUFFER_LENGTH);
 
-		// TODO we start a starting color
+		// TODO: we start a starting color
 	}
 
 	public int getBufferLength() {

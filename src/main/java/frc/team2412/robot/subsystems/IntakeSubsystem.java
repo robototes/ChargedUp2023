@@ -39,7 +39,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
 			public final Color color;
 			public final Color ledColor;
-			// TODO: find distance from sensor values
 			public final double distanceFromSensor;
 
 			GamePieceType(Color color, Color ledColor, double distanceFromSensor) {
@@ -48,8 +47,6 @@ public class IntakeSubsystem extends SubsystemBase {
 				this.distanceFromSensor = distanceFromSensor;
 			}
 		}
-		// public final distance;
-
 	}
 
 	// Network Tables
