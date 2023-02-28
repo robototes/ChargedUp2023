@@ -7,4 +7,9 @@ public class IntakeSetStopCommand extends IntakeSetCommand {
 	public IntakeSetStopCommand(IntakeSubsystem intakeSubsystem) {
 		super(intakeSubsystem, 0);
 	}
+
+	@Override
+	public boolean isFinished() {
+		return true;
+	}
 }
