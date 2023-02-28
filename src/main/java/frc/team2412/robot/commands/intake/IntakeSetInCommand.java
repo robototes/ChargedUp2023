@@ -15,4 +15,5 @@ public class IntakeSetInCommand extends IntakeSetCommand {
 	// public boolean isFinished() {
 	// 	return intakeSubsystem.isSecured();
 	// }
+
 }

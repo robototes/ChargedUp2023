@@ -20,7 +20,6 @@ public class IntakeSetCommand extends CommandBase {
 
 	@Override
 	public void initialize() {
-		System.out.println(speed);
 		// set motor speed to speed
 		intakeSubsystem.setSpeed(speed);
 	}

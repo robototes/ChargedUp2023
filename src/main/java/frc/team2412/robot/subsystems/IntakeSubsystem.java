@@ -22,7 +22,7 @@ public class IntakeSubsystem extends SubsystemBase {
 	public static class IntakeConstants {
 		// speeds
 		// TODO: get better hold speed?
-		public static final double INTAKE_HOLD_SPEED = 0.1;
+		public static final double INTAKE_HOLD_SPEED = -0.1;
 		public static final double INTAKE_IN_SPEED = 0.3;
 		public static final double INTAKE_OUT_SPEED = -0.2;
 
@@ -32,18 +32,19 @@ public class IntakeSubsystem extends SubsystemBase {
 		public static final int INTAKE_COLOR_THRESHOLD = 10;
 
 		// enums
-
 		public static enum GamePieceType {
-			CUBE(new Color(64, 108, 81), 30),
-			CONE(new Color(84, 127, 42), 30),
-			NONE(new Color(0, 0, 0), 0);
+			CUBE(new Color(64, 108, 81), new Color(58, 44, 86), 30),
+			CONE(new Color(84, 127, 42), new Color(245, 224, 91), 30),
+			NONE(new Color(0, 0, 0), new Color(0, 0, 0), 0);
 
 			public final Color color;
+			public final Color ledColor;
 			// TODO: find distance from sensor values
 			public final double distanceFromSensor;
 
-			GamePieceType(Color color, double distanceFromSensor) {
+			GamePieceType(Color color, Color ledColor, double distanceFromSensor) {
 				this.color = color;
+				this.ledColor = ledColor;
 				this.distanceFromSensor = distanceFromSensor;
 			}
 		}
@@ -52,7 +53,6 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	// Network Tables
-
 	NetworkTableInstance NTInstance;
 	NetworkTable NTDevices;
 
@@ -81,7 +81,6 @@ public class IntakeSubsystem extends SubsystemBase {
 		distanceSensor = new AnalogInput(INTAKE_DISTANCE_SENSOR);
 
 		// Network Tables
-
 		NTInstance = NetworkTableInstance.getDefault();
 
 		NTDevices = NTInstance.getTable("Devices");
@@ -160,10 +159,7 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	public boolean hasObject() {
-		if (getDistance() < 24) {
-			return true;
-		}
-		return false;
+		return getDistance() < 24;
 	}
 
 	@Override
