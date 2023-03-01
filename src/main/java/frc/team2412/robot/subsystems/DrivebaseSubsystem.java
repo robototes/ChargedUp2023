@@ -56,7 +56,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	// magic number found by trial and error (aka informal characterization)
 	private static final double ODOMETRY_ADJUSTMENT = 0.957;
 	// 4 inches * odemetry adjustment
-	private static final double WHEEL_DIAMETER_METERS = 0.1016 * ODOMETRY_ADJUSTMENT;
+	private static final double WHEEL_DIAMETER_METERS =
+			IS_COMP ? 0.1016 * ODOMETRY_ADJUSTMENT : 0.1016;
 	private static final double DRIVE_REDUCTION = IS_COMP ? 6.75 : 8.14;
 	// steer reduction is the conversion from rotations of motor to rotations of the wheel
 	// module rotation * STEER_REDUCTION = motor rotation
@@ -72,6 +73,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	// Balance controller is in degrees
 	private final PFFController<Double> balanceController;
+
+	private SwerveModuleState[] currentStates;
 
 	private final MotorController[] moduleDriveMotors =
 			IS_COMP
@@ -272,6 +275,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
 			moduleAngleMotors[i].set(states[i].angle.getRotations() * STEER_REDUCTION);
 		}
+
+		currentStates = states;
 	}
 
 	/**
@@ -280,6 +285,19 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 */
 	public SwerveModuleState[] getModuleStates(ChassisSpeeds speeds) {
 		return kinematics.toSwerveModuleStates(speeds);
+	}
+
+	public SwerveModuleState[] getCurrentStates() {
+		return currentStates;
+	}
+
+	public double getVelocity() {
+		if (currentStates == null) {
+			return 0.0;
+		}
+		return Math.sqrt(
+				Math.pow(kinematics.toChassisSpeeds(getCurrentStates()).vxMetersPerSecond, 2)
+						+ Math.pow(kinematics.toChassisSpeeds(getCurrentStates()).vyMetersPerSecond, 2));
 	}
 
 	public SwerveModulePosition[] getModulePositions() {
