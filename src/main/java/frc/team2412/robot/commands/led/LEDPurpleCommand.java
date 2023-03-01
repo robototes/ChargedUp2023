@@ -8,6 +8,6 @@ import frc.team2412.robot.subsystems.LEDSubsystem;
 public class LEDPurpleCommand extends LEDSetCommand {
 
 	public LEDPurpleCommand(LEDSubsystem ledSubsystem) {
-		super(ledSubsystem, CUBE.color.getRed(), CUBE.color.getGreen(), CUBE.color.getBlue());
+		super(ledSubsystem, CUBE.ledColor);
 	}
 }
