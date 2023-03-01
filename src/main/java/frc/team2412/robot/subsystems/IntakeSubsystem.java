@@ -30,9 +30,17 @@ public class IntakeSubsystem extends SubsystemBase {
 
 		// enums
 		public static enum GamePieceType {
-			CUBE(new Color(64, 108, 81), new Color(58, 44, 86), 9),
-			CONE(new Color(84, 127, 42), new Color(245, 224, 91), 7.05),
-			NONE(new Color(0, 0, 0), new Color(0, 0, 0), 8.55);
+			CUBE(
+					new Color(64, 108, 81),
+					new Color(58, 44, 86),
+					9), // first color is from the color sensor (desaturated green), second is more true to
+			// color
+			CONE(
+					new Color(84, 127, 42),
+					new Color(245, 224, 91),
+					7.05), // first color is from the color sensor (desaturated green), second is more true to
+			// color
+			NONE(new Color(0, 0, 0), new Color(0, 0, 0), 8.55); // black
 
 			public final Color color;
 			public final Color ledColor;
@@ -151,7 +159,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	public double getDistance() {
 		// equation found from docs to convert voltage to cm
-		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045) * 27.726;
+		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045)
+				* 27.726; // gets approximately the correct values for both game pieces
 	}
 
 	public boolean hasObject() {

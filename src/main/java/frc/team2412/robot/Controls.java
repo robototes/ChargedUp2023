@@ -46,6 +46,9 @@ public class Controls {
 	public final Trigger intakeInButton;
 	public final Trigger intakeOutButton;
 	public final Trigger intakeStopButton;
+	public final Trigger driveIntakeInButton;
+	public final Trigger driveIntakeOutButton;
+	public final Trigger driveIntakeStopButton;
 
 	public final Trigger ledPurple;
 	public final Trigger ledYellow;
@@ -74,6 +77,9 @@ public class Controls {
 		intakeInButton = codriveController.a();
 		intakeOutButton = codriveController.y();
 		intakeStopButton = codriveController.b();
+		driveIntakeInButton = driveController.a();
+		driveIntakeOutButton = driveController.y();
+		driveIntakeStopButton = driveController.b();
 
 		ledPurple = driveController.rightBumper();
 		ledYellow = driveController.leftBumper();
