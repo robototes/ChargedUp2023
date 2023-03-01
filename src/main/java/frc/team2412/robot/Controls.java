@@ -26,7 +26,6 @@ import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetStopCommand;
 import frc.team2412.robot.commands.led.LEDPurpleCommand;
 import frc.team2412.robot.commands.led.LEDYellowCommand;
-import frc.team2412.robot.util.DriverAssist;
 
 public class Controls {
 	public static class ControlConstants {
@@ -112,14 +111,6 @@ public class Controls {
 								driveController::getRightTriggerAxis));
 		driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
-
-		driveController
-				.rightBumper()
-				.onTrue(new InstantCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem)));
-
-		driveController
-				.rightBumper()
-				.onFalse(new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
 	}
 
 	public void bindArmControls() {

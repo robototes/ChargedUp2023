@@ -280,14 +280,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] moduleStates = getModuleStates(chassisSpeeds);
-		// if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
-		// 		&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
-		// 		&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
-		// 	moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-		// 	moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-		// 	moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-		// 	moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-		// }
+		if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
+				&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
+				&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
+			moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+			moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+			moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+			moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+		}
 		drive(moduleStates);
 	}
 
