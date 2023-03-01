@@ -1,5 +1,6 @@
 package frc.team2412.robot.commands.arm;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team2412.robot.subsystems.ArmSubsystem;
 import java.util.function.DoubleSupplier;
@@ -28,8 +29,8 @@ public class ManualArmOverrideCommand extends CommandBase {
 
 	@Override
 	public void execute() {
-		armSubsystem.setArmMotor(deadbandCorrection(armJoystickInput.getAsDouble()));
-		armSubsystem.setWristMotor(deadbandCorrection(wristJoystickInput.getAsDouble()));
+		armSubsystem.setArmMotor(MathUtil.applyDeadband(armJoystickInput.getAsDouble(), 0.05));
+		armSubsystem.setWristMotor(MathUtil.applyDeadband(wristJoystickInput.getAsDouble(), 0.05));
 	}
 
 	@Override
@@ -40,9 +41,5 @@ public class ManualArmOverrideCommand extends CommandBase {
 	@Override
 	public boolean isFinished() {
 		return false;
-	}
-
-	public double deadbandCorrection(double input) {
-		return Math.abs(input) < 0.05 ? 0 : (input - Math.signum(input) * 0.05) / 0.95;
 	}
 }

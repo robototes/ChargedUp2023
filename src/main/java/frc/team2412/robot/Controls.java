@@ -19,8 +19,9 @@ import frc.team2412.robot.commands.arm.ResetArmCommand;
 import frc.team2412.robot.commands.arm.SetFullArmCommand;
 import frc.team2412.robot.commands.arm.SetWristCommand;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
+import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
+import frc.team2412.robot.commands.intake.IntakeOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetInCommand;
-import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetStopCommand;
 import frc.team2412.robot.commands.led.LEDPurpleCommand;
 import frc.team2412.robot.commands.led.LEDYellowCommand;
@@ -88,11 +89,19 @@ public class Controls {
 		if (Subsystems.SubsystemConstants.INTAKE_ENABLED) {
 			bindIntakeControls();
 		}
+<<<<<<< HEAD
 		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
 			bindArmControls();
 		}
 		if (Subsystems.SubsystemConstants.LED_ENABLED) {
 			bindLEDControls();
+=======
+		if (Subsystems.SubsystemConstants.LED_ENABLED) {
+			bindLEDControls();
+		}
+		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
+			bindArmControls();
+>>>>>>> main
 		}
 	}
 
@@ -143,9 +152,12 @@ public class Controls {
 	}
 
 	public void bindIntakeControls() {
+		CommandScheduler.getInstance()
+				.setDefaultCommand(s.intakeSubsystem, new IntakeDefaultCommand(s.intakeSubsystem));
+
 		intakeInButton.onTrue(
 				new IntakeSetInCommand(s.intakeSubsystem).until(s.intakeSubsystem::isSecured));
-		intakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
+		intakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
 		intakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
 	}
 
