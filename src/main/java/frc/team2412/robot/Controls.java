@@ -30,6 +30,10 @@ public class Controls {
 	private final CommandXboxController driveController;
 	private final CommandXboxController codriveController;
 
+	// Drivebase
+
+	public final Trigger triggerDriverAssist;
+
 	// Arm
 
 	public final Trigger armManualControl;
@@ -58,6 +62,8 @@ public class Controls {
 		driveController = new CommandXboxController(CONTROLLER_PORT);
 		codriveController = new CommandXboxController(CODRIVER_CONTROLLER_PORT);
 		this.s = s;
+
+		triggerDriverAssist = driveController.x();
 
 		armManualControl = codriveController.rightStick();
 
@@ -104,14 +110,11 @@ public class Controls {
 		driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 
-		// TODO Resolve control conflict with purple LED...
-		driveController
-				.rightBumper()
-				.onTrue(new InstantCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem)));
+		triggerDriverAssist.onTrue(
+				new InstantCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem)));
 
-		driveController
-				.rightBumper()
-				.onFalse(new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
+		triggerDriverAssist.onFalse(
+				new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
 	}
 
 	public void bindArmControls() {
