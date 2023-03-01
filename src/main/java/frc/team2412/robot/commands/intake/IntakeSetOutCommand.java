@@ -3,7 +3,6 @@ package frc.team2412.robot.commands.intake;
 import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_OUT_SPEED;
 
 import frc.team2412.robot.subsystems.IntakeSubsystem;
-import frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType;
 
 public class IntakeSetOutCommand extends IntakeSetCommand {
 
@@ -14,6 +13,7 @@ public class IntakeSetOutCommand extends IntakeSetCommand {
 	@Override
 	public boolean isFinished() {
 		// TODO: add or statement for if distance sensor detects piece is out
-		return (intakeSubsystem.detectType() == GamePieceType.NONE);
+		// return (intakeSubsystem.detectType() == GamePieceType.NONE);
+		return false;
 	}
 }
