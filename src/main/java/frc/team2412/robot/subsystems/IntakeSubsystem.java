@@ -100,6 +100,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	/**
 	 * Sets the speed of the intake motors to a specified value.
+	 *
 	 * @param speed Percent output to set the motors to run with.
 	 */
 	public void setSpeed(double speed) {
@@ -107,44 +108,40 @@ public class IntakeSubsystem extends SubsystemBase {
 		motor2.set(-speed);
 	}
 
-	/**
-	 * Gets the current speed of intake.
-	 */
+	/** Gets the current speed of intake. */
 	public double getSpeed() {
 		return motor1.get();
 	}
 
 	/**
-	 * Decides a speed to use based on whether not there is an object inside intake to hold. Used for IntakeDefaultCommand.
+	 * Decides a speed to use based on whether not there is an object inside intake to hold. Used for
+	 * IntakeDefaultCommand.
+	 *
 	 * @return Motor holding speed if there is an object to keep secure, otherwise 0.
 	 */
 	public double getHoldSpeed() {
 		return (!hasObject() ? 0 : INTAKE_HOLD_SPEED);
 	}
 
-	/**
-	 * Runs the motors inwards
-	 */
+	/** Runs the motors inwards */
 	public void intakeIn() {
 		setSpeed(INTAKE_IN_SPEED);
 	}
 
-	/**
-	 * Runs the motors outwards
-	 */
+	/** Runs the motors outwards */
 	public void intakeOut() {
 		setSpeed(INTAKE_OUT_SPEED);
 	}
 
-	/**
-	 * Stops the motors
-	 */
+	/** Stops the motors */
 	public void intakeStop() {
 		setSpeed(0);
 	}
 
 	/**
-	 * Compares the current color sensor value to color values corresponding to game pieces in order to detect what is being intaked.
+	 * Compares the current color sensor value to color values corresponding to game pieces in order
+	 * to detect what is being intaked.
+	 *
 	 * @return The game piece detected.
 	 */
 	public GamePieceType detectType() {
@@ -158,6 +155,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	/**
 	 * Compares the current color sensor value to the color specified as a parameter.
+	 *
 	 * @param color Color to compare the color sensor value to.
 	 * @return Whether or not the color sensors value matches the color target.
 	 */
@@ -179,6 +177,7 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 	/**
 	 * Checks whether or not the game piece is secured.
+	 *
 	 * @return True if the game piece is secured, false if not.
 	 */
 	public boolean isSecured() {
@@ -191,6 +190,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	/**
 	 * Gets the distance of whatever's in front of the distance sensor
+	 *
 	 * @return Distance object is from sensor.
 	 */
 	public double getDistance() {
@@ -200,6 +200,7 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 	/**
 	 * Checks whether or not the game piece is inside intake. Used for knowing when to stop outtaking.
+	 *
 	 * @return True if piece is inside intake, false if not.
 	 */
 	public boolean hasObject() {
