@@ -97,31 +97,56 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	// METHODS
+
+	/**
+	 * Sets the speed of the intake motors to a specified value.
+	 * @param speed Percent output to set the motors to run with.
+	 */
 	public void setSpeed(double speed) {
 		motor1.set(speed);
 		motor2.set(-speed);
 	}
 
+	/**
+	 * Gets the current speed of intake.
+	 */
 	public double getSpeed() {
 		return motor1.get();
 	}
 
+	/**
+	 * Decides a speed to use based on whether not there is an object inside intake to hold. Used for IntakeDefaultCommand.
+	 * @return Motor holding speed if there is an object to keep secure, otherwise 0.
+	 */
 	public double getHoldSpeed() {
 		return (!hasObject() ? 0 : INTAKE_HOLD_SPEED);
 	}
 
+	/**
+	 * Runs the motors inwards
+	 */
 	public void intakeIn() {
 		setSpeed(INTAKE_IN_SPEED);
 	}
 
+	/**
+	 * Runs the motors outwards
+	 */
 	public void intakeOut() {
 		setSpeed(INTAKE_OUT_SPEED);
 	}
 
+	/**
+	 * Stops the motors
+	 */
 	public void intakeStop() {
 		setSpeed(0);
 	}
 
+	/**
+	 * Compares the current color sensor value to color values corresponding to game pieces in order to detect what is being intaked.
+	 * @return The game piece detected.
+	 */
 	public GamePieceType detectType() {
 		if (colorSensorEquals(CUBE.color)) {
 			return GamePieceType.CUBE;
@@ -131,6 +156,11 @@ public class IntakeSubsystem extends SubsystemBase {
 		return GamePieceType.NONE;
 	}
 
+	/**
+	 * Compares the current color sensor value to the color specified as a parameter.
+	 * @param color Color to compare the color sensor value to.
+	 * @return Whether or not the color sensors value matches the color target.
+	 */
 	public boolean colorSensorEquals(Color color) {
 		// r
 		if (colorSensor.getRed() <= (color.getRed() + INTAKE_COLOR_THRESHOLD)
@@ -147,9 +177,11 @@ public class IntakeSubsystem extends SubsystemBase {
 		}
 		return false;
 	}
-
+	/**
+	 * Checks whether or not the game piece is secured.
+	 * @return True if the game piece is secured, false if not.
+	 */
 	public boolean isSecured() {
-		// Checks to see if the game piece is secured, returns true if the motor should stop
 		// return (getDistance() < GamePieceType.CONE.distanceFromSensor
 		// 		|| (detectType() == GamePieceType.CUBE
 		// 				&& getDistance() < GamePieceType.CUBE.distanceFromSensor));
@@ -157,14 +189,21 @@ public class IntakeSubsystem extends SubsystemBase {
 		return (getDistance() <= GamePieceType.NONE.distanceFromSensor);
 	}
 
+	/**
+	 * Gets the distance of whatever's in front of the distance sensor
+	 * @return Distance object is from sensor.
+	 */
 	public double getDistance() {
 		// equation found from docs to convert voltage to cm
 		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045)
 				* 27.726; // gets approximately the correct values for both game pieces
 	}
-
+	/**
+	 * Checks whether or not the game piece is inside intake. Used for knowing when to stop outtaking.
+	 * @return True if piece is inside intake, false if not.
+	 */
 	public boolean hasObject() {
-		// 24 is distance where object is inside intake
+		// 24 is distance for when object is inside intake
 		return getDistance() < 24;
 	}
 
