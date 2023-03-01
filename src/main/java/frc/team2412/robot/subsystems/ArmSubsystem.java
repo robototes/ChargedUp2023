@@ -40,13 +40,16 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 11.218;
 		public static final double OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 15.712;
 		public static final double WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 10.85;
-		public static final double WRIST_CENTER_OF_MASS_ANGLE_OFFSET = -20.15; // TODO: find offset
+		public static final double WRIST_CENTER_OF_MASS_ANGLE_OFFSET = -20.15;
 
 		public static final double INNER_ARM_LENGTH = 25;
 		public static final double OUTER_ARM_LENGTH = 27.25;
 
 		// TODO: this is still incorrect, current delta between extended and retracted is 0.1809 but
 		// should be 0.25
+
+		public static final double ELBOW_POS_TO_ARM_POS = 0; // TODO
+
 		public static final double SHOULDER_ENCODER_TO_ARM_POSITION_RATIO = 4 / 1;
 		public static final double WRIST_ENCODER_TO_WRIST_POSITION_RATIO = 24 / 1;
 		public static final double SHOULDER_ELBOW_GEAR_RATIO = 64 / 48;
@@ -116,7 +119,8 @@ public class ArmSubsystem extends SubsystemBase {
 		// ENUM
 
 		/*
-		 * TODO:
+		 * TODO: update/improve presets
+		 *
 		 * Find arm and wrist angles (see onenote page)
 		 *
 		 * Values are angles that correspond to specific arm positions:
@@ -159,7 +163,6 @@ public class ArmSubsystem extends SubsystemBase {
 
 	private PositionType currentPosition;
 	private boolean manualOverride;
-	private boolean hasResetted;
 	private double armGoal;
 	private double wristGoal;
 
@@ -197,8 +200,6 @@ public class ArmSubsystem extends SubsystemBase {
 	StringPublisher wristGoalPublisher;
 	StringPublisher wristPositionPublisher;
 
-	BooleanPublisher armEncoderHasResetPublisher;
-
 	// Constructor
 
 	public ArmSubsystem() {
@@ -221,7 +222,6 @@ public class ArmSubsystem extends SubsystemBase {
 
 		currentPosition = UNKNOWN_POSITION;
 		manualOverride = true;
-		hasResetted = false;
 
 		armPID.reset(getShoulderPosition());
 		// wristPID.reset(getWristPosition());
@@ -246,7 +246,6 @@ public class ArmSubsystem extends SubsystemBase {
 		wristGoalPublisher = NTDevices.getStringTopic("Wrist Goal").publish();
 
 		armManualOverridePublisher = NTDevices.getBooleanTopic("Manual Override").publish();
-		armEncoderHasResetPublisher = NTDevices.getBooleanTopic("Arm Encoder Resetted").publish();
 
 		shoulderEncoderPublisher.set(0.0);
 		wristEncoderPublisher.set(0.0);
@@ -277,7 +276,7 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor2.setSmartCurrentLimit(20);
 		armMotor2.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
-		wristMotor.getEncoder().setPosition(getWristPosition() * 90);
+		wristMotor.getEncoder().setPosition(getWristPosition() * WRIST_MOTOR_TO_WRIST_ENCODER_RATIO);
 
 		wristMotor.setInverted(false);
 		wristMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
@@ -311,13 +310,6 @@ public class ArmSubsystem extends SubsystemBase {
 	public void enableShoulderLimits() {
 		armMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
 		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
-	}
-
-	/** Resets the shoulder encoder's current position. */
-	public void resetArmEncoder() {
-		armMotor1.getEncoder().setPosition(0);
-		shoulderEncoder.reset();
-		hasResetted = true;
 	}
 
 	/**
@@ -523,7 +515,7 @@ public class ArmSubsystem extends SubsystemBase {
 	@Override
 	public void periodic() {
 		// Periodic Arm movement for Preset Angle Control
-		if (!manualOverride && hasResetted && !currentPosition.equals(PositionType.UNKNOWN_POSITION)) {
+		if (!manualOverride && !currentPosition.equals(PositionType.UNKNOWN_POSITION)) {
 
 			armMotor1.setVoltage(
 					convertToVolts(
@@ -556,7 +548,5 @@ public class ArmSubsystem extends SubsystemBase {
 		wristGoalPublisher.set(wristGoal + " rotations | " + (wristGoal * 360) + " degrees");
 		armPositionPublisher.set(currentPosition.toString());
 		armManualOverridePublisher.set(manualOverride);
-
-		armEncoderHasResetPublisher.set(hasResetted);
 	}
 }
