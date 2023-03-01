@@ -18,7 +18,6 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Robot;
 
@@ -170,7 +169,7 @@ public class ArmSubsystem extends SubsystemBase {
 	private final CANSparkMax armMotor2;
 	private final CANSparkMax wristMotor;
 
-	private final DutyCycleEncoder elbowEncoder;
+	private final SparkMaxAbsoluteEncoder elbowEncoder;
 	private final SparkMaxAbsoluteEncoder wristEncoder;
 
 	private final ProfiledPIDController armPID;
@@ -204,8 +203,7 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor2 = new CANSparkMax(ARM_MOTOR_2, MotorType.kBrushless);
 		wristMotor = new CANSparkMax(WRIST_MOTOR, MotorType.kBrushless);
 
-		elbowEncoder = new DutyCycleEncoder(ELBOW_ENCODER_PORT);
-		elbowEncoder.reset();
+		elbowEncoder = armMotor1.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 		wristEncoder = wristMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 		wristEncoder.setZeroOffset(0.055);
 		wristEncoder.setInverted(true);
@@ -404,7 +402,7 @@ public class ArmSubsystem extends SubsystemBase {
 	 * @return Current elbow encoder position
 	 */
 	public double getElbowPosition() {
-		return elbowEncoder.get();
+		return elbowEncoder.getPosition();
 	}
 
 	/**
