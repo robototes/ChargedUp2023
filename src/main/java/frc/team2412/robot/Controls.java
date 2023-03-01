@@ -89,19 +89,11 @@ public class Controls {
 		if (Subsystems.SubsystemConstants.INTAKE_ENABLED) {
 			bindIntakeControls();
 		}
-<<<<<<< HEAD
-		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
-			bindArmControls();
-		}
-		if (Subsystems.SubsystemConstants.LED_ENABLED) {
-			bindLEDControls();
-=======
 		if (Subsystems.SubsystemConstants.LED_ENABLED) {
 			bindLEDControls();
 		}
 		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
 			bindArmControls();
->>>>>>> main
 		}
 	}
 
