@@ -33,8 +33,8 @@ public class DriverAssist {
 	};
 
 	private static boolean isPoseTooFar(Pose2d robotPose, Pose2d alignmentPose) {
-		return robotPose.getTranslation().getDistance(alignmentPose.getTranslation()) > MAX_ALIGNMENT_DISTANCE_METERS;
-		}
+		return robotPose.getTranslation().getDistance(alignmentPose.getTranslation())
+				> MAX_ALIGNMENT_DISTANCE_METERS;
 	}
 
 	public static boolean alignRobot(DrivebaseSubsystem drivebaseSubsystem) {
