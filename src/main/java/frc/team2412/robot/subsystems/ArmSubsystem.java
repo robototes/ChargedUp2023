@@ -98,8 +98,8 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double MAX_ARM_VELOCITY = 1;
 		public static final double MAX_ARM_ACCELERATION = 0.5;
 
-		public static final double MAX_WRIST_VELOCITY = 1;
-		public static final double MAX_WRIST_ACCELERATION = 0.7;
+		public static final double MAX_WRIST_VELOCITY = .2;
+		public static final double MAX_WRIST_ACCELERATION = 0.5;
 
 		public static final Constraints ARM_CONSTRAINTS =
 				new Constraints(MAX_ARM_ACCELERATION, MAX_ARM_VELOCITY);
@@ -354,10 +354,13 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	/**
+	 * Sets goal for wrist PID.
+	 *
 	 * @param targetPos Measured in encoder rotations.
 	 */
 	public void setWristGoal(double targetPos) {
 		wristPID.setReference(
+				targetPos * WRIST_MOTOR_TO_WRIST_ENCODER_RATIO,
 				CANSparkMax.ControlType.kPosition,
 				0,
 				calculateWristFeedforward());
