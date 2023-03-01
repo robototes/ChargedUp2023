@@ -22,20 +22,17 @@ public class IntakeSubsystem extends SubsystemBase {
 	public static class IntakeConstants {
 		// speeds
 		// TODO: get better hold speed?
-		public static final double INTAKE_HOLD_SPEED = -0.1;
-		public static final double INTAKE_IN_SPEED = 0.3;
-		public static final double INTAKE_OUT_SPEED = -0.2;
-
-		public static final double INTAKE_CUBE_DISTANCE = 0;
-		public static final double INTAKE_CONE_DISTANCE = 0;
+		public static final double INTAKE_HOLD_SPEED = 0.1;
+		public static final double INTAKE_IN_SPEED = 0.2;
+		public static final double INTAKE_OUT_SPEED = -0.3;
 
 		public static final int INTAKE_COLOR_THRESHOLD = 10;
 
 		// enums
 		public static enum GamePieceType {
-			CUBE(new Color(64, 108, 81), new Color(58, 44, 86), 30),
-			CONE(new Color(84, 127, 42), new Color(245, 224, 91), 30),
-			NONE(new Color(0, 0, 0), new Color(0, 0, 0), 0);
+			CUBE(new Color(64, 108, 81), new Color(58, 44, 86), 9),
+			CONE(new Color(84, 127, 42), new Color(245, 224, 91), 7.05),
+			NONE(new Color(0, 0, 0), new Color(0, 0, 0), 8.55);
 
 			public final Color color;
 			public final Color ledColor;
@@ -145,9 +142,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	public boolean isSecured() {
 		// Checks to see if the game piece is secured, returns true if the motor should stop
-		return (getDistance() < GamePieceType.CONE.distanceFromSensor
-				|| (detectType() == GamePieceType.CUBE
-						&& getDistance() < GamePieceType.CUBE.distanceFromSensor));
+		// return (getDistance() < GamePieceType.CONE.distanceFromSensor
+		// 		|| (detectType() == GamePieceType.CUBE
+		// 				&& getDistance() < GamePieceType.CUBE.distanceFromSensor));
+
+		return (getDistance() <= GamePieceType.NONE.distanceFromSensor);
 	}
 
 	public double getDistance() {

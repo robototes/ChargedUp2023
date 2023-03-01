@@ -11,9 +11,8 @@ public class IntakeSetInCommand extends IntakeSetCommand {
 	}
 
 	// TODO: uncomment when color matching works
-	// @Override
-	// public boolean isFinished() {
-	// 	return intakeSubsystem.isSecured();
-	// }
-
+	@Override
+	public boolean isFinished() {
+		return intakeSubsystem.isSecured();
+	}
 }

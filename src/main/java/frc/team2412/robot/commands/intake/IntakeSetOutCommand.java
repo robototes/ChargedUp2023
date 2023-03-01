@@ -10,10 +10,10 @@ public class IntakeSetOutCommand extends IntakeSetCommand {
 		super(intakeSubsystem, INTAKE_OUT_SPEED);
 	}
 
-	// TODO: uncomment when color matching works
-	// @Override
-	// public boolean isFinished() {
-	// 	return (intakeSubsystem.detectType() == GamePieceType.NONE || !intakeSubsystem.hasObject());
-	// }
+	//TODO: uncomment when color matching works
+	@Override
+	public boolean isFinished() {
+		return (!intakeSubsystem.hasObject());
+	}
 
 }
