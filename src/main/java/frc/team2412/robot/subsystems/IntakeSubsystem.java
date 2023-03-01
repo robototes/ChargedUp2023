@@ -164,6 +164,7 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	public boolean hasObject() {
+		// 24 is distance where object is inside intake
 		return getDistance() < 24;
 	}
 
