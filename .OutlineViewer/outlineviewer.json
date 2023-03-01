@@ -13,10 +13,5 @@
     "Publishers": {
       "open": true
     }
-  },
-  "transitory": {
-    "Devices": {
-      "open": true
-    }
   }
 }
