@@ -123,7 +123,7 @@ public class ArmSubsystem extends SubsystemBase {
 		 */
 		// 190 wrist 106 shoulder
 		public static enum PositionType {
-			UNKNOWN_POSITION(0, 0.30, 0.30, 0.39, 0.5),
+			UNKNOWN_POSITION(0, 0.25, 0.30, 0.39, 0.5),
 			ARM_LOW_POSITION(0, 0.30, 0.30, 0.39, 0.5),
 			ARM_MIDDLE_POSITION(0.18, 0.30, 0.30, 0.459, 0.543),
 			ARM_HIGH_POSITION(0.294, 0.30, 0.30, 0.349, 0.34),

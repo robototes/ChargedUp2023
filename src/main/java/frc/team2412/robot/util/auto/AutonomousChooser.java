@@ -10,10 +10,10 @@ public class AutonomousChooser {
 
 	public AutonomousChooser() {
 		autonomousModeChooser.setDefaultOption(
-				"BottomCommunity", AutonomousTrajectories.getTopCommunityAutoPath());
+				"BottomCommunity", AutonomousTrajectories.getBotCommunityAutoPath());
 		autonomousModeChooser.addOption("ChargeStation", AutonomousTrajectories.getChargedAutoPath());
 		autonomousModeChooser.addOption(
-				"TopCommunity", AutonomousTrajectories.getBotCommunityAutoPath());
+				"TopCommunity", AutonomousTrajectories.getTopCommunityAutoPath());
 		autonomousModeChooser.addOption("TopScore", AutonomousTrajectories.getTopScoreAutoPath());
 		autonomousModeChooser.addOption("BotScore", AutonomousTrajectories.getBotScoreAutoPath());
 
