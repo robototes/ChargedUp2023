@@ -43,9 +43,9 @@ public class Controls {
 	// public final Trigger wristScoreButton;
 
 	// intake
-	public final Trigger intakeInButton;
-	public final Trigger intakeOutButton;
-	public final Trigger intakeStopButton;
+	public final Trigger codriveIntakeInButton;
+	public final Trigger codriveIntakeOutButton;
+	public final Trigger codriveIntakeStopButton;
 	public final Trigger driveIntakeInButton;
 	public final Trigger driveIntakeOutButton;
 	public final Trigger driveIntakeStopButton;
@@ -74,9 +74,9 @@ public class Controls {
 		// wristRetractButton = codriveController.povRight();
 		// wristScoreButton = codriveController.povLeft();
 
-		intakeInButton = codriveController.a();
-		intakeOutButton = codriveController.y();
-		intakeStopButton = codriveController.b();
+		codriveIntakeInButton = codriveController.a();
+		codriveIntakeOutButton = codriveController.y();
+		codriveIntakeStopButton = codriveController.b();
 		driveIntakeInButton = driveController.a();
 		driveIntakeOutButton = driveController.y();
 		driveIntakeStopButton = driveController.b();
@@ -141,14 +141,25 @@ public class Controls {
 		CommandScheduler.getInstance()
 				.setDefaultCommand(s.intakeSubsystem, new IntakeDefaultCommand(s.intakeSubsystem));
 
-		intakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
+		// Drive Buttons
+
+		driveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
 		if (Subsystems.SubsystemConstants.LED_ENABLED) {
-			intakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
+			driveIntakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
 		} else {
-			intakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
+			driveIntakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
 		}
 
-		intakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
+		driveIntakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
+
+		// Codrive buttons
+		codriveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
+		if (Subsystems.SubsystemConstants.LED_ENABLED) {
+			codriveIntakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
+		} else {
+			codriveIntakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
+		}
+		codriveIntakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
 	}
 
 	public void bindLEDControls() {
