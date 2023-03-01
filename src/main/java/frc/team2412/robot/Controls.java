@@ -1,14 +1,8 @@
 package frc.team2412.robot;
 
-import static frc.team2412.robot.Controls.ControlConstants.CODRIVER_CONTROLLER_PORT;
-import static frc.team2412.robot.Controls.ControlConstants.CONTROLLER_PORT;
-import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_PRESCORE;
-import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_RETRACT;
-import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_SCORE;
-import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.ARM_HIGH_POSITION;
-import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.ARM_LOW_POSITION;
-import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.ARM_MIDDLE_POSITION;
-import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.ARM_SUBSTATION_POSITION;
+import static frc.team2412.robot.Controls.ControlConstants.*;
+import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.*;
+import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
