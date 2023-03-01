@@ -33,11 +33,7 @@ public class DriverAssist {
 	};
 
 	private static boolean isPoseTooFar(Pose2d robotPose, Pose2d alignmentPose) {
-		if (robotPose.getTranslation().getDistance(alignmentPose.getTranslation())
-				> MAX_ALIGNMENT_DISTANCE_METERS) {
-			return true;
-		} else {
-			return false;
+		return robotPose.getTranslation().getDistance(alignmentPose.getTranslation()) > MAX_ALIGNMENT_DISTANCE_METERS;
 		}
 	}
 
