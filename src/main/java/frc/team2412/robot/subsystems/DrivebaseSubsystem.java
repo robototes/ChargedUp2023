@@ -320,6 +320,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		resetGyroAngle(gyroscope.getRawYaw());
 	}
 
+	public void resetGyroAngleWithOrientation(Rotation2d angle) {
+		resetGyroAngle(gyroscope.getRawYaw().plus(angle));
+	}
+
 	/**
 	 * Resets the robot's forward to the new angle relative to the radio (on bonk)
 	 *
