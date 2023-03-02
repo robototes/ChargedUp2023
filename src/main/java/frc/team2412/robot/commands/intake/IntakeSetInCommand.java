@@ -9,4 +9,10 @@ public class IntakeSetInCommand extends IntakeSetCommand {
 	public IntakeSetInCommand(IntakeSubsystem intakeSubsystem) {
 		super(intakeSubsystem, INTAKE_IN_SPEED);
 	}
+
+	// TODO: uncomment when color matching works
+	@Override
+	public boolean isFinished() {
+		return intakeSubsystem.isSecured();
+	}
 }

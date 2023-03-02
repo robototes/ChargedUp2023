@@ -10,10 +10,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
 import frc.team2412.robot.commands.arm.ManualArmOverrideOnCommand;
-import frc.team2412.robot.commands.arm.ResetArmCommand;
-import frc.team2412.robot.commands.arm.SetFullArmCommand;
-import frc.team2412.robot.commands.arm.SetWristCommand;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
+import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
 import frc.team2412.robot.commands.intake.IntakeOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
@@ -35,20 +33,22 @@ public class Controls {
 	public final Trigger armManualControlOn;
 	public final Trigger armManualControlOff;
 
-	public final Trigger armLowButton;
-	public final Trigger armMiddleButton;
-	public final Trigger armHighButton;
-	public final Trigger armSubstationButton;
-	public final Trigger armResetButton;
+	// public final Trigger armLowButton;
+	// public final Trigger armMiddleButton;
+	// public final Trigger armHighButton;
+	// public final Trigger armSubstationButton;
 
-	public final Trigger wristRetractButton;
+	// public final Trigger wristRetractButton;
 	// public final Trigger wristPrescoreButton;
-	public final Trigger wristScoreButton;
+	// public final Trigger wristScoreButton;
 
 	// intake
-	public final Trigger intakeInButton;
-	public final Trigger intakeOutButton;
-	public final Trigger intakeStopButton;
+	public final Trigger codriveIntakeInButton;
+	public final Trigger codriveIntakeOutButton;
+	public final Trigger codriveIntakeStopButton;
+	public final Trigger driveIntakeInButton;
+	public final Trigger driveIntakeOutButton;
+	public final Trigger driveIntakeStopButton;
 
 	public final Trigger ledPurple;
 	public final Trigger ledYellow;
@@ -60,21 +60,26 @@ public class Controls {
 		codriveController = new CommandXboxController(CODRIVER_CONTROLLER_PORT);
 		this.s = s;
 
+		// TODO: reimpliment arm + wrist presets after comp
+
 		armManualControlOn = codriveController.rightTrigger();
 		armManualControlOff = codriveController.leftTrigger();
 
-		armLowButton = codriveController.y();
-		armMiddleButton = codriveController.x();
-		armHighButton = codriveController.a();
-		armSubstationButton = codriveController.b();
-		armResetButton = codriveController.start();
+		// armLowButton = codriveController.y();
+		// armMiddleButton = codriveController.x();
+		// armHighButton = codriveController.a();
+		// armSubstationButton = codriveController.b();
+		// armResetButton = codriveController.start();
 
-		wristRetractButton = codriveController.povRight();
-		wristScoreButton = codriveController.povLeft();
+		// wristRetractButton = codriveController.povRight();
+		// wristScoreButton = codriveController.povLeft();
 
-		intakeInButton = driveController.a();
-		intakeOutButton = driveController.y();
-		intakeStopButton = driveController.b();
+		codriveIntakeInButton = codriveController.a();
+		codriveIntakeOutButton = codriveController.y();
+		codriveIntakeStopButton = codriveController.b();
+		driveIntakeInButton = driveController.a();
+		driveIntakeOutButton = driveController.y();
+		driveIntakeStopButton = driveController.b();
 
 		ledPurple = driveController.rightBumper();
 		ledYellow = driveController.leftBumper();
@@ -112,39 +117,49 @@ public class Controls {
 				new ManualArmOverrideOnCommand(
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
 		armManualControlOff.onTrue(new ManualArmOverrideOffCommand(s.armSubsystem));
-		armLowButton.onTrue(
-				new SetFullArmCommand(s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION, WRIST_PRESCORE));
-		armMiddleButton.onTrue(
-				new SetFullArmCommand(
-						s.armSubsystem, s.intakeSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
-		armHighButton.onTrue(
-				new SetFullArmCommand(
-						s.armSubsystem, s.intakeSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
-		armSubstationButton.onTrue(
-				new SetFullArmCommand(
-						s.armSubsystem, s.intakeSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE));
-		armResetButton.whileTrue(new ResetArmCommand(s.armSubsystem));
-
-		wristRetractButton.onTrue(
-				new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_RETRACT));
-		// wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, s.intakeSubsystem,
+		// armLowButton.onTrue(
+		// 		new SetFullArmCommand(s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION,
 		// WRIST_PRESCORE));
-		wristScoreButton.onTrue(new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_SCORE));
+		// armMiddleButton.onTrue(
+		// 		new SetFullArmCommand(
+		// 				s.armSubsystem, s.intakeSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
+		// armHighButton.onTrue(
+		// 		new SetFullArmCommand(
+		// 				s.armSubsystem, s.intakeSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
+		// armSubstationButton.onTrue(
+		// 		new SetFullArmCommand(
+		// 				s.armSubsystem, s.intakeSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE)););
+
+		// wristRetractButton.onTrue(
+		// 		new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_RETRACT));
+		// // wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, s.intakeSubsystem,
+		// // WRIST_PRESCORE));
+		// wristScoreButton.onTrue(new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_SCORE));
 	}
 
 	public void bindIntakeControls() {
-		// CommandScheduler.getInstance()
-		// .setDefaultCommand(s.intakeSubsystem, new IntakeDefaultCommand(s.intakeSubsystem));
+		CommandScheduler.getInstance()
+				.setDefaultCommand(s.intakeSubsystem, new IntakeDefaultCommand(s.intakeSubsystem));
 
-		intakeInButton.onTrue(
-				new IntakeSetInCommand(s.intakeSubsystem).until(s.intakeSubsystem::isSecured));
+		// Drive Buttons
+
+		driveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
 		if (Subsystems.SubsystemConstants.LED_ENABLED) {
-			intakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
+			driveIntakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
 		} else {
-			intakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
+			driveIntakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
 		}
 
-		intakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
+		driveIntakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
+
+		// Codrive buttons
+		codriveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
+		if (Subsystems.SubsystemConstants.LED_ENABLED) {
+			codriveIntakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
+		} else {
+			codriveIntakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
+		}
+		codriveIntakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
 	}
 
 	public void bindLEDControls() {

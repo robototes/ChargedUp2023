@@ -3,6 +3,7 @@ package frc.team2412.robot;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -139,7 +140,8 @@ public class Robot extends TimedRobot {
 		Shuffleboard.startRecording();
 		// Basic auto path that travels 1 meter, and then balances on the charge station
 		if (subsystems.drivebaseSubsystem != null) {
-			subsystems.drivebaseSubsystem.resetGyroAngle();
+			// TODO: change this to not be hardcoded
+			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			new SequentialCommandGroup(
 							autonomousChooser.getAuto(), new AutoBalanceCommand(subsystems.drivebaseSubsystem))
 					.schedule();

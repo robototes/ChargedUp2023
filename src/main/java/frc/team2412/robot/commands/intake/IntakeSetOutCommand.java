@@ -10,10 +10,9 @@ public class IntakeSetOutCommand extends IntakeSetCommand {
 		super(intakeSubsystem, INTAKE_OUT_SPEED);
 	}
 
+	// TODO: uncomment when color matching works
 	@Override
 	public boolean isFinished() {
-		// TODO: add or statement for if distance sensor detects piece is out
-		// return (intakeSubsystem.detectType() == GamePieceType.NONE);
-		return false;
+		return !intakeSubsystem.hasObject();
 	}
 }
