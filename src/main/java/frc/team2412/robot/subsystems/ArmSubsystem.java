@@ -39,7 +39,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 11.218;
 		public static final double OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 15.712;
 		public static final double WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 10.85;
-		public static final double WRIST_CENTER_OF_MASS_ANGLE_OFFSET = 0.056; // -20.15 / 360
+		public static final double WRIST_CENTER_OF_MASS_POSITION_OFFSET = 0.056; // -20.15 / 360
 
 		public static final double INNER_ARM_LENGTH = 25;
 		public static final double OUTER_ARM_LENGTH = 27.25;
