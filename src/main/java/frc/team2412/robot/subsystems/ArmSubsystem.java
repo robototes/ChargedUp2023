@@ -39,7 +39,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 11.218;
 		public static final double OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 15.712;
 		public static final double WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 10.85;
-		public static final double WRIST_CENTER_OF_MASS_ANGLE_OFFSET = -20.15;
+		public static final double WRIST_CENTER_OF_MASS_ANGLE_OFFSET = 0.056; // -20.15 / 360
 
 		public static final double INNER_ARM_LENGTH = 25;
 		public static final double OUTER_ARM_LENGTH = 27.25;
@@ -477,11 +477,13 @@ public class ArmSubsystem extends SubsystemBase {
 						+ INNER_ARM_LENGTH * Math.sin(innerArmTheta);
 
 		double wristCenterOfMassX =
-				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.cos(wristTheta)
+				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT
+								* Math.cos(wristTheta + WRIST_CENTER_OF_MASS_ANGLE_OFFSET)
 						+ OUTER_ARM_LENGTH * Math.cos(outerArmTheta)
 						+ INNER_ARM_LENGTH * Math.cos(innerArmTheta);
 		double wristCenterOfMassY =
-				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.sin(wristTheta)
+				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT
+								* Math.sin(wristTheta + WRIST_CENTER_OF_MASS_ANGLE_OFFSET)
 						+ OUTER_ARM_LENGTH * Math.sin(outerArmTheta)
 						+ INNER_ARM_LENGTH * Math.sin(innerArmTheta);
 
