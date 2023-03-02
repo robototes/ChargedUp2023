@@ -23,7 +23,7 @@ import frc.team2412.robot.Robot;
 
 public class ArmSubsystem extends SubsystemBase {
 
-	// Constants
+	// CONSTANTS
 
 	public static class ArmConstants { // To find values later
 		// Mech problem basically
@@ -64,15 +64,15 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double WRIST_DEFAULT_D = 0.5;
 
 		// Feed Forward
-		public static final double ARM_K_A = 0;
-		public static final double ARM_K_G = 0.1;
 		public static final double ARM_K_S = 0.1;
 		public static final double ARM_K_V = 0;
+		public static final double ARM_K_A = 0;
+		public static final double ARM_K_G = 0.1;
 
-		public static final double WRIST_K_A = 0;
-		public static final double WRIST_K_G = 0.1;
 		public static final double WRIST_K_S = 0.1;
 		public static final double WRIST_K_V = 0;
+		public static final double WRIST_K_A = 0;
+		public static final double WRIST_K_G = 0.1;
 
 		// Constraints
 
@@ -131,11 +131,11 @@ public class ArmSubsystem extends SubsystemBase {
 		 */
 		// 190 wrist 106 shoulder
 		public static enum PositionType {
-			UNKNOWN_POSITION(0, 0.30, 0.30, 0.39, 0.5),
-			ARM_LOW_POSITION(0, 0.30, 0.30, 0.39, 0.5),
-			ARM_MIDDLE_POSITION(0.18, 0.30, 0.30, 0.459, 0.543),
-			ARM_HIGH_POSITION(0.294, 0.30, 0.30, 0.349, 0.34),
-			ARM_SUBSTATION_POSITION(0.26, 0.30, 0.30, 0.5, 0.585); // ?
+			UNKNOWN_POSITION(0, 0.122, 0.122, 0.39, 0.5),
+			ARM_LOW_POSITION(0, 1.22, 1.22, 0.39, 0.5),
+			ARM_MIDDLE_POSITION(0.18, 1.22, 1.22, 0.459, 0.543),
+			ARM_HIGH_POSITION(0.294, 1.22, 1.22, 0.349, 0.34),
+			ARM_SUBSTATION_POSITION(0.26, 1.22, 1.22, 0.5, 0.585); // ?
 
 			public final double armAngle;
 			public final double retractedWristAngle;
@@ -158,13 +158,14 @@ public class ArmSubsystem extends SubsystemBase {
 		}
 	}
 
-	// Hardware
+	// VARIABLES
 
 	private PositionType currentPosition;
 	private boolean manualOverride;
 	private double armGoal;
 	private double wristGoal;
 
+	// Hardware
 	private final CANSparkMax armMotor1;
 	private final CANSparkMax armMotor2;
 	private final CANSparkMax wristMotor;
@@ -178,7 +179,6 @@ public class ArmSubsystem extends SubsystemBase {
 	private final ArmFeedforward wristFeedforward;
 
 	// Network Tables
-
 	NetworkTableInstance NTInstance;
 	NetworkTable NTDevices;
 
@@ -196,7 +196,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	StringPublisher wristGoalPublisher;
 
-	// Constructor
+	// CONSTRUCTOR
 
 	public ArmSubsystem() {
 		armMotor1 = new CANSparkMax(ARM_MOTOR_1, MotorType.kBrushless);
@@ -251,7 +251,7 @@ public class ArmSubsystem extends SubsystemBase {
 		armGoalPublisher.set(0.0 + " rotations | " + 0.0 + " degrees");
 	}
 
-	// Methods
+	// METHODS
 
 	public void configMotors() {
 
@@ -388,6 +388,15 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	/**
+	 * Gets current state or position of Arm Subsystem, used for extracting data from arm enum data
+	 *
+	 * @return The current position of the arm.
+	 */
+	public PositionType getPosition() {
+		return currentPosition;
+	}
+
+	/**
 	 * Gets the current shoulder encoder position.
 	 *
 	 * @return Current shoulder encoder position
@@ -415,15 +424,6 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	/**
-	 * Gets current state or position of Arm Subsystem, used for extracting data from arm enum data
-	 *
-	 * @return The current position of the arm.
-	 */
-	public PositionType getPosition() {
-		return currentPosition;
-	}
-
-	/**
 	 * Returns whether or not arm/wrist manual override is on.
 	 *
 	 * @return If manual override is on.
@@ -432,6 +432,7 @@ public class ArmSubsystem extends SubsystemBase {
 		return manualOverride;
 	}
 
+	// maybe want to use to lower velocity near limits?
 	public boolean isShoulderNearLimit() {
 		return (getShoulderPosition() >= ARM_FORWARD_LIMIT - 10
 				|| getShoulderPosition() <= ARM_REVERSE_LIMIT + 10);
@@ -454,55 +455,54 @@ public class ArmSubsystem extends SubsystemBase {
 	 * @return The calculated angle in radians.
 	 */
 	public double getAngleTowardsCenterOfMass() {
+		// Theta to be in Radians, encoder values in rotations
+		// Inner Arm angle and Wrist Angle's 0 positions are at 180 degrees(relative to elbow angle)
+		// (refer to feedforward page),
+		// calculations directly below were made accordingly.
+		double innerArmTheta = Math.PI - rotationsToRadians(getShoulderPosition());
+		double outerArmTheta = rotationsToRadians(getElbowPosition());
+		double wristTheta = Math.PI - rotationsToRadians(getWristPosition());
 
-		// Calculate Coordinates of Centers of Mass
+		// Calculate CoM Coordinates (relative to shoulder joint)
 		double innerArmCenterOfMassX =
-				INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT
-						* Math.cos(Math.toRadians(180 - getShoulderPosition() * 360));
+				INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.cos(innerArmTheta);
 		double innerArmCenterOfMassY =
-				INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT
-						* Math.sin(Math.toRadians(180 - getShoulderPosition() * 360));
+				INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.sin(innerArmTheta);
 
 		double outerArmCenterOfMassX =
-				OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT
-								* Math.cos(Math.toRadians((getElbowPosition() - getShoulderPosition()) * 360))
-						+ INNER_ARM_LENGTH * Math.cos(Math.toRadians(180 - getShoulderPosition() * 360));
+				OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.cos(outerArmTheta)
+						+ INNER_ARM_LENGTH * Math.cos(innerArmTheta);
 		double outerArmCenterOfMassY =
-				OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT
-								* Math.sin(Math.toRadians((getElbowPosition() - getShoulderPosition()) * 360))
-						+ INNER_ARM_LENGTH * Math.sin(Math.toRadians(180 - getShoulderPosition() * 360));
+				OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.sin(outerArmTheta)
+						+ INNER_ARM_LENGTH * Math.sin(innerArmTheta);
 
-		double intakeCenterOfMassX =
-				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT
-								* Math.cos(
-										Math.toRadians(
-												180 - (getWristPosition() + WRIST_CENTER_OF_MASS_ANGLE_OFFSET) * 360))
-						+ OUTER_ARM_LENGTH
-								* Math.cos(Math.toRadians((getElbowPosition() - getShoulderPosition()) * 360))
-						+ INNER_ARM_LENGTH * Math.cos(Math.toRadians(180 - getShoulderPosition() * 360));
-		double intakeCenterOfMassY =
-				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT
-								* Math.sin(
-										Math.toRadians(
-												180 - (getWristPosition() + WRIST_CENTER_OF_MASS_ANGLE_OFFSET) * 360))
-						+ OUTER_ARM_LENGTH
-								* Math.sin(Math.toRadians((getElbowPosition() - getShoulderPosition()) * 360))
-						+ INNER_ARM_LENGTH * Math.sin(Math.toRadians(180 - getShoulderPosition()));
+		double wristCenterOfMassX =
+				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.cos(wristTheta)
+						+ OUTER_ARM_LENGTH * Math.cos(outerArmTheta)
+						+ INNER_ARM_LENGTH * Math.cos(innerArmTheta);
+		double wristCenterOfMassY =
+				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.sin(wristTheta)
+						+ OUTER_ARM_LENGTH * Math.sin(outerArmTheta)
+						+ INNER_ARM_LENGTH * Math.sin(innerArmTheta);
 
-		// Calculate Average Center of Mass of Arm + Intake
-		double centerOfMassX =
-				(INNER_ARM_MASS * innerArmCenterOfMassX
-								+ OUTER_ARM_MASS * outerArmCenterOfMassX
-								+ INTAKE_MASS * intakeCenterOfMassX)
+		// Calculate Average CoM Coordinates
+		double CenterOfMassX =
+				((INNER_ARM_MASS * innerArmCenterOfMassX)
+								+ (OUTER_ARM_MASS * outerArmCenterOfMassX)
+								+ (INTAKE_MASS * wristCenterOfMassX))
 						/ (INNER_ARM_MASS + OUTER_ARM_MASS + INTAKE_MASS);
-		double centerOfMassY =
-				(INNER_ARM_MASS * innerArmCenterOfMassY
-								+ OUTER_ARM_MASS * outerArmCenterOfMassY
-								+ INTAKE_MASS * intakeCenterOfMassY)
+		double CenterOfMassY =
+				((INNER_ARM_MASS * innerArmCenterOfMassY)
+								+ (OUTER_ARM_MASS * outerArmCenterOfMassY)
+								+ (INTAKE_MASS * wristCenterOfMassY))
 						/ (INNER_ARM_MASS + OUTER_ARM_MASS + INTAKE_MASS);
 
-		// Return Angle needed to face Center of Mass
-		return Math.atan2(centerOfMassY, centerOfMassX);
+		// Return Angle Towards CoM
+		return Math.atan(CenterOfMassY / CenterOfMassX);
+	}
+
+	public double rotationsToRadians(double rotations) {
+		return rotations * 2 * Math.PI;
 	}
 
 	@Override
