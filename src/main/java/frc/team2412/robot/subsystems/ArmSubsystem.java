@@ -478,12 +478,12 @@ public class ArmSubsystem extends SubsystemBase {
 
 		double wristCenterOfMassX =
 				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT
-								* Math.cos(wristTheta + WRIST_CENTER_OF_MASS_ANGLE_OFFSET)
+								* Math.cos(wristTheta + WRIST_CENTER_OF_MASS_POSITION_OFFSET)
 						+ OUTER_ARM_LENGTH * Math.cos(outerArmTheta)
 						+ INNER_ARM_LENGTH * Math.cos(innerArmTheta);
 		double wristCenterOfMassY =
 				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT
-								* Math.sin(wristTheta + WRIST_CENTER_OF_MASS_ANGLE_OFFSET)
+								* Math.sin(wristTheta + WRIST_CENTER_OF_MASS_POSITION_OFFSET)
 						+ OUTER_ARM_LENGTH * Math.sin(outerArmTheta)
 						+ INNER_ARM_LENGTH * Math.sin(innerArmTheta);
 
