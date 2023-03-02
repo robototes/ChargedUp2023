@@ -99,4 +99,14 @@ public class TalonFXController extends MotorController {
 	public void configureOptimization() {
 		// nothing to do here for CTRE
 	}
+
+	@Override
+	public double getVelocity() {
+		return motor.getSelectedSensorVelocity();
+	}
+
+	@Override
+	public void setMeasurementPeriod(int periodMS) {
+		// nothing hehe
+	}
 }

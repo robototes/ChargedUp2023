@@ -3,6 +3,7 @@ package frc.team2412.robot;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -13,8 +14,6 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.team2412.robot.commands.autonomous.AutoBalanceCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
@@ -139,10 +138,9 @@ public class Robot extends TimedRobot {
 		Shuffleboard.startRecording();
 		// Basic auto path that travels 1 meter, and then balances on the charge station
 		if (subsystems.drivebaseSubsystem != null) {
-			subsystems.drivebaseSubsystem.resetGyroAngle();
-			new SequentialCommandGroup(
-							autonomousChooser.getAuto(), new AutoBalanceCommand(subsystems.drivebaseSubsystem))
-					.schedule();
+			// TODO: change this to not be hardcoded
+			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
+			autonomousChooser.getAuto().schedule();
 		}
 	}
 

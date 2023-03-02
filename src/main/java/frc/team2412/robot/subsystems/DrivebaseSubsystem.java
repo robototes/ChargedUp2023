@@ -2,6 +2,7 @@ package frc.team2412.robot.subsystems;
 
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -11,6 +12,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -41,10 +45,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		Rotation2d.fromDegrees(311.396)
 	};
 	private static final Rotation2d[] COMP_DRIVEBASE_ENCODER_OFFSETS = {
-		Rotation2d.fromDegrees(-111.796),
-		Rotation2d.fromDegrees(-343.388),
-		Rotation2d.fromDegrees(-21.796),
-		Rotation2d.fromDegrees(-332.841)
+		// ALIGNMENT WITH BEVELS FACING RIGHT
+		Rotation2d.fromDegrees(249.521484),
+		Rotation2d.fromDegrees(298.388672),
+		Rotation2d.fromDegrees(314.912109),
+		Rotation2d.fromDegrees(27.685547)
+		// Rotation2d.fromDegrees(-111.796),
+		// Rotation2d.fromDegrees(-28 + 90),
+		// // OLD Rotation2d.fromDegrees(-343.388),
+		// Rotation2d.fromDegrees(-41),
+		// // OLDRotation2d.fromDegrees(-21.796),
+		// Rotation2d.fromDegrees(-332.841)
 	};
 
 	// max drive speed is from SDS website and not calculated with robot weight
@@ -56,7 +67,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	// magic number found by trial and error (aka informal characterization)
 	private static final double ODOMETRY_ADJUSTMENT = 0.957;
 	// 4 inches * odemetry adjustment
-	private static final double WHEEL_DIAMETER_METERS = 0.1016 * ODOMETRY_ADJUSTMENT;
+	private static final double WHEEL_DIAMETER_METERS =
+			IS_COMP ? 0.1016 * ODOMETRY_ADJUSTMENT : 0.1016;
 	private static final double DRIVE_REDUCTION = IS_COMP ? 6.75 : 8.14;
 	// steer reduction is the conversion from rotations of motor to rotations of the wheel
 	// module rotation * STEER_REDUCTION = motor rotation
@@ -64,7 +76,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			IS_COMP ? 150.0 / 7.0 : (32.0 / 15.0) * (60.0 / 10.0);
 
 	private static final double TIP_F = 0.02;
-	private static final double TIP_P = 0.1;
+	private static final double TIP_P = 10;
 	private static final double TIP_TOLERANCE = 2.5;
 
 	private static final double DRIVE_VELOCITY_COEFFICIENT =
@@ -144,6 +156,32 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private Field2d field = new Field2d();
 
+	private DoublePublisher frontLeftActualVelocityPublisher;
+	private DoublePublisher frontRightActualVelocityPublisher;
+	private DoublePublisher backLeftActualVelocityPublisher;
+	private DoublePublisher backRightActualVelocityPublisher;
+
+	private DoublePublisher frontLeftTargetVelocityPublisher;
+	private DoublePublisher frontRightTargetVelocityPublisher;
+	private DoublePublisher backLeftTargetVelocityPublisher;
+	private DoublePublisher backRightTargetVelocityPublisher;
+
+	private DoublePublisher frontLeftActualAnglePublisher;
+	private DoublePublisher frontRightActualAnglePublisher;
+	private DoublePublisher backLeftActualAnglePublisher;
+	private DoublePublisher backRightActualAnglePublisher;
+
+	private DoublePublisher frontLeftTargetAnglePublisher;
+	private DoublePublisher frontRightTargetAnglePublisher;
+	private DoublePublisher backLeftTargetAnglePublisher;
+	private DoublePublisher backRightTargetAnglePublisher;
+
+	private PIDController compTranslationalPID = new PIDController(0.0007, 0, 0);
+	private PIDController compRotationalPID = new PIDController(0.1, 0, 0.5);
+
+	private NetworkTableInstance networkTableInstance;
+	private NetworkTable networkTableDrivebase;
+
 	public DrivebaseSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
 		gyroscope = IS_COMP ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
 		// Bonk's gyro has positive as counter-clockwise
@@ -174,7 +212,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			driveMotor.setNeutralMode(MotorController.MotorNeutralMode.BRAKE);
 
 			if (IS_COMP) {
-				driveMotor.setControlMode(MotorControlMode.VOLTAGE);
+				driveMotor.setControlMode(MotorControlMode.VELOCITY);
+				driveMotor.setPID(
+						compTranslationalPID.getP(), compTranslationalPID.getI(), compTranslationalPID.getD());
+				driveMotor.setMeasurementPeriod(8);
 			} else {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
 				driveMotor.setPID(0.1, 0.001, 1023.0 / 20660.0);
@@ -188,7 +229,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.setNeutralMode(MotorNeutralMode.BRAKE);
 			// Configure PID values
 			if (IS_COMP) {
-				steeringMotor.setPID(0.15, 0, 0);
+				steeringMotor.setPID(
+						compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD());
 			} else {
 				steeringMotor.setPID(0.15, 0.00, 1.0);
 			}
@@ -205,8 +247,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
 
-		// configure shuffleboard
-		SmartDashboard.putData("Field", field);
+		// configure network tables
+		configureNetworkTables();
 	}
 
 	/** Drives the robot using forward, strafe, and rotation. Units in meters */
@@ -218,7 +260,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			boolean autoBalance) {
 		// Auto balancing will only be used in autonomous
 		if (autoBalance) {
-			forward += balanceController.update(gyroscope.getRawRoll().getDegrees());
+			forward -= balanceController.update(gyroscope.getRawRoll().getDegrees());
 		}
 
 		ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
@@ -230,6 +272,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		} else {
 			chassisSpeeds = new ChassisSpeeds(forward, -strafe, rotation.getRadians());
 		}
+
 		drive(chassisSpeeds);
 	}
 
@@ -261,17 +304,31 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		// Set motor speeds and angles
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			if (IS_COMP) {
-				moduleDriveMotors[i].set(
-						states[i].speedMetersPerSecond / MAX_DRIVE_SPEED_METERS_PER_SEC * 12); // set voltage
-			} else {
-				moduleDriveMotors[i].set(
-						states[i].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT); // set velocity
-			}
+			moduleDriveMotors[i].set(
+					states[i].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT); // set velocity
 		}
 		for (int i = 0; i < moduleAngleMotors.length; i++) {
 			moduleAngleMotors[i].set(states[i].angle.getRotations() * STEER_REDUCTION);
 		}
+
+		frontLeftActualVelocityPublisher.set(
+				moduleDriveMotors[0].getVelocity() / DRIVE_VELOCITY_COEFFICIENT);
+		frontRightActualVelocityPublisher.set(
+				moduleDriveMotors[1].getVelocity() / DRIVE_VELOCITY_COEFFICIENT);
+		backLeftActualVelocityPublisher.set(
+				moduleDriveMotors[2].getVelocity() / DRIVE_VELOCITY_COEFFICIENT);
+		backRightActualVelocityPublisher.set(
+				moduleDriveMotors[3].getVelocity() / DRIVE_VELOCITY_COEFFICIENT);
+
+		frontLeftTargetVelocityPublisher.set(states[0].speedMetersPerSecond);
+		frontRightTargetVelocityPublisher.set(states[1].speedMetersPerSecond);
+		backLeftTargetVelocityPublisher.set(states[2].speedMetersPerSecond);
+		backRightTargetVelocityPublisher.set(states[3].speedMetersPerSecond);
+
+		frontLeftTargetAnglePublisher.set(states[0].angle.getDegrees());
+		frontRightTargetAnglePublisher.set(states[1].angle.getDegrees());
+		backLeftTargetAnglePublisher.set(states[2].angle.getDegrees());
+		backRightTargetAnglePublisher.set(states[3].angle.getDegrees());
 	}
 
 	/**
@@ -320,6 +377,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		resetGyroAngle(gyroscope.getRawYaw());
 	}
 
+	public void resetGyroAngleWithOrientation(Rotation2d angle) {
+		resetGyroAngle(gyroscope.getRawYaw().plus(angle));
+	}
+
 	/**
 	 * Resets the robot's forward to the new angle relative to the radio (on bonk)
 	 *
@@ -360,9 +421,97 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		}
 	}
 
+	private void configureNetworkTables() {
+		SmartDashboard.putData("Field", field);
+
+		networkTableInstance = NetworkTableInstance.getDefault();
+		networkTableDrivebase = networkTableInstance.getTable("Drivebase");
+
+		frontLeftActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front left actual velocity").publish();
+		frontRightActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front right actual velocity").publish();
+		backLeftActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back left actual velocity").publish();
+		backRightActualVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back right actual velocity").publish();
+
+		frontLeftTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front left target velocity").publish();
+		frontRightTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Front right target velocity").publish();
+		backLeftTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back left target velocity").publish();
+		backRightTargetVelocityPublisher =
+				networkTableDrivebase.getDoubleTopic("Back right target velocity").publish();
+
+		frontLeftActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front left actual angle").publish();
+		frontRightActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front right actual angle").publish();
+		backLeftActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back left actual angle").publish();
+		backRightActualAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back right actual angle").publish();
+
+		frontLeftTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front left target angle").publish();
+		frontRightTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Front right target angle").publish();
+		backLeftTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back left target angle").publish();
+		backRightTargetAnglePublisher =
+				networkTableDrivebase.getDoubleTopic("Back right target angle").publish();
+
+		frontLeftActualVelocityPublisher.set(0.0);
+		frontRightActualVelocityPublisher.set(0.0);
+		backLeftActualVelocityPublisher.set(0.0);
+		backRightActualVelocityPublisher.set(0.0);
+
+		frontLeftTargetVelocityPublisher.set(0.0);
+		frontRightTargetVelocityPublisher.set(0.0);
+		backLeftTargetVelocityPublisher.set(0.0);
+		backRightTargetVelocityPublisher.set(0.0);
+
+		frontLeftActualAnglePublisher.set(0.0);
+		frontRightActualAnglePublisher.set(0.0);
+		backLeftActualAnglePublisher.set(0.0);
+		backRightActualAnglePublisher.set(0.0);
+
+		frontLeftTargetAnglePublisher.set(0.0);
+		frontRightTargetAnglePublisher.set(0.0);
+		backLeftTargetAnglePublisher.set(0.0);
+		backRightTargetAnglePublisher.set(0.0);
+
+		SmartDashboard.putData("Translational PID", compTranslationalPID);
+		SmartDashboard.putData("Rotational PID", compRotationalPID);
+	}
+
+	private double oldTranslationalSetpoint = 0.0;
+	private double oldRotationalSetpoint = 0.0;
+
 	@Override
 	public void periodic() {
 		pose = poseEstimator.update(gyroscope.getAngle(), getModulePositions());
 		field.setRobotPose(pose);
+
+		if (compTranslationalPID.getSetpoint() != oldTranslationalSetpoint) {
+			for (MotorController motor : moduleDriveMotors) {
+				motor.setPID(
+						compTranslationalPID.getP(), compTranslationalPID.getI(), compTranslationalPID.getD());
+				oldTranslationalSetpoint = compTranslationalPID.getSetpoint();
+			}
+		}
+		if (compRotationalPID.getSetpoint() != oldRotationalSetpoint) {
+			for (MotorController motor : moduleAngleMotors) {
+				motor.setPID(compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD());
+				oldRotationalSetpoint = compRotationalPID.getSetpoint();
+			}
+		}
+
+		frontLeftActualAnglePublisher.set(getModuleAngles()[0].getDegrees());
+		frontRightActualAnglePublisher.set(getModuleAngles()[1].getDegrees());
+		backLeftActualAnglePublisher.set(getModuleAngles()[2].getDegrees());
+		backRightActualAnglePublisher.set(getModuleAngles()[3].getDegrees());
 	}
 }
