@@ -6,13 +6,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class AutonomousChooser {
-	private final SendableChooser<Command> autonomousModeChooser = new SendableChooser<>();
+	public interface CommandSupplier {
+		Command getCommand();
+	}
+
+	private final SendableChooser<CommandSupplier> autonomousModeChooser = new SendableChooser<>();
 
 	public AutonomousChooser() {
 		autonomousModeChooser.setDefaultOption(
-				"Community", AutonomousTrajectories.getCommunityAutoPathCommand());
+				"BottomCommunity", () -> AutonomousTrajectories.getBotCommunityAutoPath());
 		autonomousModeChooser.addOption(
-				"ChargeStation", AutonomousTrajectories.getChargedAutoPathCommand());
+				"ChargeStation", () -> AutonomousTrajectories.getChargedAutoPath());
+		autonomousModeChooser.addOption(
+				"TopCommunity", () -> AutonomousTrajectories.getTopCommunityAutoPath());
+		autonomousModeChooser.addOption("TopScore", () -> AutonomousTrajectories.getTopScoreAutoPath());
+		autonomousModeChooser.addOption("BotScore", () -> AutonomousTrajectories.getBotScoreAutoPath());
 
 		ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");
 
@@ -20,6 +28,6 @@ public class AutonomousChooser {
 	}
 
 	public Command getAuto() {
-		return autonomousModeChooser.getSelected();
+		return autonomousModeChooser.getSelected().getCommand();
 	}
 }
