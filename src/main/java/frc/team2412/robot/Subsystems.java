@@ -18,11 +18,11 @@ import frc.team2412.robot.subsystems.VisionSubsystem;
 public class Subsystems {
 	public static class SubsystemConstants {
 		public static final boolean DRIVEBASE_ENABLED = true;
-		public static final boolean ARM_ENABLED = false;
-		public static final boolean INTAKE_ENABLED = false;
+		public static final boolean ARM_ENABLED = true;
+		public static final boolean INTAKE_ENABLED = true;
 		public static final boolean VISION_ENABLED = false;
-		public static final boolean LED_ENABLED = false;
-		public static final boolean DRIVER_VIS_ENABLED = false;
+		public static final boolean LED_ENABLED = true;
+		public static final boolean DRIVER_VIS_ENABLED = true;
 	}
 
 	public DrivebaseSubsystem drivebaseSubsystem;
