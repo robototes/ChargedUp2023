@@ -41,6 +41,11 @@ public class TalonFXController extends MotorController {
 	}
 
 	@Override
+	public void setFF(double ff) {
+		motor.config_kF(motorPIDIndex, ff);
+	}
+
+	@Override
 	public void set(double setpoint) {
 		set(setpoint, mode);
 	}

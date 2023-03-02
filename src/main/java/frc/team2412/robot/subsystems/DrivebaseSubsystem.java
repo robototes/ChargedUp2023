@@ -46,10 +46,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	};
 	private static final Rotation2d[] COMP_DRIVEBASE_ENCODER_OFFSETS = {
 		// ALIGNMENT WITH BEVELS FACING RIGHT
-		Rotation2d.fromDegrees(248.1),
-		Rotation2d.fromDegrees(298.62),
-		Rotation2d.fromDegrees(316.7),
-		Rotation2d.fromDegrees(27.5)
+		Rotation2d.fromDegrees(249.521484),
+		Rotation2d.fromDegrees(298.388672),
+		Rotation2d.fromDegrees(314.912109),
+		Rotation2d.fromDegrees(27.685547)
 		// Rotation2d.fromDegrees(-111.796),
 		// Rotation2d.fromDegrees(-28 + 90),
 		// // OLD Rotation2d.fromDegrees(-343.388),
@@ -320,14 +320,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		backRightActualVelocityPublisher.set(
 				moduleDriveMotors[3].getVelocity() / DRIVE_VELOCITY_COEFFICIENT);
 
-		frontLeftTargetVelocityPublisher.set(
-				states[0].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT);
-		frontRightTargetVelocityPublisher.set(
-				states[1].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT);
-		backLeftTargetVelocityPublisher.set(
-				states[2].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT);
-		backRightTargetVelocityPublisher.set(
-				states[3].speedMetersPerSecond * DRIVE_VELOCITY_COEFFICIENT);
+		frontLeftTargetVelocityPublisher.set(states[0].speedMetersPerSecond);
+		frontRightTargetVelocityPublisher.set(states[1].speedMetersPerSecond);
+		backLeftTargetVelocityPublisher.set(states[2].speedMetersPerSecond);
+		backRightTargetVelocityPublisher.set(states[3].speedMetersPerSecond);
 
 		frontLeftTargetAnglePublisher.set(states[0].angle.getDegrees());
 		frontRightTargetAnglePublisher.set(states[1].angle.getDegrees());
