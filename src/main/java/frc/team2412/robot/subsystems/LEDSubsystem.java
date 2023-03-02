@@ -26,7 +26,9 @@ public class LEDSubsystem extends SubsystemBase {
 		// creates buffer
 		buffer = new AddressableLEDBuffer(BUFFER_LENGTH);
 
-		// TODO: we start a starting color
+		leds.start();
+
+		// TODO we start a starting color
 	}
 
 	public int getBufferLength() {
