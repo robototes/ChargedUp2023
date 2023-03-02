@@ -55,7 +55,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		// // OLD Rotation2d.fromDegrees(-343.388),
 		// Rotation2d.fromDegrees(-41),
 		// // OLDRotation2d.fromDegrees(-21.796),
-		// Rotation2d.fromDegrees(-332.841)[\]
+		// Rotation2d.fromDegrees(-332.841)
 	};
 
 	// max drive speed is from SDS website and not calculated with robot weight
@@ -495,15 +495,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		pose = poseEstimator.update(gyroscope.getAngle(), getModulePositions());
 		field.setRobotPose(pose);
 
-		for (MotorController motor : moduleDriveMotors) {
-			if (compTranslationalPID.getSetpoint() != oldTranslationalSetpoint) {
+		if (compTranslationalPID.getSetpoint() != oldTranslationalSetpoint) {
+			for (MotorController motor : moduleDriveMotors) {
 				motor.setPID(
 						compTranslationalPID.getP(), compTranslationalPID.getI(), compTranslationalPID.getD());
 				oldTranslationalSetpoint = compTranslationalPID.getSetpoint();
 			}
 		}
-		for (MotorController motor : moduleAngleMotors) {
-			if (compRotationalPID.getSetpoint() != oldRotationalSetpoint) {
+		if (compRotationalPID.getSetpoint() != oldRotationalSetpoint) {
+			for (MotorController motor : moduleAngleMotors) {
 				motor.setPID(compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD());
 				oldRotationalSetpoint = compRotationalPID.getSetpoint();
 			}

@@ -46,6 +46,5 @@ public class LEDSubsystem extends SubsystemBase {
 		}
 		// Sets the led to the buffer
 		leds.setData(buffer);
-		System.out.println(buffer.getLED(1));
 	}
 }
