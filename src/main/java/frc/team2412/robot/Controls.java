@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
 import frc.team2412.robot.commands.arm.ManualArmOverrideOnCommand;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
 import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
@@ -31,7 +30,7 @@ public class Controls {
 	// Arm
 
 	public final Trigger armManualControlOn;
-	public final Trigger armManualControlOff;
+	// public final Trigger armManualControlOff;
 
 	// public final Trigger armLowButton;
 	// public final Trigger armMiddleButton;
@@ -63,7 +62,7 @@ public class Controls {
 		// TODO: reimpliment arm + wrist presets after comp
 
 		armManualControlOn = codriveController.rightTrigger();
-		armManualControlOff = codriveController.leftTrigger();
+		// armManualControlOff = codriveController.leftTrigger();
 
 		// armLowButton = codriveController.y();
 		// armMiddleButton = codriveController.x();
@@ -116,7 +115,7 @@ public class Controls {
 		armManualControlOn.onTrue(
 				new ManualArmOverrideOnCommand(
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
-		armManualControlOff.onTrue(new ManualArmOverrideOffCommand(s.armSubsystem));
+		// armManualControlOff.onTrue(new ManualArmOverrideOffCommand(s.armSubsystem));
 		// armLowButton.onTrue(
 		// 		new SetFullArmCommand(s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION,
 		// WRIST_PRESCORE));
