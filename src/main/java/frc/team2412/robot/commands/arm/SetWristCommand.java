@@ -24,6 +24,7 @@ public class SetWristCommand extends CommandBase {
 			IntakeSubsystem intakeSubsystem,
 			WristPosition targetWristPosition) {
 		this.armSubsystem = armSubsystem;
+		addRequirements(armSubsystem);
 
 		if (armSubsystem.getPosition() == PositionType.UNKNOWN_POSITION) {
 			// return;
