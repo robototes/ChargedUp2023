@@ -20,7 +20,7 @@ public class AutonomousTrajectories {
 
 	public static Command getAutoPathByName(String name) {
 		List<PathPlannerTrajectory> pathGroup =
-				PathPlanner.loadPathGroup(name, new PathConstraints(2, 1));
+				PathPlanner.loadPathGroup(name, new PathConstraints(2, 2.0));
 		HashMap<String, Command> eventMap = new HashMap<String, Command>();
 		SetWristCommand wristOut =
 				new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WristPosition.WRIST_SCORE);

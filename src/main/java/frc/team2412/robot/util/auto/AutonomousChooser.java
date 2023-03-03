@@ -14,9 +14,9 @@ public class AutonomousChooser {
 
 	public AutonomousChooser() {
 		autonomousModeChooser.setDefaultOption(
-				"TopLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("TopLeaveCom"));
+				"LeftLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("TopLeaveCom"));
 		autonomousModeChooser.addOption(
-				"BottomLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("BotLeaveCom"));
+				"RightLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("BotLeaveCom"));
 		autonomousModeChooser.addOption(
 				"MiddleLeaveComCharge",
 				() -> AutonomousTrajectories.getAutoPathByName("MiddleLeaveComCharge"));
