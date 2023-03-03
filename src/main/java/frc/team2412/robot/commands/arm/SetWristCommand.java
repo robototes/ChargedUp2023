@@ -66,6 +66,6 @@ public class SetWristCommand extends CommandBase {
 
 	@Override
 	public boolean isFinished() {
-		return true;
+		return Math.abs(armSubsystem.getWristPosition() - targetWristAngle) < 0.1;
 	}
 }
