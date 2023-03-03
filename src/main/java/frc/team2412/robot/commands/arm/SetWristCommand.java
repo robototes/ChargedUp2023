@@ -67,6 +67,7 @@ public class SetWristCommand extends CommandBase {
 
 	@Override
 	public boolean isFinished() {
+		// has pid moved us close enough to go back to manual control?
 		return Math.abs(armSubsystem.getWristPosition() - targetWristAngle) < 0.1;
 	}
 }
