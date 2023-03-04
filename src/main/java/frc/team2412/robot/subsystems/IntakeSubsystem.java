@@ -172,7 +172,6 @@ public class IntakeSubsystem extends SubsystemBase {
 	/** Runs the motors inwards */
 	public void intakeIn() {
 		setSpeed(intakeSpeedEntry.getDouble(INTAKE_IN_SPEED));
-		System.out.println(intakeSpeedEntry.getDouble(INTAKE_IN_SPEED));
 	}
 
 	/** Runs the motors outwards */
