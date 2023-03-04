@@ -9,11 +9,13 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.awt.Color;
 
@@ -60,12 +62,18 @@ public class IntakeSubsystem extends SubsystemBase {
 	StringPublisher gamePieceTypePublisher;
 	DoublePublisher distancePublisher;
 	StringPublisher colorPublisher;
+	DoublePublisher currentSpeedPublisher;
 
 	// HARDWARE
 	private final CANSparkMax motor1;
 	private final CANSparkMax motor2;
 	private final ColorSensorV3 colorSensor;
 	private final AnalogInput distanceSensor;
+
+	// Shuffle Board
+
+	private static GenericEntry intakeSpeedEntry =
+			Shuffleboard.getTab("Intake").addPersistent("Moving", false).withSize(2, 1).getEntry();
 
 	// CONSTRUCTOR
 	public IntakeSubsystem() {
@@ -89,10 +97,12 @@ public class IntakeSubsystem extends SubsystemBase {
 		gamePieceTypePublisher = NTDevices.getStringTopic("Game Piece").publish();
 		colorPublisher = NTDevices.getStringTopic("color").publish();
 		distancePublisher = NTDevices.getDoubleTopic("Distance").publish();
+		currentSpeedPublisher = NTDevices.getDoubleTopic("Current Speed").publish();
 
 		gamePieceTypePublisher.set("NONE");
 		colorPublisher.set("no color");
 		distancePublisher.set(0.0);
+		currentSpeedPublisher.set(0.0);
 	}
 
 	// METHODS
@@ -109,7 +119,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	/** Gets the current speed of intake. */
 	public double getSpeed() {
-		return motor1.get();
+		return motor1.getEncoder().getVelocity();
 	}
 
 	/**
@@ -207,10 +217,24 @@ public class IntakeSubsystem extends SubsystemBase {
 		return getDistance() < 24;
 	}
 
+	// TODO: good? test? need for driveteam.
+	/**
+	 * Checks whether or not intake has secured game piece based off speed, if within a small speed
+	 * threshold, returns true. Otherwise false.
+	 *
+	 * @return Whether or not gamepiece is about secured
+	 */
+	public boolean isSpeedNearStopped() {
+		return (getSpeed() < 0.025 && getSpeed() > -0.025);
+	}
+
 	@Override
 	public void periodic() {
 		gamePieceTypePublisher.set(detectType().toString());
 		colorPublisher.set(colorSensor.getColor().toString());
 		distancePublisher.set(getDistance());
+		currentSpeedPublisher.set(getSpeed());
+
+		intakeSpeedEntry.setBoolean(isSpeedNearStopped());
 	}
 }
