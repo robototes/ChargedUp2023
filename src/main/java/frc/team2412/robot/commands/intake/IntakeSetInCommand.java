@@ -11,6 +11,12 @@ public class IntakeSetInCommand extends IntakeSetCommand {
 	}
 
 	// TODO: uncomment when color matching works
+
+	@Override
+	public void execute() {
+		intakeSubsystem.intakeIn();
+	}
+
 	@Override
 	public boolean isFinished() {
 		// return intakeSubsystem.isSecured();

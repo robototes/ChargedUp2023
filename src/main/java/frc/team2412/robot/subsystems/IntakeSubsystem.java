@@ -1,8 +1,14 @@
 package frc.team2412.robot.subsystems;
 
-import static frc.team2412.robot.Hardware.*;
-import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.*;
-import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType.*;
+import static frc.team2412.robot.Hardware.INTAKE_DISTANCE_SENSOR;
+import static frc.team2412.robot.Hardware.INTAKE_MOTOR_1;
+import static frc.team2412.robot.Hardware.INTAKE_MOTOR_2;
+import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType.CONE;
+import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType.CUBE;
+import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_COLOR_THRESHOLD;
+import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_HOLD_SPEED;
+import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_IN_SPEED;
+import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_OUT_SPEED;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -15,16 +21,19 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.I2C.Port;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType;
 import java.awt.Color;
+import java.util.Map;
 
 public class IntakeSubsystem extends SubsystemBase {
 	// CONSTANTS
 	public static class IntakeConstants {
 		// speeds
-		public static final double INTAKE_HOLD_SPEED = 0.1;
-		public static final double INTAKE_IN_SPEED = 0.3;
+		public static final double INTAKE_HOLD_SPEED = 0.12;
+		public static final double INTAKE_IN_SPEED = 0.33;
 		public static final double INTAKE_OUT_SPEED = -0.05;
 
 		public static final int INTAKE_COLOR_THRESHOLD = 10;
@@ -72,19 +81,28 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	// Shuffle Board
 
-	private static GenericEntry intakeSpeedEntry =
-			Shuffleboard.getTab("Intake").addPersistent("Moving", false).withSize(2, 1).getEntry();
+	private static GenericEntry intakeNotMovingEntry =
+			Shuffleboard.getTab("Intake").addPersistent("Not Moving", true).withSize(4, 1).getEntry();
 
+	private static GenericEntry intakeSpeedEntry =
+			Shuffleboard.getTab("Intake")
+					.addPersistent("Intake In Speed", INTAKE_IN_SPEED)
+					.withSize(4, 1)
+					.withWidget(BuiltInWidgets.kNumberSlider)
+					.withProperties(Map.of("Min", 0, "Max", 1))
+					.getEntry();
+
+	private static GenericEntry distanceSensorEntry =
+			Shuffleboard.getTab("Intake")
+					.addPersistent("Distance Sensor Value", 0)
+					.withSize(1, 1)
+					.getEntry();
 	// CONSTRUCTOR
 	public IntakeSubsystem() {
 		motor1 = new CANSparkMax(INTAKE_MOTOR_1, MotorType.kBrushless);
 		motor2 = new CANSparkMax(INTAKE_MOTOR_2, MotorType.kBrushless);
-		motor1.setIdleMode(IdleMode.kBrake);
-		motor2.setIdleMode(IdleMode.kBrake);
 
-		// need cause motors run opposite direciton.
-		motor1.setInverted(true);
-		motor2.setInverted(true);
+		resetMotors();
 
 		colorSensor = new ColorSensorV3(Port.kOnboard);
 		distanceSensor = new AnalogInput(INTAKE_DISTANCE_SENSOR);
@@ -106,6 +124,25 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	// METHODS
+
+	public void resetMotors() {
+
+		motor1.restoreFactoryDefaults();
+		motor2.restoreFactoryDefaults();
+
+		motor1.setIdleMode(IdleMode.kBrake);
+		motor2.setIdleMode(IdleMode.kBrake);
+
+		// need cause motors run opposite direciton.
+		motor1.setInverted(true);
+		motor2.setInverted(true);
+
+		motor1.setSmartCurrentLimit(20);
+		motor2.setSmartCurrentLimit(20);
+
+		motor1.burnFlash();
+		motor2.burnFlash();
+	}
 
 	/**
 	 * Sets the speed of the intake motors to a specified value.
@@ -134,7 +171,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	/** Runs the motors inwards */
 	public void intakeIn() {
-		setSpeed(INTAKE_IN_SPEED);
+		setSpeed(intakeSpeedEntry.getDouble(INTAKE_IN_SPEED));
+		System.out.println(intakeSpeedEntry.getDouble(INTAKE_IN_SPEED));
 	}
 
 	/** Runs the motors outwards */
@@ -235,6 +273,7 @@ public class IntakeSubsystem extends SubsystemBase {
 		distancePublisher.set(getDistance());
 		currentSpeedPublisher.set(getSpeed());
 
-		intakeSpeedEntry.setBoolean(isSpeedNearStopped());
+		intakeNotMovingEntry.setBoolean(isSpeedNearStopped());
+		distanceSensorEntry.setDouble(getDistance());
 	}
 }
