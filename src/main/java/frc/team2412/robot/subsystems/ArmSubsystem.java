@@ -279,6 +279,10 @@ public class ArmSubsystem extends SubsystemBase {
 		wristMotor.setSmartCurrentLimit(20);
 
 		setWristPID(WRIST_DEFAULT_P, WRIST_DEFAULT_I, WRIST_DEFAULT_D);
+
+		armMotor1.burnFlash();
+		armMotor2.burnFlash();
+		wristMotor.burnFlash();
 	}
 	/**
 	 * Sets Arm Manual Override to be on or off.

@@ -76,7 +76,7 @@ public class IntakeSubsystem extends SubsystemBase {
 	// HARDWARE
 	private final CANSparkMax motor1;
 	private final CANSparkMax motor2;
-	private final ColorSensorV3 colorSensor;
+	// private final ColorSensorV3 colorSensor;
 	private final AnalogInput distanceSensor;
 
 	// Shuffle Board
@@ -104,7 +104,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 		resetMotors();
 
-		colorSensor = new ColorSensorV3(Port.kOnboard);
+		// colorSensor = new ColorSensorV3(Port.kOnboard);
 		distanceSensor = new AnalogInput(INTAKE_DISTANCE_SENSOR);
 
 		// Network Tables
@@ -191,11 +191,11 @@ public class IntakeSubsystem extends SubsystemBase {
 	 * @return The game piece detected.
 	 */
 	public GamePieceType detectType() {
-		if (colorSensorEquals(CUBE.color)) {
-			return GamePieceType.CUBE;
-		} else if (colorSensorEquals(CONE.color)) {
-			return GamePieceType.CONE;
-		}
+	// 	if (colorSensorEquals(CUBE.color)) {
+	// 		return GamePieceType.CUBE;
+	// 	} else if (colorSensorEquals(CONE.color)) {
+	// 		return GamePieceType.CONE;
+	// 	}
 		return GamePieceType.NONE;
 	}
 
@@ -206,19 +206,19 @@ public class IntakeSubsystem extends SubsystemBase {
 	 * @return Whether or not the color sensors value matches the color target.
 	 */
 	public boolean colorSensorEquals(Color color) {
-		// r
-		if (colorSensor.getRed() <= (color.getRed() + INTAKE_COLOR_THRESHOLD)
-				&& colorSensor.getRed() >= (color.getRed() - INTAKE_COLOR_THRESHOLD)) {
-			// g
-			if (colorSensor.getGreen() <= (color.getGreen() + INTAKE_COLOR_THRESHOLD)
-					&& colorSensor.getGreen() >= (color.getGreen() - INTAKE_COLOR_THRESHOLD)) {
-				// b
-				if (colorSensor.getBlue() <= (color.getBlue() + INTAKE_COLOR_THRESHOLD)
-						&& colorSensor.getBlue() >= (color.getBlue() - INTAKE_COLOR_THRESHOLD)) {
-					return true;
-				}
-			}
-		}
+	// 	// r
+	// 	if (colorSensor.getRed() <= (color.getRed() + INTAKE_COLOR_THRESHOLD)
+	// 			&& colorSensor.getRed() >= (color.getRed() - INTAKE_COLOR_THRESHOLD)) {
+	// 		// g
+	// 		if (colorSensor.getGreen() <= (color.getGreen() + INTAKE_COLOR_THRESHOLD)
+	// 				&& colorSensor.getGreen() >= (color.getGreen() - INTAKE_COLOR_THRESHOLD)) {
+	// 			// b
+	// 			if (colorSensor.getBlue() <= (color.getBlue() + INTAKE_COLOR_THRESHOLD)
+	// 					&& colorSensor.getBlue() >= (color.getBlue() - INTAKE_COLOR_THRESHOLD)) {
+	// 				return true;
+	// 			}
+	// 		}
+	// 	}
 		return false;
 	}
 	/**
@@ -267,12 +267,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		gamePieceTypePublisher.set(detectType().toString());
-		colorPublisher.set(colorSensor.getColor().toString());
-		distancePublisher.set(getDistance());
+		// gamePieceTypePublisher.set(detectType().toString());
+		// colorPublisher.set(colorSensor.getColor().toString());
+		// distancePublisher.set(getDistance());
 		currentSpeedPublisher.set(getSpeed());
 
 		intakeNotMovingEntry.setBoolean(isSpeedNearStopped());
-		distanceSensorEntry.setDouble(getDistance());
+		//distanceSensorEntry.setDouble(getDistance());
 	}
 }
