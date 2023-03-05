@@ -3,9 +3,6 @@ package frc.team2412.robot.subsystems;
 import static frc.team2412.robot.Hardware.INTAKE_DISTANCE_SENSOR;
 import static frc.team2412.robot.Hardware.INTAKE_MOTOR_1;
 import static frc.team2412.robot.Hardware.INTAKE_MOTOR_2;
-import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType.CONE;
-import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType.CUBE;
-import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_COLOR_THRESHOLD;
 import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_HOLD_SPEED;
 import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_IN_SPEED;
 import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_OUT_SPEED;
@@ -13,14 +10,12 @@ import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTA
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.ColorSensorV3;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -191,11 +186,11 @@ public class IntakeSubsystem extends SubsystemBase {
 	 * @return The game piece detected.
 	 */
 	public GamePieceType detectType() {
-	// 	if (colorSensorEquals(CUBE.color)) {
-	// 		return GamePieceType.CUBE;
-	// 	} else if (colorSensorEquals(CONE.color)) {
-	// 		return GamePieceType.CONE;
-	// 	}
+		// 	if (colorSensorEquals(CUBE.color)) {
+		// 		return GamePieceType.CUBE;
+		// 	} else if (colorSensorEquals(CONE.color)) {
+		// 		return GamePieceType.CONE;
+		// 	}
 		return GamePieceType.NONE;
 	}
 
@@ -206,19 +201,19 @@ public class IntakeSubsystem extends SubsystemBase {
 	 * @return Whether or not the color sensors value matches the color target.
 	 */
 	public boolean colorSensorEquals(Color color) {
-	// 	// r
-	// 	if (colorSensor.getRed() <= (color.getRed() + INTAKE_COLOR_THRESHOLD)
-	// 			&& colorSensor.getRed() >= (color.getRed() - INTAKE_COLOR_THRESHOLD)) {
-	// 		// g
-	// 		if (colorSensor.getGreen() <= (color.getGreen() + INTAKE_COLOR_THRESHOLD)
-	// 				&& colorSensor.getGreen() >= (color.getGreen() - INTAKE_COLOR_THRESHOLD)) {
-	// 			// b
-	// 			if (colorSensor.getBlue() <= (color.getBlue() + INTAKE_COLOR_THRESHOLD)
-	// 					&& colorSensor.getBlue() >= (color.getBlue() - INTAKE_COLOR_THRESHOLD)) {
-	// 				return true;
-	// 			}
-	// 		}
-	// 	}
+		// 	// r
+		// 	if (colorSensor.getRed() <= (color.getRed() + INTAKE_COLOR_THRESHOLD)
+		// 			&& colorSensor.getRed() >= (color.getRed() - INTAKE_COLOR_THRESHOLD)) {
+		// 		// g
+		// 		if (colorSensor.getGreen() <= (color.getGreen() + INTAKE_COLOR_THRESHOLD)
+		// 				&& colorSensor.getGreen() >= (color.getGreen() - INTAKE_COLOR_THRESHOLD)) {
+		// 			// b
+		// 			if (colorSensor.getBlue() <= (color.getBlue() + INTAKE_COLOR_THRESHOLD)
+		// 					&& colorSensor.getBlue() >= (color.getBlue() - INTAKE_COLOR_THRESHOLD)) {
+		// 				return true;
+		// 			}
+		// 		}
+		// 	}
 		return false;
 	}
 	/**
@@ -273,6 +268,6 @@ public class IntakeSubsystem extends SubsystemBase {
 		currentSpeedPublisher.set(getSpeed());
 
 		intakeNotMovingEntry.setBoolean(isSpeedNearStopped());
-		//distanceSensorEntry.setDouble(getDistance());
+		// distanceSensorEntry.setDouble(getDistance());
 	}
 }
