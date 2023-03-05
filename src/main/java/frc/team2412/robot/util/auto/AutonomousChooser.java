@@ -22,6 +22,9 @@ public class AutonomousChooser {
 				() -> AutonomousTrajectories.getAutoPathByName("MiddleLeaveComCharge"));
 		autonomousModeChooser.addOption(
 				"TopScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("TopScoreLeaveCom"));
+		autonomousModeChooser.addOption(
+				"MiddleReleaseLeaveComCharge",
+				() -> AutonomousTrajectories.getAutoPathByName("MiddleReleaseLeaveComCharge"));
 		// There are more paths that have been created in the deploy/pathplanner path, they should work
 		// however they have not been tested and thus are not added here yet.
 		ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");

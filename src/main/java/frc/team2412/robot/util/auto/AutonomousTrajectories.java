@@ -24,6 +24,8 @@ public class AutonomousTrajectories {
 		HashMap<String, Command> eventMap = new HashMap<String, Command>();
 		SetWristCommand wristOut =
 				new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WristPosition.WRIST_SCORE);
+		SetWristCommand wristPrescore =
+				new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WristPosition.WRIST_PRESCORE);
 		IntakeSetOutCommand intakeOut = new IntakeSetOutCommand(s.intakeSubsystem);
 		IntakeSetInCommand intakeIn = new IntakeSetInCommand(s.intakeSubsystem);
 		SetWristCommand wristIn =
@@ -34,6 +36,9 @@ public class AutonomousTrajectories {
 		eventMap.put("ScoreBottom", score);
 		eventMap.put(
 				"AutoBalance", new AutoBalanceCommand(Robot.getInstance().subsystems.drivebaseSubsystem));
+		eventMap.put("WristRetract", wristIn);
+		eventMap.put("WristPrescore", wristPrescore);
+		eventMap.put("IntakeOut", intakeOut);
 		Command fullAuto = Robot.getInstance().getAutoBuilder(eventMap).fullAuto(pathGroup);
 		return fullAuto;
 	}
