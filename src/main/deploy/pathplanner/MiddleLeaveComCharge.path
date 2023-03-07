@@ -2,40 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.9,
-        "y": 1.05
+        "x": 1.9326182242108072,
+        "y": 2.7862770255455045
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.415140633920051,
-        "y": 1.05
-      },
-      "holonomicAngle": 180.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [
-          "ScoreCube"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 5.7,
-        "y": 0.8
-      },
-      "prevControl": {
-        "x": 5.309392510447645,
-        "y": 0.40939251044764535
-      },
-      "nextControl": {
-        "x": 6.121770182885543,
-        "y": 1.2217701828855425
+        "x": 2.932618224210807,
+        "y": 2.7862770255455045
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -51,19 +24,19 @@
     },
     {
       "anchorPoint": {
-        "x": 5.7,
-        "y": 2.6982791465582943
+        "x": 6.386093797828622,
+        "y": 2.7862770255455045
       },
       "prevControl": {
-        "x": 6.660917632979306,
-        "y": 2.6982791465582943
+        "x": 5.095273132761005,
+        "y": 2.7862770255455045
       },
       "nextControl": {
-        "x": 5.1100557448936685,
-        "y": 2.6982791465582943
+        "x": 5.095273132761005,
+        "y": 2.7862770255455045
       },
       "holonomicAngle": 180.0,
-      "isReversal": false,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
@@ -76,12 +49,12 @@
     },
     {
       "anchorPoint": {
-        "x": 3.9,
-        "y": 2.7
+        "x": 4.399158541906827,
+        "y": 2.79
       },
       "prevControl": {
-        "x": 4.46421970150534,
-        "y": 2.7
+        "x": 5.667508941262517,
+        "y": 2.79
       },
       "nextControl": null,
       "holonomicAngle": 180.0,
@@ -93,14 +66,11 @@
         "names": [
           "AutoBalance"
         ],
-        "executionBehavior": "sequential",
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "maxVelocity": null,
-  "maxAcceleration": 30.0,
-  "isReversed": null,
   "markers": []
 }
