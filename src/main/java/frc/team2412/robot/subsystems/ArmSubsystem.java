@@ -25,8 +25,19 @@ public class ArmSubsystem extends SubsystemBase {
 
 	// CONSTANTS
 
-	public static class ArmConstants { // To find values later
-		// Mech problem basically
+	public static class ArmConstants {
+
+		// Conversion
+
+		public static final double TICKS_TO_INCHES = 42 / 360; // Maybe unneeded?
+		public static final float ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO = 125;
+		public static final float WRIST_MOTOR_TO_WRIST_ENCODER_RATIO = 90;
+		public static final float ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO = 4;
+		// TODO: this is still incorrect, current delta between extended and retracted is 0.1809 but
+		// should be 0.25
+		public static final double SHOULDER_ENCODER_TO_ARM_POSITION_RATIO = 4 / 1;
+		public static final double WRIST_ENCODER_TO_WRIST_POSITION_RATIO = 24 / 1;
+		public static final double SHOULDER_TO_ELBOW_GEAR_RATIO = 64 / 48;
 
 		// pounds/lbs
 		public static final double INNER_ARM_MASS = 4.69;
@@ -44,15 +55,6 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double INNER_ARM_LENGTH = 25;
 		public static final double OUTER_ARM_LENGTH = 27.25;
 
-		// TODO: this is still incorrect, current delta between extended and retracted is 0.1809 but
-		// should be 0.25
-
-		public static final double ELBOW_POS_TO_ARM_POS = 0; // TODO
-
-		public static final double SHOULDER_ENCODER_TO_ARM_POSITION_RATIO = 4 / 1;
-		public static final double WRIST_ENCODER_TO_WRIST_POSITION_RATIO = 24 / 1;
-		public static final double SHOULDER_TO_ELBOW_GEAR_RATIO = 64 / 48;
-
 		// PID
 		// TODO: Tune PID
 		public static final double ARM_K_P = 8;
@@ -65,33 +67,29 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// Feed Forward
 		public static final double ARM_K_S = 0.1;
-		public static final double ARM_K_V = 0;
-		public static final double ARM_K_A = 0;
-		public static final double ARM_K_G = 0.1;
+		public static final double ARM_K_V = 1.95;
+		public static final double ARM_K_A = 0.04;
+		public static final double ARM_K_G = 0.81;
 
 		public static final double WRIST_K_S = 0.1;
-		public static final double WRIST_K_V = 0;
-		public static final double WRIST_K_A = 0;
-		public static final double WRIST_K_G = 0.1;
+		public static final double WRIST_K_V = 1.95;
+		public static final double WRIST_K_A = 3.43;
+		public static final double WRIST_K_G = 0;
 
 		// Constraints
+
+		public static final int MIN_PERCENT_OUTPUT = -1;
+		public static final int MAX_PERCENT_OUTPUT = 1;
 
 		public static final double MAX_ARM_ANGLE = 118;
 		public static final double MIN_ARM_ANGLE = 6;
 		public static final double MAX_WRIST_ANGLE = 62;
 		public static final double MIN_WRIST_ANGLE = 307;
 
-		public static final float ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO = 125;
-		public static final float WRIST_MOTOR_TO_WRIST_ENCODER_RATIO = 90;
-		public static final float ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO = 4;
-
 		public static final float ARM_FORWARD_LIMIT = 156; // motor rotations
 		public static final float ARM_REVERSE_LIMIT = 1;
 		public static final float WRIST_FORWARD_LIMIT = 58;
 		public static final float WRIST_REVERSE_LIMIT = 2;
-
-		public static final int MIN_PERCENT_OUTPUT = -1;
-		public static final int MAX_PERCENT_OUTPUT = 1;
 
 		public static final double ARM_POS_TOLERANCE = 0.01;
 		public static final double WRIST_POS_TOLERANCE = 0.01;
@@ -99,21 +97,21 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double ARM_VELOCITY_TOLERANCE = 0.2;
 		public static final double WRIST_VELOCITY_TOLERANCE = 0.2;
 
+		// Trapezoid Profile
 		public static final double MAX_ARM_VELOCITY = 1;
 		public static final double MAX_ARM_ACCELERATION =
 				ARM_FORWARD_LIMIT
 						/ ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO
 						/ ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO; // arm rotations / second^2
 
+		public static final Constraints ARM_CONSTRAINTS =
+				new Constraints(MAX_ARM_ACCELERATION, MAX_ARM_VELOCITY);
+
 		public static final double MAX_WRIST_VELOCITY = .2;
 		public static final double MAX_WRIST_ACCELERATION = 0.5;
 
-		public static final Constraints ARM_CONSTRAINTS =
-				new Constraints(MAX_ARM_ACCELERATION, MAX_ARM_VELOCITY);
 		public static final Constraints WRIST_CONSTRAINTS =
 				new Constraints(MAX_WRIST_ACCELERATION, MAX_WRIST_VELOCITY);
-
-		public static final double TICKS_TO_INCHES = 42 / 360; // Maybe unneeded?
 
 		// ENUM
 
@@ -362,6 +360,7 @@ public class ArmSubsystem extends SubsystemBase {
 	 * @return The calculated Arm PID output.
 	 */
 	public double calculateArmPID() {
+
 		return armPID.calculate(getShoulderPosition(), armPID.getGoal());
 	}
 
@@ -507,21 +506,30 @@ public class ArmSubsystem extends SubsystemBase {
 		return rotations * 2 * Math.PI;
 	}
 
+	/** Updates the arm motor's output based off of the wrist's goal */
+	public void updateArmMotorOutput() {
+
+		double percentOutput =
+				MathUtil.clamp(
+						calculateArmPID() + calculateArmFeedforward(), MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT);
+		double voltage = convertToVolts(percentOutput);
+
+		armMotor1.setVoltage(voltage);
+	}
+	/** Updates the wrist motor's output based off of the wrist's goal */
+	public void updateWristMotorOutput() {
+		wristPID.setReference(
+				wristGoal, CANSparkMax.ControlType.kPosition, 0, calculateWristFeedforward());
+	}
+
 	@Override
 	public void periodic() {
 		// Periodic Arm movement for Preset Angle Control
 		if (!manualOverride && !currentPosition.equals(PositionType.UNKNOWN_POSITION)) {
 
-			armMotor1.setVoltage(
-					convertToVolts(
-							MathUtil.clamp(
-									calculateArmPID() + calculateArmFeedforward(),
-									MIN_PERCENT_OUTPUT,
-									MAX_PERCENT_OUTPUT)));
-			System.out.println(calculateArmPID() + calculateArmFeedforward());
+			updateArmMotorOutput();
 
-			wristPID.setReference(
-					wristGoal, CANSparkMax.ControlType.kPosition, 0, calculateWristFeedforward());
+			updateWristMotorOutput();
 		}
 
 		// Network Tables
