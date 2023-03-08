@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team2412.robot.commands.arm.ManualArmOverrideOnCommand;
 import frc.team2412.robot.commands.arm.SetWristCommand;
-import frc.team2412.robot.commands.autonomous.AutoBalanceCommand;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
 import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
 import frc.team2412.robot.commands.intake.IntakeOutCommand;
@@ -28,10 +27,6 @@ public class Controls {
 
 	private final CommandXboxController driveController;
 	private final CommandXboxController codriveController;
-
-	// Auto Balance
-
-	public final Trigger autoBalanceButton;
 
 	// Arm
 
@@ -64,8 +59,6 @@ public class Controls {
 		driveController = new CommandXboxController(CONTROLLER_PORT);
 		codriveController = new CommandXboxController(CODRIVER_CONTROLLER_PORT);
 		this.s = s;
-
-		autoBalanceButton = driveController.leftBumper();
 
 		// TODO: reimpliment arm + wrist presets after comp
 
@@ -117,8 +110,6 @@ public class Controls {
 								driveController::getRightTriggerAxis));
 		driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
-
-		autoBalanceButton.whileTrue(new AutoBalanceCommand(s.drivebaseSubsystem));
 	}
 
 	public void bindArmControls() {

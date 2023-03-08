@@ -1,13 +1,19 @@
 package frc.team2412.robot.commands.intake;
 
-import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_OUT_SPEED;
-
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
 
-public class IntakeSetOutCommand extends IntakeSetCommand {
+public class IntakeSetOutCommand extends CommandBase {
+	IntakeSubsystem intakeSubsystem;
 
 	public IntakeSetOutCommand(IntakeSubsystem intakeSubsystem) {
-		super(intakeSubsystem, INTAKE_OUT_SPEED);
+		this.intakeSubsystem = intakeSubsystem;
+		addRequirements(intakeSubsystem);
+	}
+
+	@Override
+	public void initialize() {
+		intakeSubsystem.intakeOut();
 	}
 
 	// TODO: uncomment when color matching works

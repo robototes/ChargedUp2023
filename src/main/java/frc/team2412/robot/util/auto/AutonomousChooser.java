@@ -14,21 +14,21 @@ public class AutonomousChooser {
 
 	public AutonomousChooser() {
 		autonomousModeChooser.setDefaultOption(
-				"LeftLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("TopLeaveCom"));
+				"LeftLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("LeftLeaveCom"));
 		autonomousModeChooser.addOption(
-				"RightLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("BotLeaveCom"));
+				"RightLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("RightLeaveCom"));
 		autonomousModeChooser.addOption(
 				"MiddleLeaveComCharge",
 				() -> AutonomousTrajectories.getAutoPathByName("MiddleLeaveComCharge"));
 		autonomousModeChooser.addOption(
-				"LeftScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("TopScoreLeaveCom"));
+				"LeftScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("LeftScoreLeaveCom"));
 		autonomousModeChooser.addOption(
 				"MiddleScoreLeaveComCharge",
 				() -> AutonomousTrajectories.getAutoPathByName("MiddleScoreLeaveComCharge"));
 		autonomousModeChooser.addOption(
-				"RightScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("BotScoreLeaveCom"));
+				"RightScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("RightScoreLeaveCom"));
 		autonomousModeChooser.addOption(
-				"LeftScoreLeaveCom2", () -> AutonomousTrajectories.getAutoPathByName("TopScoreLeaveCom2"));
+				"LeftScoreLeaveCom2", () -> AutonomousTrajectories.getAutoPathByName("LeftScoreLeaveCom2"));
 
 		// There are more paths that have been created in the deploy/pathplanner path, they should work
 		// however they have not been tested and thus are not added here yet.
