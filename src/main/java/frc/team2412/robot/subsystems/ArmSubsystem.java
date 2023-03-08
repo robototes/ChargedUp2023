@@ -67,14 +67,14 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// Feed Forward
 		public static final double ARM_K_S = 0.1;
-		public static final double ARM_K_V = 1.95;
-		public static final double ARM_K_A = 0.04;
-		public static final double ARM_K_G = 0.81;
+		public static final double ARM_K_V = 0.0;
+		public static final double ARM_K_A = 0.0;
+		public static final double ARM_K_G = 0.1;
 
 		public static final double WRIST_K_S = 0.1;
-		public static final double WRIST_K_V = 1.95;
-		public static final double WRIST_K_A = 3.43;
-		public static final double WRIST_K_G = 0;
+		public static final double WRIST_K_V = 0.0;
+		public static final double WRIST_K_A = 0.0;
+		public static final double WRIST_K_G = 0.1;
 
 		// Constraints
 
