@@ -107,7 +107,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final Constraints ARM_CONSTRAINTS =
 				new Constraints(MAX_ARM_ACCELERATION, MAX_ARM_VELOCITY);
 
-		public static final double MAX_WRIST_VELOCITY = .2;
+		public static final double MAX_WRIST_VELOCITY = .5;
 		public static final double MAX_WRIST_ACCELERATION = 0.5;
 
 		public static final Constraints WRIST_CONSTRAINTS =
@@ -277,6 +277,10 @@ public class ArmSubsystem extends SubsystemBase {
 		wristMotor.setSmartCurrentLimit(20);
 
 		setWristPID(WRIST_DEFAULT_P, WRIST_DEFAULT_I, WRIST_DEFAULT_D);
+
+		armMotor1.burnFlash();
+		armMotor2.burnFlash();
+		wristMotor.burnFlash();
 	}
 	/**
 	 * Sets Arm Manual Override to be on or off.

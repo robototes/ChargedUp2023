@@ -21,6 +21,12 @@ public class IntakeSetCommand extends CommandBase {
 	}
 
 	@Override
+	public void execute() {
+		// set motor speed to speed
+		intakeSubsystem.setSpeed(speed);
+	}
+
+	@Override
 	public boolean isFinished() {
 		return false;
 	}
