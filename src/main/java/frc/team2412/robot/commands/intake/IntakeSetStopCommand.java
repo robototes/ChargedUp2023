@@ -9,6 +9,9 @@ public class IntakeSetStopCommand extends IntakeSetCommand {
 	}
 
 	@Override
+	public void execute() {}
+
+	@Override
 	public boolean isFinished() {
 		return true;
 	}

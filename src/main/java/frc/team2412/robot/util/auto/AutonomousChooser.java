@@ -14,14 +14,22 @@ public class AutonomousChooser {
 
 	public AutonomousChooser() {
 		autonomousModeChooser.setDefaultOption(
-				"TopLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("TopLeaveCom"));
+				"LeftLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("LeftLeaveCom"));
 		autonomousModeChooser.addOption(
-				"BottomLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("BotLeaveCom"));
+				"RightLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("RightLeaveCom"));
 		autonomousModeChooser.addOption(
 				"MiddleLeaveComCharge",
 				() -> AutonomousTrajectories.getAutoPathByName("MiddleLeaveComCharge"));
 		autonomousModeChooser.addOption(
-				"TopScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("TopScoreLeaveCom"));
+				"LeftScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("LeftScoreLeaveCom"));
+		autonomousModeChooser.addOption(
+				"MiddleScoreLeaveComCharge",
+				() -> AutonomousTrajectories.getAutoPathByName("MiddleScoreLeaveComCharge"));
+		autonomousModeChooser.addOption(
+				"RightScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("RightScoreLeaveCom"));
+		autonomousModeChooser.addOption(
+				"LeftScoreLeaveCom2", () -> AutonomousTrajectories.getAutoPathByName("LeftScoreLeaveCom2"));
+
 		// There are more paths that have been created in the deploy/pathplanner path, they should work
 		// however they have not been tested and thus are not added here yet.
 		ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");
