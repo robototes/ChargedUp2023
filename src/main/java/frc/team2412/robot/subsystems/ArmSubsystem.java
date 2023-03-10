@@ -58,9 +58,9 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// PID
 		// TODO: Tune PID
-		public static final double ARM_K_P = 8;
+		public static final double ARM_K_P = 3;
 		public static final double ARM_K_I = 0;
-		public static final double ARM_K_D = 3;
+		public static final double ARM_K_D = 1;
 
 		public static final double WRIST_DEFAULT_P = 0.1;
 		public static final double WRIST_DEFAULT_I = 0;
