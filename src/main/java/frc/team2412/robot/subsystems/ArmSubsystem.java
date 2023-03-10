@@ -85,7 +85,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final float WRIST_MOTOR_TO_WRIST_ENCODER_RATIO = 90;
 		public static final float ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO = 4;
 
-		public static final float ARM_FORWARD_LIMIT = 156; // motor rotations
+		public static final float ARM_FORWARD_LIMIT = 93.8f; // motor rotations
 		public static final float ARM_REVERSE_LIMIT = 1;
 		public static final float WRIST_FORWARD_LIMIT = 58;
 		public static final float WRIST_REVERSE_LIMIT = 2;
