@@ -29,7 +29,7 @@ public class ManualArmOverrideOnCommand extends CommandBase {
 
 	@Override
 	public void execute() {
-		armSubsystem.setArmMotor(MathUtil.applyDeadband(armJoystickInput.getAsDouble(), 0.05));
+		armSubsystem.setArmMotor(-MathUtil.applyDeadband(armJoystickInput.getAsDouble(), 0.05));
 		armSubsystem.setWristMotor(MathUtil.applyDeadband(wristJoystickInput.getAsDouble(), 0.05));
 	}
 

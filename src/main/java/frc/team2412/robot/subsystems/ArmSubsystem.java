@@ -207,6 +207,7 @@ public class ArmSubsystem extends SubsystemBase {
 		wristEncoder = wristMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 		wristEncoder.setZeroOffset(0.055);
 		wristEncoder.setInverted(true);
+		elbowEncoder.setInverted(true);
 
 		armPID = new ProfiledPIDController(ARM_K_P, ARM_K_I, ARM_K_D, ARM_CONSTRAINTS);
 		wristPID = wristMotor.getPIDController();
@@ -277,6 +278,7 @@ public class ArmSubsystem extends SubsystemBase {
 		wristMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, WRIST_FORWARD_LIMIT);
 		wristMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, WRIST_REVERSE_LIMIT);
 		wristMotor.setSmartCurrentLimit(20);
+		wristMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
 		setWristPID(WRIST_DEFAULT_P, WRIST_DEFAULT_I, WRIST_DEFAULT_D);
 	}
