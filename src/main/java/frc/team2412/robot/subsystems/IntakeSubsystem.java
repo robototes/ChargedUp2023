@@ -37,21 +37,21 @@ public class IntakeSubsystem extends SubsystemBase {
 		public static enum GamePieceType {
 			CUBE(
 					new Color(64, 108, 81),
-					new Color(58, 44, 86),
+					0.91,
 					9), // first color is from the color sensor (desaturated green), second is more true to
 			// color
 			CONE(
 					new Color(84, 127, 42),
-					new Color(245, 224, 91),
+					0.69,
 					7.05), // first color is from the color sensor (desaturated green), second is more true to
 			// color
-			NONE(new Color(0, 0, 0), new Color(0, 0, 0), 8.55); // black
+			NONE(new Color(0, 0, 0), 0, 8.55); // black
 
 			public final Color color;
-			public final Color ledColor;
+			public final double ledColor;
 			public final double distanceFromSensor;
 
-			GamePieceType(Color color, Color ledColor, double distanceFromSensor) {
+			GamePieceType(Color color, double ledColor, double distanceFromSensor) {
 				this.color = color;
 				this.ledColor = ledColor;
 				this.distanceFromSensor = distanceFromSensor;
