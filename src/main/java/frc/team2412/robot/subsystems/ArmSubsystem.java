@@ -7,6 +7,7 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionTy
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.math.MathUtil;
@@ -57,7 +58,7 @@ public class ArmSubsystem extends SubsystemBase {
 		// TODO: Tune PID
 		public static final double ARM_K_P = 8;
 		public static final double ARM_K_I = 0;
-		public static final double ARM_K_D = 1;
+		public static final double ARM_K_D = 3;
 
 		public static final double WRIST_DEFAULT_P = 0.1;
 		public static final double WRIST_DEFAULT_I = 0;
@@ -86,7 +87,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final float ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO = 4;
 
 		public static final float ARM_FORWARD_LIMIT = 93.8f; // motor rotations
-		public static final float ARM_REVERSE_LIMIT = 1;
+		public static final float ARM_REVERSE_LIMIT = 2;
 		public static final float WRIST_FORWARD_LIMIT = 58;
 		public static final float WRIST_REVERSE_LIMIT = 2;
 
@@ -129,17 +130,17 @@ public class ArmSubsystem extends SubsystemBase {
 		 * Prescore Wrist Angle
 		 * Scoring Wrist Angle
 		 */
-		// 190 wrist 106 shoulder
 		public static enum PositionType {
 			UNKNOWN_POSITION(0, 0.122, 0.122, 0.39, 0.5),
-			ARM_LOW_POSITION(0, 1.22, 1.22, 0.39, 0.5),
-			ARM_MIDDLE_POSITION(0.18, 1.22, 1.22, 0.459, 0.543),
-			ARM_HIGH_POSITION(0.294, 1.22, 1.22, 0.349, 0.34),
-			ARM_SUBSTATION_POSITION(0.26, 1.22, 1.22, 0.5, 0.585); // ?
+			ARM_LOW_POSITION(0, 0.122, 0.122, 0.39, 0.5),
+			ARM_MIDDLE_POSITION(0.18, 0.122, 0.122, 0.459, 0.543),
+			ARM_HIGH_POSITION(0.294, 0.122, 0.122, 0.349, 0.34),
+			ARM_SUBSTATION_POSITION(0.5259, 0.122, 0.122, 0.54, 0.54); // ?
 
 			public final double armAngle;
 			public final double retractedWristAngle;
 			public final double retractedConeWristAngle;
+
 			public final double prescoringWristAngle;
 			public final double scoringWristAngle;
 
@@ -265,6 +266,7 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, ARM_REVERSE_LIMIT);
 		armMotor1.setSmartCurrentLimit(20);
 		armMotor1.setIdleMode(CANSparkMax.IdleMode.kBrake);
+		armMotor1.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
 
 		armMotor2.follow(armMotor1, true);
 		armMotor2.setSmartCurrentLimit(20);
@@ -522,7 +524,6 @@ public class ArmSubsystem extends SubsystemBase {
 									calculateArmPID() + calculateArmFeedforward(),
 									MIN_PERCENT_OUTPUT,
 									MAX_PERCENT_OUTPUT)));
-			System.out.println(calculateArmPID() + calculateArmFeedforward());
 
 			wristPID.setReference(
 					wristGoal, CANSparkMax.ControlType.kPosition, 0, calculateWristFeedforward());
@@ -542,7 +543,11 @@ public class ArmSubsystem extends SubsystemBase {
 						+ " rotations | "
 						+ (armPID.getGoal().position * 360)
 						+ " degrees");
-		wristGoalPublisher.set(wristGoal + " rotations | " + (wristGoal * 360) + " degrees");
+		wristGoalPublisher.set(
+				(wristGoal / WRIST_MOTOR_TO_WRIST_ENCODER_RATIO)
+						+ " encoder | "
+						+ (wristGoal)
+						+ " motor rotations");
 
 		armPIDPublisher.set(calculateArmPID());
 
