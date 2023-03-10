@@ -105,7 +105,7 @@ public class ArmSubsystem extends SubsystemBase {
 						/ ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO
 						/ ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO; // arm rotations / second^2
 
-		public static final double MAX_WRIST_VELOCITY = .2;
+		public static final double MAX_WRIST_VELOCITY = .5;
 		public static final double MAX_WRIST_ACCELERATION = 0.5;
 
 		public static final Constraints ARM_CONSTRAINTS =
@@ -281,6 +281,10 @@ public class ArmSubsystem extends SubsystemBase {
 		wristMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
 		setWristPID(WRIST_DEFAULT_P, WRIST_DEFAULT_I, WRIST_DEFAULT_D);
+
+		armMotor1.burnFlash();
+		armMotor2.burnFlash();
+		wristMotor.burnFlash();
 	}
 	/**
 	 * Sets Arm Manual Override to be on or off.

@@ -22,29 +22,5 @@
 	"properties": {
 	"persistent": true
 	}
-},
-{
-	"name": "/Shuffleboard/Intake/Not Moving",
-	"type": "boolean",
-	"value": true,
-	"properties": {
-	"persistent": true
-	}
-},
-{
-	"name": "/Shuffleboard/Intake/Intake In Speed",
-	"type": "double",
-	"value": 0.33,
-	"properties": {
-	"persistent": true
-	}
-},
-{
-	"name": "/Shuffleboard/Intake/Distance Sensor Value",
-	"type": "double",
-	"value": 0.0,
-	"properties": {
-	"persistent": true
-	}
 }
 ]

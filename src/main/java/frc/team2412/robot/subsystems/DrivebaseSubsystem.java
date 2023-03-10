@@ -76,7 +76,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			IS_COMP ? 150.0 / 7.0 : (32.0 / 15.0) * (60.0 / 10.0);
 
 	private static final double TIP_F = 0.02;
-	private static final double TIP_P = 0.1;
+	private static final double TIP_P = 10;
 	private static final double TIP_TOLERANCE = 2.5;
 
 	private static final double DRIVE_VELOCITY_COEFFICIENT =
@@ -260,7 +260,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			boolean autoBalance) {
 		// Auto balancing will only be used in autonomous
 		if (autoBalance) {
-			forward += balanceController.update(gyroscope.getRawRoll().getDegrees());
+			forward -= balanceController.update(gyroscope.getRawRoll().getDegrees());
 		}
 
 		ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);

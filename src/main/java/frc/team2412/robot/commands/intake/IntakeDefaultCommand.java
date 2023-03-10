@@ -6,12 +6,12 @@ public class IntakeDefaultCommand extends IntakeSetCommand {
 
 	public IntakeDefaultCommand(IntakeSubsystem intakeSubsystem) {
 
-		super(intakeSubsystem, 0);
+		super(intakeSubsystem, 0.1);
 	}
 
 	@Override
 	public void execute() {
-		intakeSubsystem.setSpeed(intakeSubsystem.getHoldSpeed());
+		// intakeSubsystem.setSpeed(intakeSubsystem.getHoldSpeed());
 		// set motor speed using super initialize?
 	}
 
