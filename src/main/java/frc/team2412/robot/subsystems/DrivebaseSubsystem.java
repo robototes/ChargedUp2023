@@ -151,7 +151,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private Gyroscope gyroscope;
 
-	private SwerveDrivePoseEstimator poseEstimator;
+	private final SwerveDrivePoseEstimator poseEstimator;
 	private Pose2d pose;
 
 	private Field2d field = new Field2d();
@@ -190,9 +190,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		}
 
 		poseEstimator = initialPoseEstimator;
-		poseEstimator.resetPosition(gyroscope.getRawYaw(), getModulePositions(), new Pose2d());
 
-		pose = poseEstimator.getEstimatedPosition();
+		resetPose(new Pose2d(), gyroscope.getRawYaw());
 
 		balanceController =
 				PFFController.ofDouble(TIP_F, TIP_P)
@@ -401,7 +400,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * @param pose the new pose
 	 */
 	public void resetPose(Pose2d pose) {
-		poseEstimator.resetPosition(pose.getRotation(), getModulePositions(), pose);
+		resetPose(pose, pose.getRotation());
+	}
+
+	private void resetPose(Pose2d pose, Rotation2d gyroAngle) {
+		synchronized (poseEstimator) {
+			poseEstimator.resetPosition(gyroAngle, getModulePositions(), pose);
+		}
 		this.pose = pose;
 	}
 
@@ -492,7 +497,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		pose = poseEstimator.update(gyroscope.getAngle(), getModulePositions());
+		synchronized (poseEstimator) {
+			pose = poseEstimator.update(gyroscope.getAngle(), getModulePositions());
+		}
 		field.setRobotPose(pose);
 
 		if (compTranslationalPID.getSetpoint() != oldTranslationalSetpoint) {

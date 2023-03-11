@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
-import io.github.oblarg.oblog.Logger;
 import java.util.HashMap;
 
 public class Robot extends TimedRobot {
@@ -129,7 +128,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotPeriodic() {
-		Logger.updateEntries();
 		CommandScheduler.getInstance().run();
 	}
 

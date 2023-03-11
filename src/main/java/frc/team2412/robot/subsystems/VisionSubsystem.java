@@ -4,18 +4,25 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
-import io.github.oblarg.oblog.annotations.Log;
+import frc.team2412.robot.Robot;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Optional;
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
-import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 /**
  * All poses and transforms use the NWU (North-West-Up) coordinate system, where +X is
@@ -25,12 +32,36 @@ import org.photonvision.targeting.PhotonTrackedTarget;
  * <p>At some point we should discuss how we want to handle the different alliances.
  */
 public class VisionSubsystem extends SubsystemBase {
-	private PhotonCamera photonCamera;
-	private PhotonPipelineResult latestResult;
-	/** Null if no known robot pose, otherwise the last calculated robot pose from vision data. */
-	private Pose3d robotPose = null;
+	private static final boolean IS_COMP = Robot.getInstance().isCompetition();
+	// Rough measurements, origin is center of robot, +X is forward, +Y is left, +Z is up
+	public static final Transform3d ROBOT_TO_CAM =
+			IS_COMP
+					? new Transform3d(
+							new Translation3d(
+									// 6.5 inches from back of robot, back is -half of length (30 in.)
+									Units.inchesToMeters(-30.0 / 2 + 6.5),
+									// 7.5 inches from left, left is +half of width (26 in.)
+									Units.inchesToMeters(26.0 / 2 - 7.5),
+									// 28.5 inches above the ground
+									Units.inchesToMeters(28.5)),
+							// Camera has a slight yaw, -6.5 degrees following right-hand rule (thumb points to
+							// +Z/up, fingers curl in positive rotation (CCW looking down))
+							new Rotation3d(0, 0, Math.toRadians(-6.5)))
+					: new Transform3d(
+							new Translation3d(
+									// 0.5 inches from front of robot, front is +half of length (24 in.)
+									Units.inchesToMeters(24 * 0.5 - 0.5),
+									// Around 1 inch to the right
+									Units.inchesToMeters(1),
+									// 26.5 inches above the ground
+									Units.inchesToMeters(26.5)),
+							// Camera's pointed backwards
+							new Rotation3d(0, 0, Math.toRadians(180)));
 
-	private SwerveDrivePoseEstimator poseEstimator;
+	private PhotonCamera photonCamera;
+	private Optional<EstimatedRobotPose> latestPose = Optional.empty();
+	private PhotonPoseEstimator photonPoseEstimator;
+	private final SwerveDrivePoseEstimator poseEstimator;
 
 	private double lastTimestampSeconds = 0;
 	/*
@@ -59,9 +90,15 @@ public class VisionSubsystem extends SubsystemBase {
 		poseEstimator = initialPoseEstimator;
 
 		var networkTables = NetworkTableInstance.getDefault();
+		if (Robot.isSimulation()) {
+			networkTables.stopServer();
+			networkTables.startClient4("localhost");
+		}
 
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
-		latestResult = photonCamera.getLatestResult();
+		this.photonPoseEstimator =
+				new PhotonPoseEstimator(
+						fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, photonCamera, ROBOT_TO_CAM);
 
 		networkTables.addListener(
 				networkTables
@@ -70,69 +107,32 @@ public class VisionSubsystem extends SubsystemBase {
 						.getEntry("rawBytes"),
 				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
 				this::updateEvent);
+
+		ShuffleboardTab visionTab = Shuffleboard.getTab("Vision");
+		visionTab.addBoolean("Has targets", this::hasTargets).withPosition(0, 0).withSize(1, 1);
+		visionTab
+				.addString("Robot pose", () -> String.valueOf(getRobotPose()))
+				.withPosition(1, 0)
+				.withSize(8, 1);
+		visionTab
+				.addDouble("Last timestamp", this::getLastTimestampSeconds)
+				.withPosition(0, 1)
+				.withSize(1, 1);
 	}
 
 	public void updateEvent(NetworkTableEvent event) {
-		latestResult = photonCamera.getLatestResult();
-		updatePoseCache();
-		if (robotPose != null) {
-			lastTimestampSeconds = latestResult.getTimestampSeconds();
-			poseEstimator.addVisionMeasurement(robotPose.toPose2d(), lastTimestampSeconds);
+		latestPose = photonPoseEstimator.update();
+		if (latestPose.isPresent()) {
+			lastTimestampSeconds = latestPose.get().timestampSeconds;
+			synchronized (poseEstimator) {
+				poseEstimator.addVisionMeasurement(
+						latestPose.get().estimatedPose.toPose2d(), lastTimestampSeconds);
+			}
 		}
 	}
 
-	@Log
 	public boolean hasTargets() {
-		return latestResult.hasTargets();
-	}
-
-	/**
-	 * Calculates the robot pose relative to the field, using the given target.
-	 *
-	 * <p>Returns null if target is null or if no valid field pose could be found for the target
-	 * (either the target doesn't have an ID or we don't have a pose associated with the ID).
-	 *
-	 * @param target The target to use to calculate robot pose.
-	 * @return The calculated robot pose.
-	 */
-	public static Pose3d getRobotPoseUsingTarget(PhotonTrackedTarget target) {
-		if (target == null || fieldLayout == null) {
-			return null;
-		}
-		// If target doesn't have fiducial ID, value is -1 (which shouldn't be in the layout)
-		Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
-		if (tagPose.isEmpty()) {
-			return null;
-		}
-		// getBestCameraToTarget() shouldn't be null
-		return tagPose
-				.get()
-				.transformBy(target.getBestCameraToTarget().inverse())
-				.transformBy(Hardware.CAM_TO_ROBOT);
-	}
-
-	public static Pose3d getAlternateRobotPoseUsingTarget(PhotonTrackedTarget target) {
-		if (target == null || fieldLayout == null) {
-			return null;
-		}
-		// If target doesn't have fiducial ID, value is -1 (which shouldn't be in the layout)
-		Optional<Pose3d> tagPose = fieldLayout.getTagPose(target.getFiducialId());
-		if (tagPose.isEmpty()) {
-			return null;
-		}
-		return tagPose
-				.get()
-				.transformBy(target.getAlternateCameraToTarget().inverse())
-				.transformBy(Hardware.CAM_TO_ROBOT);
-	}
-
-	/** Updates the robot pose cache. */
-	private void updatePoseCache() {
-		if (!hasTargets()) {
-			robotPose = null;
-		} else {
-			robotPose = getRobotPoseUsingTarget(latestResult.getBestTarget());
-		}
+		return latestPose.isPresent();
 	}
 
 	/**
@@ -141,7 +141,10 @@ public class VisionSubsystem extends SubsystemBase {
 	 * @return The calculated robot pose in meters.
 	 */
 	public Pose3d getRobotPose() {
-		return robotPose;
+		if (latestPose.isPresent()) {
+			return latestPose.get().estimatedPose;
+		}
+		return null;
 	}
 
 	/**
