@@ -15,7 +15,9 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -58,16 +60,16 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// PID
 		// TODO: Tune PID
-		public static final double ARM_K_P = 3;
+		public static final double ARM_K_P = 1;
 		public static final double ARM_K_I = 0;
-		public static final double ARM_K_D = 1;
+		public static final double ARM_K_D = 0;
 
 		public static final double WRIST_DEFAULT_P = 0.1;
 		public static final double WRIST_DEFAULT_I = 0;
 		public static final double WRIST_DEFAULT_D = 0.5;
 
 		// Feed Forward
-		public static final double ARM_K_S = 0.1;
+		public static final double ARM_K_S = 0.005;
 		public static final double ARM_K_V = 0.0;
 		public static final double ARM_K_A = 0.0;
 		public static final double ARM_K_G = 0.1;
@@ -195,6 +197,13 @@ public class ArmSubsystem extends SubsystemBase {
 
 	StringPublisher wristGoalPublisher;
 
+	DoubleSubscriber armVoltageOverride;
+	BooleanSubscriber armVoltageOverrideEnable;
+	DoublePublisher armVoltagePublisher;
+	DoublePublisher armOutputPublisher;
+	DoublePublisher armCurrentPublisher;
+	DoublePublisher armLastSetValuePublisher;
+
 	// CONSTRUCTOR
 
 	public ArmSubsystem() {
@@ -235,6 +244,10 @@ public class ArmSubsystem extends SubsystemBase {
 		armFeedforwardPublisher = NTDevices.getDoubleTopic("Arm Feedforward").publish();
 		armGoalPublisher = NTDevices.getStringTopic("Arm Goal").publish();
 		armPositionPublisher = NTDevices.getStringTopic("Position").publish();
+		armVoltagePublisher = NTDevices.getDoubleTopic("Arm voltage").publish();
+		armOutputPublisher = NTDevices.getDoubleTopic("Arm output").publish();
+		armCurrentPublisher = NTDevices.getDoubleTopic("Arm current").publish();
+		armLastSetValuePublisher = NTDevices.getDoubleTopic("Arm last set value").publish();
 
 		wristGoalPublisher = NTDevices.getStringTopic("Wrist Goal").publish();
 
@@ -246,8 +259,11 @@ public class ArmSubsystem extends SubsystemBase {
 
 		armPIDPublisher.set(0.0);
 		armFeedforwardPublisher.set(0.0);
+		armVoltagePublisher.set(0);
+		armOutputPublisher.set(0);
+		armCurrentPublisher.set(0);
+		armLastSetValuePublisher.set(0);
 
-		armGoalPublisher.set(0.0 + " rotations | " + 0.0 + " degrees");
 		armGoalPublisher.set(0.0 + " rotations | " + 0.0 + " degrees");
 	}
 
@@ -320,6 +336,7 @@ public class ArmSubsystem extends SubsystemBase {
 		percentOutput =
 				MathUtil.clamp(MAX_ARM_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT);
 		armMotor1.set(percentOutput);
+		armLastSetValuePublisher.set(percentOutput);
 	}
 
 	/**
@@ -378,10 +395,16 @@ public class ArmSubsystem extends SubsystemBase {
 	 * @return The calculated feedforward.
 	 */
 	public double calculateArmFeedforward() {
-		return ARM_K_S * Math.signum(armGoal - getShoulderPosition())
-				+ ARM_K_G * getAngleTowardsCenterOfMass()
-				+ ARM_K_V * 0
-				+ ARM_K_A * 0;
+		// -0.111639604	0.064541504
+		double shoulderPosition = getShoulderPosition();
+
+		return ARM_K_S * Math.signum(armGoal - shoulderPosition) + shoulderPosition <= 0.48
+				? 0.0
+				: (shoulderPosition * -0.111639604 + 0.064541504);
+		/**
+		 * return ARM_K_S * Math.signum(armGoal - getShoulderPosition()) + ARM_K_G *
+		 * getAngleTowardsCenterOfMass() + ARM_K_V * 0 + ARM_K_A * 0;
+		 */
 	}
 
 	/**
@@ -523,6 +546,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 		armMotor1.setVoltage(voltage);
 	}
+
 	/** Updates the wrist motor's output based off of the wrist's goal */
 	public void updateWristMotorOutput() {
 		wristPID.setReference(
@@ -565,5 +589,9 @@ public class ArmSubsystem extends SubsystemBase {
 
 		armPositionPublisher.set(currentPosition.toString());
 		armManualOverridePublisher.set(manualOverride);
+
+		armVoltagePublisher.set(armMotor1.get());
+		armOutputPublisher.set(armMotor1.getAppliedOutput());
+		armCurrentPublisher.set(armMotor1.getOutputCurrent());
 	}
 }
