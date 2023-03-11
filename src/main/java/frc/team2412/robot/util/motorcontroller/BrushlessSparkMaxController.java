@@ -101,4 +101,14 @@ public class BrushlessSparkMaxController extends MotorController {
 		motorPID.setPositionPIDWrappingMaxInput(DrivebaseSubsystem.STEER_REDUCTION);
 		motorPID.setPositionPIDWrappingMinInput(0);
 	}
+
+	@Override
+	public double getVelocity() {
+		return motor.getEncoder().getVelocity();
+	}
+
+	@Override
+	public void setMeasurementPeriod(int periodMS) {
+		motor.getEncoder().setMeasurementPeriod(periodMS);
+	}
 }

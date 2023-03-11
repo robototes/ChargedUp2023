@@ -78,4 +78,8 @@ public abstract class MotorController {
 	public abstract void setNominalVoltage(double voltage);
 
 	public abstract void configureOptimization();
+
+	public abstract double getVelocity();
+
+	public abstract void setMeasurementPeriod(int periodMS);
 }

@@ -14,8 +14,6 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.team2412.robot.commands.autonomous.AutoBalanceCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
@@ -108,7 +106,7 @@ public class Robot extends TimedRobot {
 					// Y
 					// PID controllers)
 					new PIDConstants(
-							0.5, 0.0,
+							2.0, 0.0,
 							0.0), // PID constants to correct for rotation error (used to create the rotation
 					// controller)
 					subsystems.drivebaseSubsystem
@@ -142,9 +140,7 @@ public class Robot extends TimedRobot {
 		if (subsystems.drivebaseSubsystem != null) {
 			// TODO: change this to not be hardcoded
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
-			new SequentialCommandGroup(
-							autonomousChooser.getAuto(), new AutoBalanceCommand(subsystems.drivebaseSubsystem))
-					.schedule();
+			autonomousChooser.getAuto().schedule();
 		}
 	}
 

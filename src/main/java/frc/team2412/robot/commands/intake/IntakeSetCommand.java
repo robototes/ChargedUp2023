@@ -5,7 +5,7 @@ import frc.team2412.robot.subsystems.IntakeSubsystem;
 
 public class IntakeSetCommand extends CommandBase {
 
-	public IntakeSubsystem intakeSubsystem;
+	protected IntakeSubsystem intakeSubsystem;
 	private double speed;
 
 	public IntakeSetCommand(IntakeSubsystem intakeSubsystem, double speed) {
@@ -16,6 +16,12 @@ public class IntakeSetCommand extends CommandBase {
 
 	@Override
 	public void initialize() {
+		// set motor speed to speed
+		intakeSubsystem.setSpeed(speed);
+	}
+
+	@Override
+	public void execute() {
 		// set motor speed to speed
 		intakeSubsystem.setSpeed(speed);
 	}
