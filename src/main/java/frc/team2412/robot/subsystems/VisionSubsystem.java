@@ -11,10 +11,11 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.Robot;
-import io.github.oblarg.oblog.annotations.Log;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -58,7 +59,7 @@ public class VisionSubsystem extends SubsystemBase {
 							new Rotation3d(0, 0, Math.toRadians(180)));
 
 	private PhotonCamera photonCamera;
-	private Optional<EstimatedRobotPose> latestPose;
+	private Optional<EstimatedRobotPose> latestPose = Optional.empty();
 	private PhotonPoseEstimator photonPoseEstimator;
 	private final SwerveDrivePoseEstimator poseEstimator;
 
@@ -106,6 +107,17 @@ public class VisionSubsystem extends SubsystemBase {
 						.getEntry("rawBytes"),
 				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
 				this::updateEvent);
+
+		ShuffleboardTab visionTab = Shuffleboard.getTab("Vision");
+		visionTab.addBoolean("Has targets", this::hasTargets).withPosition(0, 0).withSize(1, 1);
+		visionTab
+				.addString("Robot pose", () -> String.valueOf(getRobotPose()))
+				.withPosition(1, 0)
+				.withSize(8, 1);
+		visionTab
+				.addDouble("Last timestamp", this::getLastTimestampSeconds)
+				.withPosition(0, 1)
+				.withSize(1, 1);
 	}
 
 	public void updateEvent(NetworkTableEvent event) {
@@ -119,7 +131,6 @@ public class VisionSubsystem extends SubsystemBase {
 		}
 	}
 
-	@Log
 	public boolean hasTargets() {
 		return latestPose.isPresent();
 	}
