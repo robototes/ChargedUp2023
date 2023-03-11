@@ -89,6 +89,8 @@ public class Robot extends TimedRobot {
 		CommandScheduler.getInstance()
 				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
 
+		DriverStation.silenceJoystickConnectionWarning(true);
+
 		PathPlannerServer.startServer(5811);
 	}
 
