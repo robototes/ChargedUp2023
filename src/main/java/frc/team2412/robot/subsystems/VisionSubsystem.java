@@ -38,12 +38,12 @@ public class VisionSubsystem extends SubsystemBase {
 			IS_COMP
 					? new Transform3d(
 							new Translation3d(
-									// 6 inches from back of robot, back is -half of length (30 in.)
-									Units.inchesToMeters(-30.0 / 2 + 6),
+									// 6.5 inches from back of robot, back is -half of length (30 in.)
+									Units.inchesToMeters(-30.0 / 2 + 6.5),
 									// 7.5 inches from left, left is +half of width (26 in.)
 									Units.inchesToMeters(26.0 / 2 - 7.5),
-									// 29 inches above the ground
-									Units.inchesToMeters(29)),
+									// 28.5 inches above the ground
+									Units.inchesToMeters(28.5)),
 							// Camera has a slight yaw, -6.5 degrees following right-hand rule (thumb points to
 							// +Z/up, fingers curl in positive rotation (CCW looking down))
 							new Rotation3d(0, 0, Math.toRadians(-6.5)))
