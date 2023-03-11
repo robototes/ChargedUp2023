@@ -76,9 +76,6 @@ public class Subsystems {
 				driverVisionCamera.setResolution(160, 120);
 			}
 		}
-		if (!comp) {
-			return;
-		}
 		if (ARM_ENABLED) {
 			armSubsystem = new ArmSubsystem();
 		}
