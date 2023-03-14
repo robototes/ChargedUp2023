@@ -101,8 +101,9 @@ public class AutoBuilder {
                 commands.addCommands(new ParallelCommandGroup(
                     new SetFullArmCommand(s.armSubsystem, s.intakeSubsystem, PositionType.ARM_LOW_POSITION, WristPosition.WRIST_SCORE),
                     new IntakeSetInCommand(s.intakeSubsystem),
-                    driveToPoint(s.drivebaseSubsystem, currentPosition, gamePiecePose)),
-                    new WaitCommand(0.5));
+                    driveToPoint(s.drivebaseSubsystem, currentPosition, gamePiecePose)));
+                
+                currentPosition = s.drivebaseSubsystem.getPose();
 
                 // remove the game piece from the pool
                 storedGameObject = availableGameObjects.get(gamePiecePose);
@@ -114,11 +115,21 @@ public class AutoBuilder {
             }
 
             if (action == Action.SCORE) {
-
+                
             }
 
             if (action == Action.CLIMB) {
-                
+                Pose2d preClimbPosition;
+                if (s.drivebaseSubsystem.getPose().getX() < 3.8) {
+                    preClimbPosition = new Pose2d(new Translation2d(2.15, 2.66), Rotation2d.fromDegrees(0));
+                } else {
+                    preClimbPosition = new Pose2d(new Translation2d(5.7, 2.66), Rotation2d.fromDegrees(180));
+                }
+                commands.addCommands(
+                    driveToPoint(s.drivebaseSubsystem, currentPosition, preClimbPosition));
+                commands.addCommands(
+                    driveToPoint(s.drivebaseSubsystem, preClimbPosition, new Pose2d(new Translation2d(3.9, 2.66), preClimbPosition.getRotation())));
+                currentPosition = s.drivebaseSubsystem.getPose();
             }
         }
 
