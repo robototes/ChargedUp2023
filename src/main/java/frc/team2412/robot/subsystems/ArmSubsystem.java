@@ -33,14 +33,14 @@ public class ArmSubsystem extends SubsystemBase {
 		// Conversion
 
 		public static final double TICKS_TO_INCHES = 42 / 360; // Maybe unneeded?
-		public static final float ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO = 125;
+		public static final float ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO = 75;
 		public static final float WRIST_MOTOR_TO_WRIST_ENCODER_RATIO = 90;
 		public static final float ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO = 4;
 		// TODO: this is still incorrect, current delta between extended and retracted is 0.1809 but
 		// should be 0.25
 		public static final double SHOULDER_ENCODER_TO_ARM_POSITION_RATIO = 4 / 1;
 		public static final double WRIST_ENCODER_TO_WRIST_POSITION_RATIO = 24 / 1;
-		public static final double SHOULDER_TO_ELBOW_GEAR_RATIO = 64 / 48;
+		public static final double SHOULDER_TO_ELBOW_GEAR_RATIO = 64.0 / 48.0;
 
 		// pounds/lbs
 		public static final double INNER_ARM_MASS = 4.69;
@@ -60,7 +60,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// PID
 		// TODO: Tune PID
-		public static final double ARM_K_P = 1;
+		public static final double ARM_K_P = 3;
 		public static final double ARM_K_I = 0;
 		public static final double ARM_K_D = 0;
 
@@ -131,11 +131,11 @@ public class ArmSubsystem extends SubsystemBase {
 		 * Scoring Wrist Angle
 		 */
 		public static enum PositionType {
-			UNKNOWN_POSITION(0, 0.122, 0.122, 0.39, 0.5),
-			ARM_LOW_POSITION(0, 0.122, 0.122, 0.39, 0.5),
-			ARM_MIDDLE_POSITION(0.18, 0.122, 0.122, 0.459, 0.543),
-			ARM_HIGH_POSITION(0.294, 0.122, 0.122, 0.349, 0.34),
-			ARM_SUBSTATION_POSITION(0.5259, 0.122, 0.122, 0.54, 0.54); // ?
+			UNKNOWN_POSITION(0.212, 0.122, 0.122, 0.477, 0.477),
+			ARM_LOW_POSITION(0.212, 0.122, 0.122, 0.477, 0.477),
+			ARM_MIDDLE_POSITION(0.415, 0.122, 0.122, 0.459, 0.521),
+			ARM_HIGH_POSITION(0.6546, 0.122, 0.122, 0.473, 0.52),
+			ARM_SUBSTATION_POSITION(0.567, 0.122, 0.122, 0.57, 0.57); // ?
 
 			public final double armAngle;
 			public final double retractedWristAngle;
@@ -386,7 +386,7 @@ public class ArmSubsystem extends SubsystemBase {
 	 */
 	public double calculateArmPID() {
 
-		return armPID.calculate(getShoulderPosition(), armPID.getGoal());
+		return armPID.calculate(getElbowPosition(), armPID.getGoal());
 	}
 
 	/**
@@ -396,11 +396,11 @@ public class ArmSubsystem extends SubsystemBase {
 	 */
 	public double calculateArmFeedforward() {
 		// -0.111639604	0.064541504
-		double shoulderPosition = getShoulderPosition();
+		double wristPosition = getWristPosition();
 
-		return ARM_K_S * Math.signum(armGoal - shoulderPosition) + shoulderPosition <= 0.48
+		return ARM_K_S * Math.signum(armGoal - wristPosition) + wristPosition <= 0.48
 				? 0.0
-				: (shoulderPosition * -0.111639604 + 0.064541504);
+				: (wristPosition * -0.111639604 + 0.064541504);
 		/**
 		 * return ARM_K_S * Math.signum(armGoal - getShoulderPosition()) + ARM_K_G *
 		 * getAngleTowardsCenterOfMass() + ARM_K_V * 0 + ARM_K_A * 0;
@@ -460,12 +460,6 @@ public class ArmSubsystem extends SubsystemBase {
 	 */
 	public boolean getManualOverride() {
 		return manualOverride;
-	}
-
-	// maybe want to use to lower velocity near limits?
-	public boolean isShoulderNearLimit() {
-		return (getShoulderPosition() >= ARM_FORWARD_LIMIT - 10
-				|| getShoulderPosition() <= ARM_REVERSE_LIMIT + 10);
 	}
 
 	/**
@@ -536,6 +530,10 @@ public class ArmSubsystem extends SubsystemBase {
 		return rotations * 2 * Math.PI;
 	}
 
+	public boolean isArmNearGoal() {
+		return Math.abs(getElbowPosition() - armPID.getGoal().position) <= 0.1;
+	}
+
 	/** Updates the arm motor's output based off of the wrist's goal */
 	public void updateArmMotorOutput() {
 
@@ -557,9 +555,7 @@ public class ArmSubsystem extends SubsystemBase {
 	public void periodic() {
 		// Periodic Arm movement for Preset Angle Control
 		if (!manualOverride && !currentPosition.equals(PositionType.UNKNOWN_POSITION)) {
-
 			updateArmMotorOutput();
-
 			updateWristMotorOutput();
 		}
 
