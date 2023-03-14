@@ -73,6 +73,10 @@ public class AutoBuilder {
     public static Command buildAuto(Subsystems s, StartingPosition startingPosition, GameObject startingObject, ScoringPosition scoringTypePriority, ScoringArea scoringArea, Action... actions) {
         SequentialCommandGroup commands = new SequentialCommandGroup();
 
+        // init scoring locations
+        HashMap<Pose2d, GameObject> availableScoringLocations = new HashMap<Pose2d, GameObject>();
+        availableScoringLocations.put(new Pose2d(), GameObject.CUBE);
+
         // init game objects available on field
         HashMap<Pose2d, GameObject> availableGameObjects = new HashMap<Pose2d, GameObject>();
         // repeat for each game object
@@ -118,6 +122,7 @@ public class AutoBuilder {
                 
             }
 
+            // climb time babyyyyy
             if (action == Action.CLIMB) {
                 Pose2d preClimbPosition;
                 if (s.drivebaseSubsystem.getPose().getX() < 3.8) {
@@ -126,9 +131,9 @@ public class AutoBuilder {
                     preClimbPosition = new Pose2d(new Translation2d(5.7, 2.66), Rotation2d.fromDegrees(180));
                 }
                 commands.addCommands(
-                    driveToPoint(s.drivebaseSubsystem, currentPosition, preClimbPosition));
-                commands.addCommands(
-                    driveToPoint(s.drivebaseSubsystem, preClimbPosition, new Pose2d(new Translation2d(3.9, 2.66), preClimbPosition.getRotation())));
+                    driveToPoint(s.drivebaseSubsystem, currentPosition, preClimbPosition),
+                    driveToPoint(s.drivebaseSubsystem, preClimbPosition, new Pose2d(new Translation2d(3.9, 2.66), preClimbPosition.getRotation()))
+                );
                 currentPosition = s.drivebaseSubsystem.getPose();
             }
         }
