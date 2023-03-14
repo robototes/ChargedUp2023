@@ -15,8 +15,18 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.team2412.robot.Subsystems;
+import frc.team2412.robot.commands.arm.SetFullArmCommand;
+import frc.team2412.robot.commands.arm.SetWristCommand;
+import frc.team2412.robot.commands.arm.SetWristCommand.WristPosition;
+import frc.team2412.robot.commands.intake.IntakeSetInCommand;
+import frc.team2412.robot.commands.intake.IntakeSetStopCommand;
+import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
+import frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType;
 
 public class AutoBuilder {
     private static final PathConstraints CONSTRAINTS = new PathConstraints(1, 1);
@@ -60,7 +70,7 @@ public class AutoBuilder {
         CLIMB
     }
 
-    public static Command buildAuto(DrivebaseSubsystem drivebaseSubsystem, StartingPosition startingPosition, GameObject startingObject, ScoringPosition scoringTypePriority, ScoringArea scoringArea, Action... actions) {
+    public static Command buildAuto(Subsystems s, StartingPosition startingPosition, GameObject startingObject, ScoringPosition scoringTypePriority, ScoringArea scoringArea, Action... actions) {
         SequentialCommandGroup commands = new SequentialCommandGroup();
 
         // init game objects available on field
@@ -79,7 +89,7 @@ public class AutoBuilder {
                 // To get a location we need to get to be out of community, we can get our starting pose and add the distance of starting position from the community line
                 // Another way to achieve this would be to take the current position and navigate to that position but with a set x value
                 Pose2d leaveCommunityPose = startingPosition.pose.plus(new Transform2d(new Translation2d(10, 0), Rotation2d.fromDegrees(0)));
-                commands.addCommands(driveToPoint(drivebaseSubsystem, currentPosition, leaveCommunityPose));
+                commands.addCommands(driveToPoint(s.drivebaseSubsystem, currentPosition, leaveCommunityPose));
             }
 
             // Handle picking up a game piece
@@ -88,12 +98,27 @@ public class AutoBuilder {
 
                 // get the nearest game piece
                 Pose2d gamePiecePose = currentPosition.nearest(new ArrayList<Pose2d>(availableGameObjects.keySet()));
-                commands.addCommands(driveToPoint(drivebaseSubsystem, currentPosition, gamePiecePose));
-                // add commands to pick up the piece idk how to do this
+                commands.addCommands(new ParallelCommandGroup(
+                    new SetFullArmCommand(s.armSubsystem, s.intakeSubsystem, PositionType.ARM_LOW_POSITION, WristPosition.WRIST_SCORE),
+                    new IntakeSetInCommand(s.intakeSubsystem),
+                    driveToPoint(s.drivebaseSubsystem, currentPosition, gamePiecePose)),
+                    new WaitCommand(0.5));
 
                 // remove the game piece from the pool
+                storedGameObject = availableGameObjects.get(gamePiecePose);
                 availableGameObjects.remove(gamePiecePose);
-                store
+
+                commands.addCommands(
+                    new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WristPosition.WRIST_RETRACT), 
+                    new IntakeSetStopCommand(s.intakeSubsystem));
+            }
+
+            if (action == Action.SCORE) {
+
+            }
+
+            if (action == Action.CLIMB) {
+                
             }
         }
 
