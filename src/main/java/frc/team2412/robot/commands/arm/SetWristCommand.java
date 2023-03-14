@@ -9,7 +9,8 @@ import frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceTy
 public class SetWristCommand extends CommandBase {
 
 	private ArmSubsystem armSubsystem;
-	private double targetWristAngle;
+	private IntakeSubsystem intakeSubsystem;
+	private WristPosition targetWristPosition;
 
 	public static enum WristPosition {
 		WRIST_RETRACT,
@@ -24,10 +25,20 @@ public class SetWristCommand extends CommandBase {
 			IntakeSubsystem intakeSubsystem,
 			WristPosition targetWristPosition) {
 		this.armSubsystem = armSubsystem;
+		this.intakeSubsystem = intakeSubsystem;
+		this.targetWristPosition = targetWristPosition;
+		addRequirements(armSubsystem);
+	}
+
+	@Override
+	public void initialize() {
+		double targetWristAngle = 0.0;
 
 		if (armSubsystem.getPosition() == PositionType.UNKNOWN_POSITION) {
 			// return;
 		}
+
+		System.out.println(armSubsystem.getPosition());
 
 		switch (targetWristPosition) {
 			case WRIST_RETRACT:
@@ -46,17 +57,12 @@ public class SetWristCommand extends CommandBase {
 			case WRIST_PRESCORE:
 				targetWristAngle = armSubsystem.getPosition().prescoringWristAngle;
 				break;
-
 			case WRIST_SCORE:
 				targetWristAngle = armSubsystem.getPosition().scoringWristAngle;
 				break;
 		}
-	}
 
-	@Override
-	public void initialize() {
 		armSubsystem.setWristGoal(targetWristAngle);
-		System.out.println("Hi community");
 	}
 
 	@Override
@@ -66,6 +72,8 @@ public class SetWristCommand extends CommandBase {
 
 	@Override
 	public boolean isFinished() {
+		// has pid moved us close enough to go back to manual control?
+		// return Math.abs(armSubsystem.getWristPosition() - targetWristAngle) < 0.1;
 		return true;
 	}
 }

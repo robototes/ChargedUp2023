@@ -14,14 +14,24 @@ public class AutonomousChooser {
 
 	public AutonomousChooser() {
 		autonomousModeChooser.setDefaultOption(
-				"BottomCommunity", () -> AutonomousTrajectories.getBotCommunityAutoPath());
+				"LeftLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("LeftLeaveCom"));
 		autonomousModeChooser.addOption(
-				"ChargeStation", () -> AutonomousTrajectories.getChargedAutoPath());
+				"RightLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("RightLeaveCom"));
 		autonomousModeChooser.addOption(
-				"TopCommunity", () -> AutonomousTrajectories.getTopCommunityAutoPath());
-		autonomousModeChooser.addOption("TopScore", () -> AutonomousTrajectories.getTopScoreAutoPath());
-		autonomousModeChooser.addOption("BotScore", () -> AutonomousTrajectories.getBotScoreAutoPath());
+				"MiddleLeaveComCharge",
+				() -> AutonomousTrajectories.getAutoPathByName("MiddleLeaveComCharge"));
+		autonomousModeChooser.addOption(
+				"LeftScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("LeftScoreLeaveCom"));
+		autonomousModeChooser.addOption(
+				"MiddleScoreLeaveComCharge",
+				() -> AutonomousTrajectories.getAutoPathByName("MiddleScoreLeaveComCharge"));
+		autonomousModeChooser.addOption(
+				"RightScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("RightScoreLeaveCom"));
+		autonomousModeChooser.addOption(
+				"LeftScoreLeaveCom2", () -> AutonomousTrajectories.getAutoPathByName("LeftScoreLeaveCom2"));
 
+		// There are more paths that have been created in the deploy/pathplanner path, they should work
+		// however they have not been tested and thus are not added here yet.
 		ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");
 
 		autonomousTab.add("Choose Auto Mode", autonomousModeChooser).withPosition(0, 0).withSize(2, 1);
