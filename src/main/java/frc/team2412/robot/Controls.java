@@ -88,8 +88,8 @@ public class Controls {
 		driveIntakeOutButton = driveController.y();
 		driveIntakeStopButton = driveController.b();
 
-		ledPurple = driveController.rightBumper();
-		ledYellow = driveController.leftBumper();
+		ledPurple = codriveController.rightBumper();
+		ledYellow = codriveController.leftBumper();
 
 		if (Subsystems.SubsystemConstants.DRIVEBASE_ENABLED) {
 			bindDrivebaseControls();
