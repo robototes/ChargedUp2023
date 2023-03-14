@@ -14,7 +14,7 @@ public class AutonomousChooser {
 
 	public AutonomousChooser() {
 		autonomousModeChooser.setDefaultOption(
-				"FlatLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("LeftLeaveCom"));
+				"FlatLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("FlatLeaveCom"));
 		autonomousModeChooser.addOption(
 				"BumpLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("RightLeaveCom"));
 		autonomousModeChooser.addOption(

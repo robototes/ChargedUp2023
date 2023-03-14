@@ -1,5 +1,8 @@
 package frc.team2412.robot.util.auto;
 
+import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_PRESCORE;
+import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
+
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
@@ -7,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.team2412.robot.Robot;
 import frc.team2412.robot.Subsystems;
+import frc.team2412.robot.commands.arm.SetFullArmCommand;
 import frc.team2412.robot.commands.arm.SetWristCommand;
 import frc.team2412.robot.commands.arm.SetWristCommand.WristPosition;
 import frc.team2412.robot.commands.autonomous.AutoBalanceCommand;
@@ -35,6 +39,15 @@ public class AutonomousTrajectories {
 					new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WristPosition.WRIST_RETRACT);
 			SequentialCommandGroup score =
 					new SequentialCommandGroup(intakeIn, wristOut, intakeOut.withTimeout(1.5), wristIn);
+			Command armLow =
+					new SetFullArmCommand(
+							s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION, WRIST_PRESCORE);
+			Command armMed =
+					new SetFullArmCommand(
+							s.armSubsystem, s.intakeSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE);
+			Command armHigh =
+					new SetFullArmCommand(
+							s.armSubsystem, s.intakeSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE);
 			Command intake =
 					new IntakeSetInCommand(s.intakeSubsystem).until(s.intakeSubsystem::isSecured);
 			eventMap.put("ScoreBottom", score);
@@ -42,6 +55,9 @@ public class AutonomousTrajectories {
 			eventMap.put("WristRetract", wristIn);
 			eventMap.put("WristPrescore", wristPrescore);
 			eventMap.put("IntakeOut", intakeOut);
+			eventMap.put("ArmHigh", armHigh);
+			eventMap.put("WristOut", wristOut);
+			eventMap.put("ArmLow", armLow);
 		}
 		Command fullAuto = Robot.getInstance().getAutoBuilder(eventMap).fullAuto(pathGroup);
 		return fullAuto;
