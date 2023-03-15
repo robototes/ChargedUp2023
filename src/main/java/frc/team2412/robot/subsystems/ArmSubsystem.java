@@ -225,7 +225,7 @@ public class ArmSubsystem extends SubsystemBase {
 		configMotors();
 
 		currentPosition = UNKNOWN_POSITION;
-		manualOverride = true;
+		manualOverride = false;
 
 		armPID.reset(getShoulderPosition());
 		// wristPID.reset(getWristPosition());

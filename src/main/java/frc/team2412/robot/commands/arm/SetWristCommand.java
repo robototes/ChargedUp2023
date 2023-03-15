@@ -11,6 +11,7 @@ public class SetWristCommand extends CommandBase {
 	private ArmSubsystem armSubsystem;
 	private IntakeSubsystem intakeSubsystem;
 	private WristPosition targetWristPosition;
+	private double targetWristAngle;
 
 	public static enum WristPosition {
 		WRIST_RETRACT,
@@ -63,6 +64,7 @@ public class SetWristCommand extends CommandBase {
 		}
 
 		armSubsystem.setWristGoal(targetWristAngle);
+		this.targetWristAngle = targetWristAngle;
 	}
 
 	@Override
@@ -73,7 +75,7 @@ public class SetWristCommand extends CommandBase {
 	@Override
 	public boolean isFinished() {
 		// has pid moved us close enough to go back to manual control?
-		// return Math.abs(armSubsystem.getWristPosition() - targetWristAngle) < 0.1;
-		return true;
+		return Math.abs(armSubsystem.getWristPosition() - targetWristAngle) < 0.05;
+		// return true;
 	}
 }

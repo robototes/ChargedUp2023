@@ -16,19 +16,19 @@ public class AutonomousChooser {
 		autonomousModeChooser.setDefaultOption(
 				"FlatLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("FlatLeaveCom"));
 		autonomousModeChooser.addOption(
-				"BumpLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("RightLeaveCom"));
+				"BumpLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("BumpLeaveCom"));
 		autonomousModeChooser.addOption(
-				"MiddleLeaveComCharge",
-				() -> AutonomousTrajectories.getAutoPathByName("MiddleLeaveComCharge"));
+				"ChargeLeaveComCharge",
+				() -> AutonomousTrajectories.getAutoPathByName("ChargeLeaveComCharge"));
 		autonomousModeChooser.addOption(
-				"FlatScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("LeftScoreLeaveCom"));
+				"FlatScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("FlatPieceScore"));
 		autonomousModeChooser.addOption(
-				"MiddleScoreLeaveComCharge",
-				() -> AutonomousTrajectories.getAutoPathByName("MiddleScoreLeaveComCharge"));
+				"ChargeScoreLeaveComCharge",
+				() -> AutonomousTrajectories.getAutoPathByName("ChargeScoreLeaveComCharge"));
 		autonomousModeChooser.addOption(
-				"BumpScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("RightScoreLeaveCom"));
+				"BumpScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("BumpPieceScore"));
 		autonomousModeChooser.addOption(
-				"FlatScoreLeaveCom2", () -> AutonomousTrajectories.getAutoPathByName("LeftScoreLeaveCom2"));
+				"FlatScoreLeaveCom2", () -> AutonomousTrajectories.getAutoPathByName("FlatScoreLeaveCom2"));
 		autonomousModeChooser.addOption(
 				"ChargePreloadSecPiece",
 				() -> AutonomousTrajectories.getAutoPathByName("ChargePreloadSecPiece"));
