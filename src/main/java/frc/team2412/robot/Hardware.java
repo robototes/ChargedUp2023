@@ -54,5 +54,5 @@ public class Hardware {
 	public static final int INTAKE_DISTANCE_SENSOR = 0;
 
 	// LED strip is PWM port 8
-	public static final int LED_STRIP = 8;
+	public static final int BLINKIN_LED = 8;
 }

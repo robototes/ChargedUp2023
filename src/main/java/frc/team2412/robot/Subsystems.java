@@ -17,11 +17,12 @@ import frc.team2412.robot.subsystems.VisionSubsystem;
 
 public class Subsystems {
 	public static class SubsystemConstants {
+		public static final boolean IS_COMP = Robot.getInstance().isCompetition();
 		public static final boolean DRIVEBASE_ENABLED = true;
-		public static final boolean ARM_ENABLED = true;
-		public static final boolean INTAKE_ENABLED = true;
+		public static final boolean ARM_ENABLED = IS_COMP && true;
+		public static final boolean INTAKE_ENABLED = IS_COMP && true;
 		public static final boolean VISION_ENABLED = true;
-		public static final boolean LED_ENABLED = false;
+		public static final boolean LED_ENABLED = IS_COMP && true;
 		public static final boolean DRIVER_VIS_ENABLED = true;
 	}
 
@@ -43,8 +44,6 @@ public class Subsystems {
 		poseEstimator =
 				new SwerveDrivePoseEstimator(
 						DrivebaseSubsystem.kinematics, new Rotation2d(), pseudoPositions, new Pose2d());
-
-		boolean comp = Robot.getInstance().isCompetition();
 
 		if (DRIVEBASE_ENABLED) {
 			drivebaseSubsystem = new DrivebaseSubsystem(poseEstimator);
@@ -75,9 +74,6 @@ public class Subsystems {
 				// 2304x1296, 2304x1536
 				driverVisionCamera.setResolution(160, 120);
 			}
-		}
-		if (!comp) {
-			return;
 		}
 		if (ARM_ENABLED) {
 			armSubsystem = new ArmSubsystem();
