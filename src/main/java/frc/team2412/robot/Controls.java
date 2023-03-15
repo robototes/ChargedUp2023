@@ -2,6 +2,7 @@ package frc.team2412.robot;
 
 import static frc.team2412.robot.Controls.ControlConstants.CODRIVER_CONTROLLER_PORT;
 import static frc.team2412.robot.Controls.ControlConstants.CONTROLLER_PORT;
+import static frc.team2412.robot.Controls.ControlConstants.VJOY_PORT;
 import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_PRESCORE;
 import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_RETRACT;
 import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_SCORE;
@@ -11,7 +12,9 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionTy
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.ARM_SUBSTATION_POSITION;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
@@ -31,10 +34,12 @@ public class Controls {
 	public static class ControlConstants {
 		public static final int CONTROLLER_PORT = 0;
 		public static final int CODRIVER_CONTROLLER_PORT = 1;
+		public static final int VJOY_PORT = 2;
 	}
 
 	private final CommandXboxController driveController;
 	private final CommandXboxController codriveController;
+	private final CommandGenericHID vjoyController;
 
 	// Arm
 
@@ -66,7 +71,14 @@ public class Controls {
 	public Controls(Subsystems s) {
 		driveController = new CommandXboxController(CONTROLLER_PORT);
 		codriveController = new CommandXboxController(CODRIVER_CONTROLLER_PORT);
+		vjoyController = new CommandGenericHID(VJOY_PORT);
 		this.s = s;
+
+		vjoyController.button(1).onTrue(Commands.print("L3 Cone"));
+		vjoyController.button(2).onTrue(Commands.print("L3 Cube"));
+		vjoyController.button(3).onTrue(Commands.print("Ground"));
+		vjoyController.button(4).onTrue(Commands.print("Safe height"));
+		vjoyController.button(5).onTrue(Commands.print("Substation"));
 
 		// TODO: reimpliment arm + wrist presets after comp
 
