@@ -2,40 +2,42 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.9326182242108072,
-        "y": 2.7862770255455045
+        "x": 1.355760815787035,
+        "y": 0.46539875070271447
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.932618224210807,
-        "y": 2.7862770255455045
+        "x": 2.355760815787034,
+        "y": 0.46539875070271447
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
+        "names": [
+          "score"
+        ],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 7.3,
-        "y": 2.7862770255455045
+        "x": 6.92154995684399,
+        "y": 1.0257768382835346
       },
       "prevControl": {
-        "x": 6.009179334932383,
-        "y": 2.7862770255455045
+        "x": 6.92154995684399,
+        "y": 0.02577683828353461
       },
       "nextControl": {
-        "x": 6.009179334932383,
-        "y": 2.7862770255455045
+        "x": 6.92154995684399,
+        "y": 0.02577683828353461
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 0,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
@@ -49,24 +51,24 @@
     },
     {
       "anchorPoint": {
-        "x": 4.399158541906827,
-        "y": 2.79
+        "x": 3.5087210024044113,
+        "y": 0.8136801236008498
       },
       "prevControl": {
-        "x": 5.667508941262517,
-        "y": 2.79
+        "x": 2.5087210024044113,
+        "y": 0.8136801236008498
       },
       "nextControl": null,
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "AutoBalance"
+          "score"
         ],
-        "executionBehavior": "parallel",
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
