@@ -60,7 +60,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// PID
 		// TODO: Tune PID
-		public static final double ARM_K_P = 3;
+		public static final double ARM_K_P = 4;
 		public static final double ARM_K_I = 0;
 		public static final double ARM_K_D = 0;
 
@@ -108,13 +108,13 @@ public class ArmSubsystem extends SubsystemBase {
 						/ ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO; // arm rotations / second^2
 
 		public static final Constraints ARM_CONSTRAINTS =
-				new Constraints(MAX_ARM_ACCELERATION, MAX_ARM_VELOCITY);
+				new Constraints(MAX_ARM_VELOCITY, MAX_ARM_ACCELERATION);
 
-		public static final double MAX_WRIST_VELOCITY = .5;
+		public static final double MAX_WRIST_VELOCITY = 0.5;
 		public static final double MAX_WRIST_ACCELERATION = 0.5;
 
 		public static final Constraints WRIST_CONSTRAINTS =
-				new Constraints(MAX_WRIST_ACCELERATION, MAX_WRIST_VELOCITY);
+				new Constraints(MAX_WRIST_VELOCITY, MAX_WRIST_ACCELERATION);
 
 		// ENUM
 
