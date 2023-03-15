@@ -51,8 +51,8 @@ public class Controls {
 	public final Trigger wristScoreButton;
 
 	// intake
-	// public final Trigger codriveIntakeInButton;
-	// public final Trigger codriveIntakeOutButton;
+	public final Trigger codriveIntakeInButton;
+	public final Trigger codriveIntakeOutButton;
 	// public final Trigger codriveIntakeStopButton;
 	public final Trigger driveIntakeInButton;
 	public final Trigger driveIntakeOutButton;
@@ -81,8 +81,8 @@ public class Controls {
 		wristRetractButton = codriveController.povRight();
 		wristScoreButton = codriveController.povLeft();
 
-		// codriveIntakeInButton = codriveController.a();
-		// codriveIntakeOutButton = codriveController.y();
+		codriveIntakeInButton = codriveController.povDown();
+		codriveIntakeOutButton = codriveController.povUp();
 		// codriveIntakeStopButton = codriveController.b();
 		driveIntakeInButton = driveController.a();
 		driveIntakeOutButton = driveController.y();
@@ -125,7 +125,7 @@ public class Controls {
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
 		armManualControlOff.onTrue(new ManualArmOverrideOffCommand(s.armSubsystem));
 		armLowButton.onTrue(
-				new SetFullArmCommand(s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION, WRIST_PRESCORE));
+				new SetFullArmCommand(s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
 		armMiddleButton.onTrue(
 				new SetFullArmCommand(
 						s.armSubsystem, s.intakeSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
@@ -159,7 +159,8 @@ public class Controls {
 		driveIntakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
 
 		// Codrive buttons
-		// codriveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
+		codriveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
+		codriveIntakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
 		// if (Subsystems.SubsystemConstants.LED_ENABLED) {
 		// 	codriveIntakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
 		// } else {
