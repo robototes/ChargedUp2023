@@ -1,6 +1,7 @@
 package frc.team2412.robot.subsystems;
 
 import static frc.team2412.robot.Hardware.*;
+import static frc.team2412.robot.sim.SparkMaxSimProfile.SparkMaxConstants.*;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.*;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
 
@@ -23,6 +24,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Robot;
+import frc.team2412.robot.sim.PhysicsSim;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -303,6 +305,13 @@ public class ArmSubsystem extends SubsystemBase {
 	public void enableShoulderLimits() {
 		armMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
 		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
+	}
+
+	public void simInit(PhysicsSim sim) {
+		sim.addSparkMax(armMotor1, STALL_TORQUE, FREE_SPEED_RPM);
+		sim.addSparkMax(armMotor2, STALL_TORQUE, FREE_SPEED_RPM);
+
+		sim.addSparkMax(wristMotor, STALL_TORQUE, FREE_SPEED_RPM);
 	}
 
 	/**
