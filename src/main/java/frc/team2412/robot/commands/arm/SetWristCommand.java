@@ -2,7 +2,6 @@ package frc.team2412.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team2412.robot.subsystems.ArmSubsystem;
-import frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType;
 
 public class SetWristCommand extends CommandBase {
 
@@ -25,11 +24,8 @@ public class SetWristCommand extends CommandBase {
 	public void initialize() {
 		double targetWristAngle = 0.0;
 
-		if (armSubsystem.getPosition() == PositionType.UNKNOWN_POSITION) {
-			// return;
-		}
-
-		System.out.println(armSubsystem.getPosition());
+		// System.out.println(armSubsystem.getPosition()); // check current arm position that wrist
+		// command reads
 
 		switch (targetWristPosition) {
 			case WRIST_RETRACT:

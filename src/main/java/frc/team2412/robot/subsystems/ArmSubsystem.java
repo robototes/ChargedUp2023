@@ -31,13 +31,10 @@ public class ArmSubsystem extends SubsystemBase {
 	public static class ArmConstants {
 
 		// Conversion
-
-		public static final double TICKS_TO_INCHES = 42 / 360; // Maybe unneeded?
 		public static final float ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO = 75;
 		public static final float WRIST_MOTOR_TO_WRIST_ENCODER_RATIO = 90;
 		public static final float ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO = 4;
-		// TODO: this is still incorrect, current delta between extended and retracted is 0.1809 but
-		// should be 0.25
+
 		public static final double SHOULDER_ENCODER_TO_ARM_POSITION_RATIO = 4 / 1;
 		public static final double WRIST_ENCODER_TO_WRIST_POSITION_RATIO = 24 / 1;
 		public static final double SHOULDER_TO_ELBOW_GEAR_RATIO = 64.0 / 48.0;
@@ -46,17 +43,6 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double INNER_ARM_MASS = 4.69;
 		public static final double OUTER_ARM_MASS = 5.03;
 		public static final double INTAKE_MASS = 5.57;
-
-		// Center of mass stuff
-
-		// inches
-		public static final double INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 11.218;
-		public static final double OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 15.712;
-		public static final double WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 10.85;
-		public static final double WRIST_CENTER_OF_MASS_RADIAN_OFFSET = -0.112; // -20.15 / 360
-
-		public static final double INNER_ARM_LENGTH = 25;
-		public static final double OUTER_ARM_LENGTH = 27.25;
 
 		// PID
 		// TODO: Tune PID
@@ -94,8 +80,8 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final float WRIST_FORWARD_LIMIT = 58;
 		public static final float WRIST_REVERSE_LIMIT = 2;
 
-		public static final double ARM_POS_TOLERANCE = 0.01;
-		public static final double WRIST_POS_TOLERANCE = 0.01;
+		public static final double ARM_POS_TOLERANCE = 0.1;
+		public static final double WRIST_POS_TOLERANCE = 0.02;
 
 		public static final double ARM_VELOCITY_TOLERANCE = 0.2;
 		public static final double WRIST_VELOCITY_TOLERANCE = 0.2;
@@ -382,11 +368,13 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	/**
-	 * Calculates the arm's feedforward using the calculated angle towards center of mass.
+	 * Calculates the arm's feedforward using elbow position
 	 *
 	 * @return The calculated feedforward.
 	 */
 	public double calculateArmFeedforward() {
+		// The values below are from our maximum and minimum elbow positions line of best fit for feed
+		// forward values teehee lol smil 
 		// -0.111639604	0.064541504
 		double elbowPosition = getElbowPosition();
 
@@ -456,7 +444,7 @@ public class ArmSubsystem extends SubsystemBase {
 	 * @return If the arm is near the goal or not.
 	 */
 	public boolean isArmNearGoal() {
-		return Math.abs(getElbowPosition() - armPID.getGoal().position) <= 0.1;
+		return Math.abs(getElbowPosition() - armPID.getGoal().position) <= ARM_POS_TOLERANCE;
 	}
 
 	/** Updates the arm motor's output based off of the wrist's goal */
