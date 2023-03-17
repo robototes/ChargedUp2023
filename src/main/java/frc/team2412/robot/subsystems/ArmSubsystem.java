@@ -374,7 +374,7 @@ public class ArmSubsystem extends SubsystemBase {
 	 */
 	public double calculateArmFeedforward() {
 		// The values below are from our maximum and minimum elbow positions line of best fit for feed
-		// forward values teehee lol smil 
+		// forward values teehee lol smil
 		// -0.111639604	0.064541504
 		double elbowPosition = getElbowPosition();
 
