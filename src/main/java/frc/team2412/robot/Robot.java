@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
@@ -160,7 +161,8 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		Shuffleboard.startRecording();
 		// Basic auto path that travels 1 meter, and then balances on the charge station
-		if (subsystems.drivebaseSubsystem != null) {
+		if (subsystems.drivebaseSubsystem != null && subsystems.armSubsystem != null) {
+			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
 			// TODO: change this to not be hardcoded
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
