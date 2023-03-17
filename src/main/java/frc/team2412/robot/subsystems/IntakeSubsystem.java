@@ -31,23 +31,21 @@ public class IntakeSubsystem extends SubsystemBase {
 		public static final double INTAKE_IN_SPEED = 0.33;
 		public static final double INTAKE_OUT_SPEED = -0.05;
 
-		public static final int INTAKE_COLOR_THRESHOLD = 10;
 		public static final double LED_PURPLE = 0.91;
 		public static final double LED_YELLOW = 0.69;
+		public static final double LED_OFF = 0.99;
 
 		// enums
 		public static enum GamePieceType {
 			CUBE(
 					new Color(64, 108, 81),
 					LED_PURPLE,
-					9), // first color is from the color sensor (desaturated green), second is more true to
-			// color
+					9), // first color is from the color sensor (desaturated green), second is true color
 			CONE(
 					new Color(84, 127, 42),
 					LED_YELLOW,
-					7.05), // first color is from the color sensor (desaturated green), second is more true to
-			// color
-			NONE(new Color(0, 0, 0), 0, 8.55); // black
+					7.05), // first color is from the color sensor (desaturated green), second is true color
+			NONE(new Color(0, 0, 0), LED_OFF, 8.55); // black
 
 			public final Color color;
 			public final double ledColor;
@@ -73,11 +71,9 @@ public class IntakeSubsystem extends SubsystemBase {
 	// HARDWARE
 	private final CANSparkMax motor1;
 	private final CANSparkMax motor2;
-	// private final ColorSensorV3 colorSensor;
 	private final AnalogInput distanceSensor;
 
 	// Shuffle Board
-
 	private static GenericEntry intakeNotMovingEntry =
 			Shuffleboard.getTab("Intake").addPersistent("Not Moving", true).withSize(4, 1).getEntry();
 
@@ -94,6 +90,7 @@ public class IntakeSubsystem extends SubsystemBase {
 					.addPersistent("Distance Sensor Value", 0)
 					.withSize(1, 1)
 					.getEntry();
+
 	// CONSTRUCTOR
 	public IntakeSubsystem() {
 		motor1 = new CANSparkMax(INTAKE_MOTOR_1, MotorType.kBrushless);
@@ -101,7 +98,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
 		resetMotors();
 
-		// colorSensor = new ColorSensorV3(Port.kOnboard);
 		distanceSensor = new AnalogInput(INTAKE_DISTANCE_SENSOR);
 
 		// Network Tables
@@ -110,18 +106,15 @@ public class IntakeSubsystem extends SubsystemBase {
 		NTDevices = NTInstance.getTable("Devices");
 
 		gamePieceTypePublisher = NTDevices.getStringTopic("Game Piece").publish();
-		colorPublisher = NTDevices.getStringTopic("color").publish();
 		distancePublisher = NTDevices.getDoubleTopic("Distance").publish();
 		currentSpeedPublisher = NTDevices.getDoubleTopic("Current Speed").publish();
 
 		gamePieceTypePublisher.set("NONE");
-		colorPublisher.set("no color");
 		distancePublisher.set(0.0);
 		currentSpeedPublisher.set(0.0);
 	}
 
 	// METHODS
-
 	public void resetMotors() {
 
 		motor1.restoreFactoryDefaults();
@@ -182,52 +175,11 @@ public class IntakeSubsystem extends SubsystemBase {
 	}
 
 	/**
-	 * Compares the current color sensor value to color values corresponding to game pieces in order
-	 * to detect what is being intaked.
-	 *
-	 * @return The game piece detected.
-	 */
-	public GamePieceType detectType() {
-		// 	if (colorSensorEquals(CUBE.color)) {
-		// 		return GamePieceType.CUBE;
-		// 	} else if (colorSensorEquals(CONE.color)) {
-		// 		return GamePieceType.CONE;
-		// 	}
-		return GamePieceType.NONE;
-	}
-
-	/**
-	 * Compares the current color sensor value to the color specified as a parameter.
-	 *
-	 * @param color Color to compare the color sensor value to.
-	 * @return Whether or not the color sensors value matches the color target.
-	 */
-	public boolean colorSensorEquals(Color color) {
-		// 	// r
-		// 	if (colorSensor.getRed() <= (color.getRed() + INTAKE_COLOR_THRESHOLD)
-		// 			&& colorSensor.getRed() >= (color.getRed() - INTAKE_COLOR_THRESHOLD)) {
-		// 		// g
-		// 		if (colorSensor.getGreen() <= (color.getGreen() + INTAKE_COLOR_THRESHOLD)
-		// 				&& colorSensor.getGreen() >= (color.getGreen() - INTAKE_COLOR_THRESHOLD)) {
-		// 			// b
-		// 			if (colorSensor.getBlue() <= (color.getBlue() + INTAKE_COLOR_THRESHOLD)
-		// 					&& colorSensor.getBlue() >= (color.getBlue() - INTAKE_COLOR_THRESHOLD)) {
-		// 				return true;
-		// 			}
-		// 		}
-		// 	}
-		return false;
-	}
-	/**
 	 * Checks whether or not the game piece is secured.
 	 *
 	 * @return True if the game piece is secured, false if not.
 	 */
 	public boolean isSecured() {
-		// return (getDistance() < GamePieceType.CONE.distanceFromSensor
-		// 		|| (detectType() == GamePieceType.CUBE
-		// 				&& getDistance() < GamePieceType.CUBE.distanceFromSensor));
-
 		return (getDistance() <= GamePieceType.NONE.distanceFromSensor);
 	}
 
@@ -241,6 +193,7 @@ public class IntakeSubsystem extends SubsystemBase {
 		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045)
 				* 27.726; // gets approximately the correct values for both game pieces
 	}
+
 	/**
 	 * Checks whether or not the game piece is inside intake. Used for knowing when to stop outtaking.
 	 *
@@ -265,7 +218,6 @@ public class IntakeSubsystem extends SubsystemBase {
 	@Override
 	public void periodic() {
 		// gamePieceTypePublisher.set(detectType().toString());
-		// colorPublisher.set(colorSensor.getColor().toString());
 		// distancePublisher.set(getDistance());
 		currentSpeedPublisher.set(getSpeed());
 

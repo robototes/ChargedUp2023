@@ -1,19 +1,15 @@
 package frc.team2412.robot.commands.arm;
 
+import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_PRESCORE;
+
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.team2412.robot.commands.arm.SetWristCommand.WristPosition;
 import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType;
-import frc.team2412.robot.subsystems.IntakeSubsystem;
 
 public class SetFullArmCommand extends SequentialCommandGroup {
-	public SetFullArmCommand(
-			ArmSubsystem armSubsystem,
-			IntakeSubsystem intakeSubsystem,
-			PositionType positionType,
-			WristPosition wristPosition) {
+	public SetFullArmCommand(ArmSubsystem armSubsystem, PositionType positionType) {
 		addCommands(
 				new SetArmCommand(armSubsystem, positionType),
-				new SetWristCommand(armSubsystem, intakeSubsystem, wristPosition));
+				new SetWristCommand(armSubsystem, WRIST_PRESCORE));
 	}
 }

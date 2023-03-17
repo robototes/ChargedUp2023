@@ -11,7 +11,7 @@ public class LEDSubsystem extends SubsystemBase {
 
 	public LEDSubsystem() {
 		blinkin = new PWM(BLINKIN_LED);
-		blinkin.setSpeed(0.0); // sets to red
+		blinkin.setSpeed(0.61); // sets to red
 	}
 
 	public void setLED(double color) {
