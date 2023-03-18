@@ -89,8 +89,7 @@ public class Robot extends TimedRobot {
 				.onCommandInterrupt(
 						command -> System.out.println("Command interrupted: " + command.getName()));
 		CommandScheduler.getInstance()
-				.onCommandFinish(
-					command -> System.out.println("Command finished: " + command.getName()));
+				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
 
 		SmartDashboard.putData(CommandScheduler.getInstance());
 		SmartDashboard.putData(subsystems.drivebaseSubsystem);
