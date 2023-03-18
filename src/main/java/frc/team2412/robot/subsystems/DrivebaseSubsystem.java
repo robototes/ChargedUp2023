@@ -50,12 +50,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		Rotation2d.fromDegrees(298.388672),
 		Rotation2d.fromDegrees(314.912109),
 		Rotation2d.fromDegrees(27.685547)
-		// Rotation2d.fromDegrees(-111.796),
-		// Rotation2d.fromDegrees(-28 + 90),
-		// // OLD Rotation2d.fromDegrees(-343.388),
-		// Rotation2d.fromDegrees(-41),
-		// // OLDRotation2d.fromDegrees(-21.796),
-		// Rotation2d.fromDegrees(-332.841)
 	};
 
 	// max drive speed is from SDS website and not calculated with robot weight
@@ -332,6 +326,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		if (Robot.isSimulation()) {
 			ChassisSpeeds speeds = kinematics.toChassisSpeeds(states);
+			// Sim runs 50 times per second
 			updateSimAngle(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond / 50));
 		}
 	}
