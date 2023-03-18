@@ -6,7 +6,6 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.*;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
@@ -79,7 +78,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 		public static final float ARM_FORWARD_LIMIT = 93.8f; // motor rotations
 		public static final float ARM_REVERSE_LIMIT = 2;
-		public static final float WRIST_FORWARD_LIMIT = 58;
+		public static final float WRIST_FORWARD_LIMIT = 72;
 		public static final float WRIST_REVERSE_LIMIT = 2;
 
 		public static final double ARM_POS_TOLERANCE = 0.1;
@@ -252,9 +251,10 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor1.setInverted(false);
 		armMotor1.getEncoder().setPosition(0);
 
-		enableShoulderLimits();
 		armMotor1.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, true);
 		armMotor1.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
+		armMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, ARM_FORWARD_LIMIT);
+		armMotor1.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, ARM_REVERSE_LIMIT);
 		armMotor1.setSmartCurrentLimit(20);
 		armMotor1.setIdleMode(CANSparkMax.IdleMode.kBrake);
 		armMotor1.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 10);
@@ -293,18 +293,6 @@ public class ArmSubsystem extends SubsystemBase {
 		wristPID.setP(p);
 		wristPID.setI(i);
 		wristPID.setD(d);
-	}
-
-	/** Disables the arm shoulder limits */
-	public void disableShoulderLimits() {
-		armMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
-		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
-	}
-
-	/** Enables the arm shoulder limits. */
-	public void enableShoulderLimits() {
-		armMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
-		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
 	}
 
 	public void simInit(PhysicsSim sim) {
