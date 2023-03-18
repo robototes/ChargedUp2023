@@ -115,5 +115,4 @@ public class TalonFXController extends MotorController {
 	public void simulationConfig(PhysicsSim sim) {
 		sim.addTalonFX(motor, 2, 2000, false);
 	}
-
 }

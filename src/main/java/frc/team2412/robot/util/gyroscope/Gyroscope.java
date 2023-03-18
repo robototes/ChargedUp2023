@@ -44,9 +44,7 @@ public abstract class Gyroscope {
 		this.simulated = simulated;
 	}
 
-	/**
-	 * Takes in an angle and adds it to the current angle
-	 **/
+	/** Takes in an angle and adds it to the current angle */
 	public void updateSimulatedAngle(Rotation2d angle) {
 		this.simulatedAngle = this.simulatedAngle.plus(angle);
 	}

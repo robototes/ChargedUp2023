@@ -2,14 +2,11 @@ package frc.team2412.robot.subsystems;
 
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
-
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -25,8 +22,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.Robot;
 import frc.team2412.robot.sim.PhysicsSim;
-import frc.team2412.robot.sim.SimProfile;
-import frc.team2412.robot.sim.SparkMaxSimProfile;
 import frc.team2412.robot.util.ModuleUtil;
 import frc.team2412.robot.util.PFFController;
 import frc.team2412.robot.util.gyroscope.Gyroscope;
@@ -337,7 +332,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		if (Robot.isSimulation()) {
 			ChassisSpeeds speeds = kinematics.toChassisSpeeds(states);
-			updateSimAngle(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond/50));
+			updateSimAngle(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond / 50));
 		}
 	}
 
@@ -432,9 +427,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		gyroscope.setSimulated(true);
 	}
 
-	/**
-	 * Update pose to reflect rotation
-	 */
+	/** Update pose to reflect rotation */
 	private void updateSimAngle(Rotation2d rotation) {
 		gyroscope.updateSimulatedAngle(rotation);
 	}
