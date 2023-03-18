@@ -4,6 +4,7 @@ import static frc.team2412.robot.Controls.ControlConstants.CODRIVER_CONTROLLER_P
 import static frc.team2412.robot.Controls.ControlConstants.CONTROLLER_PORT;
 import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_RETRACT;
 import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_SCORE;
+import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_PRESCORE;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.ARM_HIGH_POSITION;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.ARM_LOW_POSITION;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.ARM_MIDDLE_POSITION;
@@ -123,10 +124,10 @@ public class Controls {
 				new ManualArmOverrideOnCommand(
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
 		armManualControlOff.onTrue(new ManualArmOverrideOffCommand(s.armSubsystem));
-		armLowButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION));
-		armMiddleButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_MIDDLE_POSITION));
-		armHighButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION));
-		armSubstationButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION));
+		armLowButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
+		armMiddleButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
+		armHighButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
+		armSubstationButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE));
 
 		wristRetractButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_RETRACT));
 		// wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, s.intakeSubsystem,
