@@ -2,59 +2,38 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.5552174232310556,
-        "y": 4.483024700646558
+        "x": 1.872484505064023,
+        "y": 4.42702975667234
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5335045930755373,
-        "y": 4.578004037524663
+        "x": 2.850771674908505,
+        "y": 4.522009093550445
       },
-      "holonomicAngle": 0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
+        "names": [
+          "ArmHigh",
+          "WristOut",
+          "IntakeOut"
+        ],
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 6.826570619965885,
-        "y": 4.587501971212473
+        "x": 5.985337956424132,
+        "y": 4.5698371681779
       },
       "prevControl": {
-        "x": 6.826570619965885,
-        "y": 3.5875019712124727
-      },
-      "nextControl": {
-        "x": 6.826570619965885,
-        "y": 3.5875019712124727
-      },
-      "holonomicAngle": 0,
-      "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 1.5837112242944873,
-        "y": 4.473526766958747
-      },
-      "prevControl": {
-        "x": 1.3462628820992246,
-        "y": 4.464028833270936
+        "x": 4.481099888565574,
+        "y": 4.931615943991983
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -64,11 +43,25 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [],
-        "executionBehavior": "parallel",
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.13818181818181446,
+      "names": [
+        "Stow"
+      ]
+    },
+    {
+      "position": 0.567272727272746,
+      "names": [
+        "WristOut",
+        "IntakeIn"
+      ]
+    }
+  ]
 }

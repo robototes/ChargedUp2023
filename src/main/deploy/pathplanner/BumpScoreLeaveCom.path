@@ -20,7 +20,7 @@
           "WristPrescore",
           "IntakeOut"
         ],
-        "executionBehavior": "parallelDeadline",
+        "executionBehavior": "sequential",
         "waitBehavior": "deadline",
         "waitTime": 1.0
       }

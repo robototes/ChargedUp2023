@@ -33,8 +33,8 @@ public class AutonomousTrajectories {
 					new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WristPosition.WRIST_SCORE);
 			SetWristCommand wristPrescore =
 					new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WristPosition.WRIST_PRESCORE);
-			IntakeSetOutCommand intakeOut = new IntakeSetOutCommand(s.intakeSubsystem);
-			IntakeSetInCommand intakeIn = new IntakeSetInCommand(s.intakeSubsystem);
+			Command intakeOut = new IntakeSetOutCommand(s.intakeSubsystem).withTimeout(0.5);
+			Command intakeIn = new IntakeSetInCommand(s.intakeSubsystem).withTimeout(0.5);
 			SetWristCommand wristIn =
 					new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WristPosition.WRIST_RETRACT);
 			SequentialCommandGroup score =
@@ -48,16 +48,19 @@ public class AutonomousTrajectories {
 			Command armHigh =
 					new SetFullArmCommand(
 							s.armSubsystem, s.intakeSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE);
-			Command intake =
-					new IntakeSetInCommand(s.intakeSubsystem).until(s.intakeSubsystem::isSecured);
+			Command stow =
+					new SetFullArmCommand(
+							s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION, WristPosition.WRIST_RETRACT);
 			eventMap.put("ScoreBottom", score);
 
 			eventMap.put("WristRetract", wristIn);
 			eventMap.put("WristPrescore", wristPrescore);
 			eventMap.put("IntakeOut", intakeOut);
+			eventMap.put("IntakeIn", intakeIn);
 			eventMap.put("ArmHigh", armHigh);
 			eventMap.put("WristOut", wristOut);
 			eventMap.put("ArmLow", armLow);
+			eventMap.put("Stow", stow);
 		}
 		Command fullAuto = Robot.getInstance().getAutoBuilder(eventMap).fullAuto(pathGroup);
 		return fullAuto;

@@ -4,6 +4,8 @@ import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -12,13 +14,18 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
 import io.github.oblarg.oblog.Logger;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Robot extends TimedRobot {
 	/** Singleton Stuff */
@@ -82,12 +89,29 @@ public class Robot extends TimedRobot {
 
 		CommandScheduler.getInstance()
 				.onCommandInitialize(
-						command -> System.out.println("Command initialized: " + command.getName()));
+						command -> {
+							System.out.println("Command initialized: " + command.getName());
+						}
+				);
 		CommandScheduler.getInstance()
 				.onCommandInterrupt(
-						command -> System.out.println("Command interrupted: " + command.getName()));
+						command -> {
+							System.out.println("Command interrupted: " + command.getName());
+						}
+				);
 		CommandScheduler.getInstance()
-				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
+				.onCommandFinish(
+						command -> {
+							System.out.println("Command finished: " + command.getName());
+						}
+				);
+
+		SmartDashboard.putData(CommandScheduler.getInstance());
+		SmartDashboard.putData(subsystems.drivebaseSubsystem);
+		SmartDashboard.putData(subsystems.armSubsystem);
+		SmartDashboard.putData(subsystems.ledSubsystem);
+		SmartDashboard.putData(subsystems.intakeSubsystem);
+		SmartDashboard.putData(subsystems.visionSubsystem);
 
 		PathPlannerServer.startServer(5811);
 	}
@@ -106,7 +130,7 @@ public class Robot extends TimedRobot {
 					// Y
 					// PID controllers)
 					new PIDConstants(
-							2.0, 0.0,
+							3.0, 0.0,
 							0.0), // PID constants to correct for rotation error (used to create the rotation
 					// controller)
 					subsystems.drivebaseSubsystem
@@ -137,7 +161,8 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		Shuffleboard.startRecording();
 		// Basic auto path that travels 1 meter, and then balances on the charge station
-		if (subsystems.drivebaseSubsystem != null) {
+		if (subsystems.drivebaseSubsystem != null && subsystems.armSubsystem != null) {
+			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
 			// TODO: change this to not be hardcoded
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
