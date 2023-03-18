@@ -3,6 +3,7 @@ package frc.team2412.robot.util.motorcontroller;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import frc.team2412.robot.Hardware;
+import frc.team2412.robot.sim.PhysicsSim;
 
 public class TalonFXController extends MotorController {
 	private static final double TICKS_PER_ROTATION = 2048.0;
@@ -109,4 +110,10 @@ public class TalonFXController extends MotorController {
 	public void setMeasurementPeriod(int periodMS) {
 		// nothing hehe
 	}
+
+	@Override
+	public void simulationConfig(PhysicsSim sim) {
+		sim.addTalonFX(motor, 2, 2000, false);
+	}
+
 }

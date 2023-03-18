@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 
+import frc.team2412.robot.sim.PhysicsSim;
+
 public abstract class MotorController {
 	public enum MotorNeutralMode {
 		COAST(NeutralMode.Coast, IdleMode.kCoast),
@@ -82,4 +84,6 @@ public abstract class MotorController {
 	public abstract double getVelocity();
 
 	public abstract void setMeasurementPeriod(int periodMS);
+
+	public abstract void simulationConfig(PhysicsSim sim);
 }

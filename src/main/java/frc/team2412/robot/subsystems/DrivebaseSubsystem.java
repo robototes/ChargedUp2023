@@ -2,11 +2,14 @@ package frc.team2412.robot.subsystems;
 
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
+
+import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -22,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.Robot;
 import frc.team2412.robot.sim.PhysicsSim;
+import frc.team2412.robot.sim.SimProfile;
+import frc.team2412.robot.sim.SparkMaxSimProfile;
 import frc.team2412.robot.util.ModuleUtil;
 import frc.team2412.robot.util.PFFController;
 import frc.team2412.robot.util.gyroscope.Gyroscope;
@@ -329,6 +334,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		frontRightTargetAnglePublisher.set(states[1].angle.getDegrees());
 		backLeftTargetAnglePublisher.set(states[2].angle.getDegrees());
 		backRightTargetAnglePublisher.set(states[3].angle.getDegrees());
+
+		if (Robot.isSimulation()) {
+			ChassisSpeeds speeds = kinematics.toChassisSpeeds(states);
+			updateSimAngle(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond/50));
+		}
 	}
 
 	/**
@@ -416,9 +426,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void simInit(PhysicsSim sim) {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			// sim.addTalonFX(moduleDriveMotors[i], 2, 20000, true);
-			// sim.addTalonFX(moduleAngleMotors[i], 2, 20000);
+			moduleDriveMotors[i].simulationConfig(sim);
+			moduleAngleMotors[i].simulationConfig(sim);
 		}
+		gyroscope.setSimulated(true);
+	}
+
+	/**
+	 * Update pose to reflect rotation
+	 */
+	private void updateSimAngle(Rotation2d rotation) {
+		gyroscope.updateSimulatedAngle(rotation);
 	}
 
 	private void configureNetworkTables() {
