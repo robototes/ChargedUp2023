@@ -31,21 +31,17 @@ public class IntakeSubsystem extends SubsystemBase {
 		public static final double INTAKE_IN_SPEED = 0.33;
 		public static final double INTAKE_OUT_SPEED = -0.05;
 
-		public static final double LED_PURPLE = 0.91;
-		public static final double LED_YELLOW = 0.69;
-		public static final double LED_OFF = 0.99;
-
 		// enums
 		public static enum GamePieceType {
 			CUBE(
 					new Color(64, 108, 81),
-					LED_PURPLE,
+					LEDSubsystem.LED_PURPLE,
 					9), // first color is from the color sensor (desaturated green), second is true color
 			CONE(
 					new Color(84, 127, 42),
-					LED_YELLOW,
+					LEDSubsystem.LED_YELLOW,
 					7.05), // first color is from the color sensor (desaturated green), second is true color
-			NONE(new Color(0, 0, 0), LED_OFF, 8.55); // black
+			NONE(new Color(0, 0, 0), LEDSubsystem.LED_OFF, 8.55); // black
 
 			public final Color color;
 			public final double ledColor;

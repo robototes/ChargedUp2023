@@ -113,7 +113,6 @@ public class ArmSubsystem extends SubsystemBase {
 		 * Values are angles that correspond to specific arm positions:
 		 * Arm Angle
 		 * Retracted Wrist Angle
-		 * Retracted Wrist Angle (cone edition)
 		 * Prescore Wrist Angle
 		 * Scoring Wrist Angle
 		 */

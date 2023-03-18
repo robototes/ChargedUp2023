@@ -7,11 +7,16 @@ import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LEDSubsystem extends SubsystemBase {
+	public static final double LED_PURPLE = 0.91;
+	public static final double LED_YELLOW = 0.69;
+	public static final double LED_OFF = 0.99;
+	public static final double LED_RED = 0.61;
+	
 	private final PWM blinkin;
 
 	public LEDSubsystem() {
 		blinkin = new PWM(BLINKIN_LED);
-		blinkin.setSpeed(0.61); // sets to red
+		blinkin.setSpeed(LED_RED); // sets to red
 	}
 
 	public void setLED(double color) {
