@@ -42,6 +42,8 @@ public class AutonomousChooser {
 				"ChargePickupBot", () -> AutonomousTrajectories.getAutoPathByName("ChargePickupBot"));
 		autonomousModeChooser.addOption(
 				"BumpScoreTwo", () -> AutonomousTrajectories.getAutoPathByName("BumpScoreTwo"));
+		autonomousModeChooser.addOption(
+				"FlatScoreThree", () -> AutonomousTrajectories.getAutoPathByName("FlatScoreThree"));
 
 		// There are more paths that have been created in the deploy/pathplanner path, they should work
 		// however they have not been tested and thus are not added here yet.

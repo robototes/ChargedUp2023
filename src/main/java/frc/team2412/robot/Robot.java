@@ -4,8 +4,6 @@ import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
@@ -22,10 +20,7 @@ import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
 import io.github.oblarg.oblog.Logger;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Robot extends TimedRobot {
 	/** Singleton Stuff */
@@ -91,20 +86,17 @@ public class Robot extends TimedRobot {
 				.onCommandInitialize(
 						command -> {
 							System.out.println("Command initialized: " + command.getName());
-						}
-				);
+						});
 		CommandScheduler.getInstance()
 				.onCommandInterrupt(
 						command -> {
 							System.out.println("Command interrupted: " + command.getName());
-						}
-				);
+						});
 		CommandScheduler.getInstance()
 				.onCommandFinish(
 						command -> {
 							System.out.println("Command finished: " + command.getName());
-						}
-				);
+						});
 
 		SmartDashboard.putData(CommandScheduler.getInstance());
 		SmartDashboard.putData(subsystems.drivebaseSubsystem);
