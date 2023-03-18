@@ -48,15 +48,80 @@ public class VisionSubsystem extends SubsystemBase {
 							// +Z/up, fingers curl in positive rotation (CCW looking down))
 							new Rotation3d(0, 0, Math.toRadians(-6.5)))
 					: new Transform3d(
-							new Translation3d(
-									// 0.5 inches from front of robot, front is +half of length (24 in.)
-									Units.inchesToMeters(24 * 0.5 - 0.5),
-									// Around 1 inch to the right
-									Units.inchesToMeters(1),
-									// 26.5 inches above the ground
-									Units.inchesToMeters(26.5)),
-							// Camera's pointed backwards
-							new Rotation3d(0, 0, Math.toRadians(180)));
+							new Translation3d(0, 0, Units.inchesToMeters(28)),
+							// Camera's upside down
+							new Rotation3d(Math.toRadians(180), 0, 0));
+	
+	/*
+	Test data:
+	1
+	Physical: 80cm back, 0 left/right
+	PV: 0.79 m, 0.08 m, -177.10°
+
+	2
+	Physical: 150cm back, 2cm right
+	PV: 1.48 m, 0.12 m, -179.03°
+
+	3
+	Physical: 202cm back, 3cm right
+	PV: 1.98 m, 0.11 m, 175.24°
+
+	4
+	Physical 201cm back, 0cm left/right, 23 degrees CCW
+	1.86 m	-0.69 m	153.29°
+
+	5
+	Physical: 201cm back, 1cm right, 23 degrees CW
+	PV: 1.84 m, 0.85 m, -162.76°
+
+	6
+	Physical: 201cm back, 44 cm left, 23 degree CW
+	PV: 2.00 m, 0.45 m, -156.56°
+
+	7
+	Physical: 201cm back, 44 cm left, 0 rotation
+	PV: 2.00 m, -0.34 m, -179.24°
+
+	8
+	Physical: 148cm back, 43cm left, 0 rotation
+	PV: 1.45 m, -0.37 m, 179.29°
+
+	9
+	Physical: 148cm back, 43 cm, 23 degree CW
+	PV: 1.52 m, 0.20 m, -157.96°
+
+	10
+	Physical: 100cm back, 41cm left, 0 rot
+	PV: 0.98 m, -0.40 m, -179.83°
+
+	11
+	Physical: 100cm back, 41cm left, 23 CW
+	PV: 1.08 m, 0.01 m, -159.04°
+
+	12
+	Physical: 100cm back, 46cm right, 0 CW
+	PV: 0.98 m, 0.52 m, 176.56°
+
+	13
+	Physical: 100cm back, 46cm right, 23 CCW
+	PV: 1.10 m, 0.05 m, 157.16°
+
+	14
+	Physical: 150cm back, 47cm right, 0 rot
+	PV: 1.48 m, 0.51 m, 178.36°	
+
+	15
+	Physical: 150cm back, 47cm right, 23 CCW
+	PV: 1.52 m, -0.07 m, 160.33°
+
+	16
+	Physical: 200cm back, 46cm right, 0 rot
+	PV: 1.98 m, 0.49 m, 177.86°	
+
+	17
+	Physical: 200cm back, 46cm right, 23 CCW
+	PV: 1.99 m, -0.31 m, 161.76°
+	*/
 
 	private PhotonCamera photonCamera;
 	private Optional<EstimatedRobotPose> latestPose = Optional.empty();
