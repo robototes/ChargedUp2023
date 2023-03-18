@@ -2,7 +2,7 @@
 {
 	"name": "/Shuffleboard/Drivebase/Drive Speed",
 	"type": "double",
-	"value": 2.0,
+	"value": 1.0,
 	"properties": {
 	"persistent": true
 	}

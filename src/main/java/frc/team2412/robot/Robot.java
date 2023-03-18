@@ -84,19 +84,13 @@ public class Robot extends TimedRobot {
 
 		CommandScheduler.getInstance()
 				.onCommandInitialize(
-						command -> {
-							System.out.println("Command initialized: " + command.getName());
-						});
+						command -> System.out.println("Command initialized: " + command.getName()));
 		CommandScheduler.getInstance()
 				.onCommandInterrupt(
-						command -> {
-							System.out.println("Command interrupted: " + command.getName());
-						});
+						command -> System.out.println("Command interrupted: " + command.getName()));
 		CommandScheduler.getInstance()
 				.onCommandFinish(
-						command -> {
-							System.out.println("Command finished: " + command.getName());
-						});
+					command -> System.out.println("Command finished: " + command.getName()));
 
 		SmartDashboard.putData(CommandScheduler.getInstance());
 		SmartDashboard.putData(subsystems.drivebaseSubsystem);
