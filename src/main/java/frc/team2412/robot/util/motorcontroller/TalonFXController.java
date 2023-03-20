@@ -4,9 +4,11 @@ import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.sim.PhysicsSim;
+import frc.team2412.robot.sim.TalonFXSimProfile;
 
 public class TalonFXController extends MotorController {
 	private static final double TICKS_PER_ROTATION = 2048.0;
+	private static final double ACCEL_TO_FULL_TIME = 2.0;
 
 	private final WPI_TalonFX motor;
 	private final int motorPIDIndex = 0;
@@ -113,6 +115,6 @@ public class TalonFXController extends MotorController {
 
 	@Override
 	public void simulationConfig(PhysicsSim sim) {
-		sim.addTalonFX(motor, 2, 2000, false);
+		sim.addTalonFX(motor, ACCEL_TO_FULL_TIME, TalonFXSimProfile.TalonFXConstants.FREE_SPEED_RPM * TalonFXSimProfile.TalonFXConstants.RPM_TO_VELOCITY, false);
 	}
 }

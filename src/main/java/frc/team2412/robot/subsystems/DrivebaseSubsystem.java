@@ -419,7 +419,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			moduleDriveMotors[i].simulationConfig(sim);
 			moduleAngleMotors[i].simulationConfig(sim);
 		}
-		gyroscope.setSimulated(true);
 	}
 
 	/** Update pose to reflect rotation */
