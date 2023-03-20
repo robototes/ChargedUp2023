@@ -115,6 +115,11 @@ public class TalonFXController extends MotorController {
 
 	@Override
 	public void simulationConfig(PhysicsSim sim) {
-		sim.addTalonFX(motor, ACCEL_TO_FULL_TIME, TalonFXSimProfile.TalonFXConstants.FREE_SPEED_RPM * TalonFXSimProfile.TalonFXConstants.RPM_TO_VELOCITY, false);
+		sim.addTalonFX(
+				motor,
+				ACCEL_TO_FULL_TIME,
+				TalonFXSimProfile.TalonFXConstants.FREE_SPEED_RPM
+						* TalonFXSimProfile.TalonFXConstants.RPM_TO_VELOCITY,
+				false);
 	}
 }
