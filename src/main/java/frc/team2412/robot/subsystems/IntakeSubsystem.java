@@ -28,7 +28,7 @@ public class IntakeSubsystem extends SubsystemBase {
 	public static class IntakeConstants {
 		// speeds
 		public static final double INTAKE_HOLD_SPEED = 0.12;
-		public static final double INTAKE_IN_SPEED = 0.33;
+		public static final double INTAKE_IN_SPEED = 1.0;
 		public static final double INTAKE_OUT_SPEED = -0.05;
 
 		public static final int INTAKE_COLOR_THRESHOLD = 10;
