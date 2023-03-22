@@ -8,6 +8,7 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.team2412.robot.Robot;
 import frc.team2412.robot.Subsystems;
 import frc.team2412.robot.commands.arm.SetFullArmCommand;
@@ -29,28 +30,19 @@ public class AutonomousTrajectories {
 		eventMap.put(
 				"AutoBalance", new AutoBalanceCommand(Robot.getInstance().subsystems.drivebaseSubsystem));
 		if (!(s.intakeSubsystem == null) && !(s.armSubsystem == null)) {
-			SetWristCommand wristOut =
-					new SetWristCommand(s.armSubsystem,  WristPosition.WRIST_SCORE);
+			SetWristCommand wristOut = new SetWristCommand(s.armSubsystem, WristPosition.WRIST_SCORE);
 			SetWristCommand wristPrescore =
-					new SetWristCommand(s.armSubsystem,  WristPosition.WRIST_PRESCORE);
+					new SetWristCommand(s.armSubsystem, WristPosition.WRIST_PRESCORE);
 			Command intakeOut = new IntakeSetOutCommand(s.intakeSubsystem).withTimeout(0.5);
 			Command intakeIn = new IntakeSetInCommand(s.intakeSubsystem).withTimeout(0.5);
-			SetWristCommand wristIn =
-					new SetWristCommand(s.armSubsystem,  WristPosition.WRIST_RETRACT);
+			SetWristCommand wristIn = new SetWristCommand(s.armSubsystem, WristPosition.WRIST_RETRACT);
 			SequentialCommandGroup score =
 					new SequentialCommandGroup(intakeIn, wristOut, intakeOut.withTimeout(1.5), wristIn);
-			Command armLow =
-					new SetFullArmCommand(
-							s.armSubsystem,  ARM_LOW_POSITION, WRIST_PRESCORE);
-			Command armMed =
-					new SetFullArmCommand(
-							s.armSubsystem,  ARM_MIDDLE_POSITION, WRIST_PRESCORE);
-			Command armHigh =
-					new SetFullArmCommand(
-							s.armSubsystem,  ARM_HIGH_POSITION, WRIST_PRESCORE);
+			Command armLow = new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_PRESCORE);
+			Command armMid = new SetFullArmCommand(s.armSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE);
+			Command armHigh = new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE);
 			Command stow =
-					new SetFullArmCommand(
-							s.armSubsystem,  ARM_LOW_POSITION, WristPosition.WRIST_RETRACT);
+					new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WristPosition.WRIST_RETRACT);
 			eventMap.put("ScoreBottom", score);
 
 			eventMap.put("WristRetract", wristIn);
@@ -60,7 +52,9 @@ public class AutonomousTrajectories {
 			eventMap.put("ArmHigh", armHigh);
 			eventMap.put("WristOut", wristOut);
 			eventMap.put("ArmLow", armLow);
+			eventMap.put("ArmMid", armMid);
 			eventMap.put("Stow", stow);
+			eventMap.put("Wait", new WaitCommand(0.5));
 		}
 		Command fullAuto = Robot.getInstance().getAutoBuilder(eventMap).fullAuto(pathGroup);
 		return fullAuto;

@@ -65,7 +65,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			Rotation2d.fromRotations(IS_COMP ? 0.8574 : 1.0724);
 
 	// magic number found by trial and error (aka informal characterization)
-	private static final double ODOMETRY_ADJUSTMENT = 0.957;
+	private static final double ODOMETRY_ADJUSTMENT = 0.973748457;
 	// 4 inches * odemetry adjustment
 	private static final double WHEEL_DIAMETER_METERS =
 			IS_COMP ? 0.1016 * ODOMETRY_ADJUSTMENT : 0.1016;

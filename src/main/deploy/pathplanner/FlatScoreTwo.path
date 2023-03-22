@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.850771674908505,
-        "y": 4.522009093550445
+        "x": 3.188726719333781,
+        "y": 4.63618226381752
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -19,6 +19,7 @@
         "names": [
           "ArmHigh",
           "WristOut",
+          "Wait",
           "IntakeOut"
         ],
         "executionBehavior": "sequential",
@@ -28,22 +29,22 @@
     },
     {
       "anchorPoint": {
-        "x": 6.043518753704178,
-        "y": 4.6019247594050725
+        "x": 5.7352012139921715,
+        "y": 4.5905055912675925
       },
       "prevControl": {
-        "x": 4.122347643691202,
-        "y": 5.2423151294093815
+        "x": 3.736846789932893,
+        "y": 5.218559838829082
       },
       "nextControl": {
-        "x": 6.214806275766398,
-        "y": 4.544828918717667
+        "x": 5.9074475475860435,
+        "y": 4.536371029280947
       },
       "holonomicAngle": 0,
       "isReversal": false,
-      "velOverride": 0.5,
+      "velOverride": 0.1,
       "isLocked": false,
-      "isStopPoint": false,
+      "isStopPoint": true,
       "stopEvent": {
         "names": [],
         "executionBehavior": "sequential",
@@ -78,16 +79,16 @@
     },
     {
       "anchorPoint": {
-        "x": 4.224136789505807,
-        "y": 5.052900721915188
+        "x": 4.273547692394531,
+        "y": 4.853146458429669
       },
       "prevControl": {
-        "x": 5.160508576779296,
-        "y": 5.132834898877561
+        "x": 5.187081143393057,
+        "y": 4.624763095680038
       },
       "nextControl": {
-        "x": 3.2877650022323177,
-        "y": 4.972966544952816
+        "x": 3.3438010955554756,
+        "y": 5.085583107639433
       },
       "holonomicAngle": -180.0,
       "isReversal": false,
@@ -103,12 +104,12 @@
     },
     {
       "anchorPoint": {
-        "x": 1.8591513012409915,
-        "y": 4.445032965895316
+        "x": 1.3959173217491736,
+        "y": 5.195721502554116
       },
       "prevControl": {
-        "x": 1.402276337181183,
-        "y": 4.391103103103844
+        "x": 0.9390423576893652,
+        "y": 5.141791639762644
       },
       "nextControl": null,
       "holonomicAngle": -180.0,
@@ -118,8 +119,9 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "ArmMed",
+          "ArmHigh",
           "WristOut",
+          "Wait",
           "IntakeOut"
         ],
         "executionBehavior": "sequential",
@@ -140,6 +142,13 @@
       "names": [
         "WristOut",
         "IntakeIn"
+      ]
+    },
+    {
+      "position": 2.4436363636362266,
+      "names": [
+        "event",
+        "Stow"
       ]
     }
   ]
