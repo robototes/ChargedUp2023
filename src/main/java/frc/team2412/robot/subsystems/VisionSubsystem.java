@@ -84,7 +84,8 @@ public class VisionSubsystem extends SubsystemBase {
 	public VisionSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
 		poseEstimator = initialPoseEstimator;
 		synchronized (poseEstimator) {
-			poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.0385, 0.0392, Math.toRadians(2.85)));
+			poseEstimator.setVisionMeasurementStdDevs(
+					VecBuilder.fill(0.0385, 0.0392, Math.toRadians(2.85)));
 		}
 
 		var networkTables = NetworkTableInstance.getDefault();
