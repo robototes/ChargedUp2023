@@ -14,9 +14,7 @@ public class SetWristCommand extends CommandBase {
 		WRIST_SCORE;
 	}
 
-	public SetWristCommand(
-			ArmSubsystem armSubsystem,
-			WristPosition targetWristPosition) {
+	public SetWristCommand(ArmSubsystem armSubsystem, WristPosition targetWristPosition) {
 		this.armSubsystem = armSubsystem;
 		this.targetWristPosition = targetWristPosition;
 		addRequirements(armSubsystem);

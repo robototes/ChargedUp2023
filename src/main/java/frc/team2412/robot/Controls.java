@@ -20,7 +20,6 @@ import frc.team2412.robot.commands.arm.SetFullArmCommand;
 import frc.team2412.robot.commands.arm.SetWristCommand;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
 import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
-import frc.team2412.robot.commands.intake.IntakeOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetStopCommand;
@@ -126,20 +125,14 @@ public class Controls {
 				new ManualArmOverrideOnCommand(
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
 		armManualControlOff.onTrue(new ManualArmOverrideOffCommand(s.armSubsystem));
-		armLowButton.onTrue(
-				new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
+		armLowButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
 		armMiddleButton.onTrue(
-				new SetFullArmCommand(
-						s.armSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
-		armHighButton.onTrue(
-				new SetFullArmCommand(
-						s.armSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
+				new SetFullArmCommand(s.armSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
+		armHighButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
 		armSubstationButton.onTrue(
-				new SetFullArmCommand(
-						s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE));
+				new SetFullArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE));
 
-		wristCarryButton.onTrue(
-				new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
+		wristCarryButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
 		wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_PRESCORE));
 		wristScoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_SCORE));
 		wristIntakeButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_SCORE));
@@ -152,11 +145,7 @@ public class Controls {
 		// Drive Buttons
 
 		driveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
-		if (Subsystems.SubsystemConstants.LED_ENABLED) {
-			driveIntakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
-		} else {
-			driveIntakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
-		}
+		driveIntakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
 
 		driveIntakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
 

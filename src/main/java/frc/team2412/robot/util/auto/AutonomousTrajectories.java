@@ -22,14 +22,12 @@ public class AutonomousTrajectories {
 		List<PathPlannerTrajectory> pathGroup =
 				PathPlanner.loadPathGroup(name, new PathConstraints(2, 2.0));
 		HashMap<String, Command> eventMap = new HashMap<String, Command>();
-		SetWristCommand wristOut =
-				new SetWristCommand(s.armSubsystem, WristPosition.WRIST_SCORE);
+		SetWristCommand wristOut = new SetWristCommand(s.armSubsystem, WristPosition.WRIST_SCORE);
 		SetWristCommand wristPrescore =
 				new SetWristCommand(s.armSubsystem, WristPosition.WRIST_PRESCORE);
 		IntakeSetOutCommand intakeOut = new IntakeSetOutCommand(s.intakeSubsystem);
 		IntakeSetInCommand intakeIn = new IntakeSetInCommand(s.intakeSubsystem);
-		SetWristCommand wristIn =
-				new SetWristCommand(s.armSubsystem, WristPosition.WRIST_RETRACT);
+		SetWristCommand wristIn = new SetWristCommand(s.armSubsystem, WristPosition.WRIST_RETRACT);
 		SequentialCommandGroup score =
 				new SequentialCommandGroup(intakeIn, wristOut, intakeOut.withTimeout(1.5), wristIn);
 		Command intake = new IntakeSetInCommand(s.intakeSubsystem).until(s.intakeSubsystem::isSecured);

@@ -7,9 +7,7 @@ import frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType;
 
 public class SetFullArmCommand extends SequentialCommandGroup {
 	public SetFullArmCommand(
-			ArmSubsystem armSubsystem,
-			PositionType positionType,
-			WristPosition wristPosition) {
+			ArmSubsystem armSubsystem, PositionType positionType, WristPosition wristPosition) {
 		addCommands(
 				new SetArmCommand(armSubsystem, positionType),
 				new SetWristCommand(armSubsystem, wristPosition));
