@@ -46,13 +46,14 @@ public class Controls {
 	public final Trigger armHighButton;
 	public final Trigger armSubstationButton;
 
-	public final Trigger wristRetractButton;
-	// public final Trigger wristPrescoreButton;
+	public final Trigger wristCarryButton;
+	public final Trigger wristPrescoreButton;
 	public final Trigger wristScoreButton;
+	public final Trigger wristIntakeButton;
 
 	// intake
-	// public final Trigger codriveIntakeInButton;
-	// public final Trigger codriveIntakeOutButton;
+	public final Trigger codriveIntakeInButton;
+	public final Trigger codriveIntakeOutButton;
 	// public final Trigger codriveIntakeStopButton;
 	public final Trigger driveIntakeInButton;
 	public final Trigger driveIntakeOutButton;
@@ -70,20 +71,21 @@ public class Controls {
 
 		// TODO: reimpliment arm + wrist presets after comp
 
-		armManualControlOn = codriveController.rightTrigger();
-		armManualControlOff = codriveController.leftTrigger();
+		armManualControlOn = codriveController.start();
+		armManualControlOff = codriveController.back();
 
 		armLowButton = codriveController.y();
 		armMiddleButton = codriveController.x();
 		armHighButton = codriveController.a();
 		armSubstationButton = codriveController.b();
 
-		wristRetractButton = codriveController.povRight();
-		wristScoreButton = codriveController.povLeft();
+		wristCarryButton = codriveController.povDown();
+		wristScoreButton = codriveController.povRight();
+		wristPrescoreButton = codriveController.povLeft();
+		wristIntakeButton = codriveController.povUp();
 
-		// codriveIntakeInButton = codriveController.a();
-		// codriveIntakeOutButton = codriveController.y();
-		// codriveIntakeStopButton = codriveController.b();
+		codriveIntakeInButton = codriveController.rightTrigger();
+		codriveIntakeOutButton = codriveController.leftTrigger();
 		driveIntakeInButton = driveController.a();
 		driveIntakeOutButton = driveController.y();
 		driveIntakeStopButton = driveController.b();
@@ -125,22 +127,22 @@ public class Controls {
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
 		armManualControlOff.onTrue(new ManualArmOverrideOffCommand(s.armSubsystem));
 		armLowButton.onTrue(
-				new SetFullArmCommand(s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
+				new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
 		armMiddleButton.onTrue(
 				new SetFullArmCommand(
-						s.armSubsystem, s.intakeSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
+						s.armSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
 		armHighButton.onTrue(
 				new SetFullArmCommand(
-						s.armSubsystem, s.intakeSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
+						s.armSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
 		armSubstationButton.onTrue(
 				new SetFullArmCommand(
-						s.armSubsystem, s.intakeSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE));
+						s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE));
 
-		wristRetractButton.onTrue(
-				new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_RETRACT));
-		// wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, s.intakeSubsystem,
-		// WRIST_PRESCORE));
-		wristScoreButton.onTrue(new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WRIST_SCORE));
+		wristCarryButton.onTrue(
+				new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
+		wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_PRESCORE));
+		wristScoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_SCORE));
+		wristIntakeButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_SCORE));
 	}
 
 	public void bindIntakeControls() {
@@ -159,7 +161,8 @@ public class Controls {
 		driveIntakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
 
 		// Codrive buttons
-		// codriveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
+		codriveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
+		codriveIntakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
 		// if (Subsystems.SubsystemConstants.LED_ENABLED) {
 		// 	codriveIntakeOutButton.onTrue(new IntakeOutCommand(s.intakeSubsystem, s.ledSubsystem));
 		// } else {

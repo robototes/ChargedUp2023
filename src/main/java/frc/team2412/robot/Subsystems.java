@@ -44,8 +44,6 @@ public class Subsystems {
 				new SwerveDrivePoseEstimator(
 						DrivebaseSubsystem.kinematics, new Rotation2d(), pseudoPositions, new Pose2d());
 
-		boolean comp = Robot.getInstance().isCompetition();
-
 		if (DRIVEBASE_ENABLED) {
 			drivebaseSubsystem = new DrivebaseSubsystem(poseEstimator);
 		}
