@@ -131,11 +131,11 @@ public class ArmSubsystem extends SubsystemBase {
 		 * Scoring Wrist Angle
 		 */
 		public static enum PositionType {
-			UNKNOWN_POSITION(0.212, 0.122, 0.122, 0.477, 0.477),
-			ARM_LOW_POSITION(0.212, 0.122, 0.122, 0.477, 0.477),
-			ARM_MIDDLE_POSITION(0.415, 0.122, 0.122, 0.459, 0.521),
-			ARM_HIGH_POSITION(0.6546, 0.122, 0.122, 0.473, 0.52),
-			ARM_SUBSTATION_POSITION(0.567, 0.122, 0.122, 0.57, 0.57); // ?
+			UNKNOWN_POSITION(0.212, 0.05, 0.05, 0.46, 0.46),
+			ARM_LOW_POSITION(0.212, 0.05, 0.05, 0.46, 0.46),
+			ARM_MIDDLE_POSITION(0.415, 0.05, 0.05, 0.42, 0.43),
+			ARM_HIGH_POSITION(0.6546, 0.05, 0.05, 0.465, 0.473),
+			ARM_SUBSTATION_POSITION(0.6, 0.05, 0.05, 0.56, 0.56); // ?
 
 			public final double armAngle;
 			public final double retractedWristAngle;
@@ -213,7 +213,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 		elbowEncoder = armMotor1.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 		wristEncoder = wristMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
-		wristEncoder.setZeroOffset(0.055);
+		wristEncoder.setZeroOffset(0.239);
 		wristEncoder.setInverted(true);
 		elbowEncoder.setInverted(true);
 
@@ -293,7 +293,7 @@ public class ArmSubsystem extends SubsystemBase {
 		wristMotor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, true);
 		wristMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, WRIST_FORWARD_LIMIT);
 		wristMotor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, WRIST_REVERSE_LIMIT);
-		wristMotor.setSmartCurrentLimit(20);
+		wristMotor.setSmartCurrentLimit(25);
 		wristMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
 
 		setWristPID(WRIST_DEFAULT_P, WRIST_DEFAULT_I, WRIST_DEFAULT_D);
@@ -531,7 +531,7 @@ public class ArmSubsystem extends SubsystemBase {
 	}
 
 	public boolean isArmNearGoal() {
-		return Math.abs(getElbowPosition() - armPID.getGoal().position) <= 0.1;
+		return Math.abs(getElbowPosition() - armPID.getGoal().position) <= 0.2;
 	}
 
 	/** Updates the arm motor's output based off of the wrist's goal */

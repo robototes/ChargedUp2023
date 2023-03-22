@@ -30,27 +30,27 @@ public class AutonomousTrajectories {
 				"AutoBalance", new AutoBalanceCommand(Robot.getInstance().subsystems.drivebaseSubsystem));
 		if (!(s.intakeSubsystem == null) && !(s.armSubsystem == null)) {
 			SetWristCommand wristOut =
-					new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WristPosition.WRIST_SCORE);
+					new SetWristCommand(s.armSubsystem,  WristPosition.WRIST_SCORE);
 			SetWristCommand wristPrescore =
-					new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WristPosition.WRIST_PRESCORE);
+					new SetWristCommand(s.armSubsystem,  WristPosition.WRIST_PRESCORE);
 			Command intakeOut = new IntakeSetOutCommand(s.intakeSubsystem).withTimeout(0.5);
 			Command intakeIn = new IntakeSetInCommand(s.intakeSubsystem).withTimeout(0.5);
 			SetWristCommand wristIn =
-					new SetWristCommand(s.armSubsystem, s.intakeSubsystem, WristPosition.WRIST_RETRACT);
+					new SetWristCommand(s.armSubsystem,  WristPosition.WRIST_RETRACT);
 			SequentialCommandGroup score =
 					new SequentialCommandGroup(intakeIn, wristOut, intakeOut.withTimeout(1.5), wristIn);
 			Command armLow =
 					new SetFullArmCommand(
-							s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION, WRIST_PRESCORE);
+							s.armSubsystem,  ARM_LOW_POSITION, WRIST_PRESCORE);
 			Command armMed =
 					new SetFullArmCommand(
-							s.armSubsystem, s.intakeSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE);
+							s.armSubsystem,  ARM_MIDDLE_POSITION, WRIST_PRESCORE);
 			Command armHigh =
 					new SetFullArmCommand(
-							s.armSubsystem, s.intakeSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE);
+							s.armSubsystem,  ARM_HIGH_POSITION, WRIST_PRESCORE);
 			Command stow =
 					new SetFullArmCommand(
-							s.armSubsystem, s.intakeSubsystem, ARM_LOW_POSITION, WristPosition.WRIST_RETRACT);
+							s.armSubsystem,  ARM_LOW_POSITION, WristPosition.WRIST_RETRACT);
 			eventMap.put("ScoreBottom", score);
 
 			eventMap.put("WristRetract", wristIn);

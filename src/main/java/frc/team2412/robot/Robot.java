@@ -105,6 +105,8 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putData(subsystems.intakeSubsystem);
 		SmartDashboard.putData(subsystems.visionSubsystem);
 
+		DriverStation.silenceJoystickConnectionWarning(true);
+
 		PathPlannerServer.startServer(5811);
 	}
 
@@ -159,6 +161,9 @@ public class Robot extends TimedRobot {
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
 		}
+
+		// Checks if FMS is attatched and enables joystick warning if true
+		DriverStation.silenceJoystickConnectionWarning(!DriverStation.isFMSAttached());
 	}
 
 	@Override
