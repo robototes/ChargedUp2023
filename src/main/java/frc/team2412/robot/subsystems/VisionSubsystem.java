@@ -40,18 +40,18 @@ public class VisionSubsystem extends SubsystemBase {
 							new Translation3d(
 									// 6.5 inches from back of robot, back is -half of length (30 in.)
 									Units.inchesToMeters(-30.0 / 2 + 6.5),
-									// 7.5 inches from left, left is +half of width (26 in.)
-									Units.inchesToMeters(26.0 / 2 - 7.5),
-									// 28.5 inches above the ground
-									Units.inchesToMeters(28.5)),
-							// Camera has a slight yaw, -6.5 degrees following right-hand rule (thumb points to
+									// 7 inches from left, left is +half of width (26 in.)
+									Units.inchesToMeters(26.0 / 2 - 7),
+									// 29 inches above the ground
+									Units.inchesToMeters(29)),
+							// Camera has a slight yaw, -6.7 degrees following right-hand rule (thumb points to
 							// +Z/up, fingers curl in positive rotation (CCW looking down))
-							new Rotation3d(0, 0, Math.toRadians(-6.5)))
+							new Rotation3d(0, 0, Math.toRadians(-6.7)))
 					: new Transform3d(
 							new Translation3d(0, 0, Units.inchesToMeters(28)),
 							// Camera's upside down
 							new Rotation3d(Math.toRadians(180), 0, 0));
-	
+
 	/*
 	Test data:
 	1
@@ -108,7 +108,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 	14
 	Physical: 150cm back, 47cm right, 0 rot
-	PV: 1.48 m, 0.51 m, 178.36°	
+	PV: 1.48 m, 0.51 m, 178.36°
 
 	15
 	Physical: 150cm back, 47cm right, 23 CCW
@@ -116,7 +116,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 	16
 	Physical: 200cm back, 46cm right, 0 rot
-	PV: 1.98 m, 0.49 m, 177.86°	
+	PV: 1.98 m, 0.49 m, 177.86°
 
 	17
 	Physical: 200cm back, 46cm right, 23 CCW
