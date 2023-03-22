@@ -2,6 +2,7 @@ package frc.team2412.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -82,6 +83,9 @@ public class VisionSubsystem extends SubsystemBase {
 
 	public VisionSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
 		poseEstimator = initialPoseEstimator;
+		synchronized (poseEstimator) {
+			poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.0385, 0.0392, Math.toRadians(2.85)));
+		}
 
 		var networkTables = NetworkTableInstance.getDefault();
 		if (Robot.isSimulation()) {
