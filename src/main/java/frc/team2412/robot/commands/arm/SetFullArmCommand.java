@@ -12,9 +12,12 @@ public class SetFullArmCommand extends SequentialCommandGroup {
 	}
 
 	public SetFullArmCommand(
-			ArmSubsystem armSubsystem, PositionType positionType, WristPosition wristPosition, double armTolerance) {
+			ArmSubsystem armSubsystem,
+			PositionType positionType,
+			WristPosition wristPosition,
+			double armTolerance) {
 		addCommands(
-			new SetArmCommand(armSubsystem, positionType, armTolerance),
-			new SetWristCommand(armSubsystem, wristPosition));
+				new SetArmCommand(armSubsystem, positionType, armTolerance),
+				new SetWristCommand(armSubsystem, wristPosition));
 	}
 }

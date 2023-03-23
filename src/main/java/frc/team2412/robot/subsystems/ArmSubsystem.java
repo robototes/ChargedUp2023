@@ -6,7 +6,6 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.*;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
@@ -25,7 +24,6 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Robot;
 import frc.team2412.robot.sim.PhysicsSim;
-import frc.team2412.robot.sim.SparkMaxSimProfile;
 
 public class ArmSubsystem extends SubsystemBase {
 
