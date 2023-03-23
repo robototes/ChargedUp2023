@@ -154,6 +154,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private Field2d field = new Field2d();
 	private FieldObject2d odometryOnlyFieldObject = field.getObject("OdometryPosition");
+	private FieldObject2d sharedPoseEstimatorFieldObject = field.getObject("SharedPoseEstimator");
 
 	private BooleanSubscriber useVisionMeasurementsSubscriber;
 
@@ -534,8 +535,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		}
 		odometryPose = drivebaseOnlyOdometry.update(gyroscope.getAngle(), getModulePositions());
 		pose = useVisionMeasurementsSubscriber.get() ? combinedPose : odometryPose;
-		field.setRobotPose(pose);
+		sharedPoseEstimatorFieldObject.setPose(combinedPose);
 		odometryOnlyFieldObject.setPose(odometryPose);
+		field.setRobotPose(pose);
 
 		if (compTranslationalPID.getSetpoint() != oldTranslationalSetpoint) {
 			for (MotorController motor : moduleDriveMotors) {
