@@ -161,11 +161,14 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		Shuffleboard.startRecording();
 		// Basic auto path that travels 1 meter, and then balances on the charge station
-		if (subsystems.drivebaseSubsystem != null && subsystems.armSubsystem != null) {
-			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
+		if (subsystems.drivebaseSubsystem != null) {
 			// TODO: change this to not be hardcoded
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
+		}
+
+		if (subsystems.armSubsystem != null) {
+			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
 		}
 
 		// Checks if FMS is attatched and enables joystick warning if true
