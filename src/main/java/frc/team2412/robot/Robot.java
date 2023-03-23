@@ -12,8 +12,10 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
@@ -89,6 +91,14 @@ public class Robot extends TimedRobot {
 		CommandScheduler.getInstance()
 				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
 
+		SmartDashboard.putData(CommandScheduler.getInstance());
+		SmartDashboard.putData(subsystems.drivebaseSubsystem);
+		SmartDashboard.putData(subsystems.armSubsystem);
+		SmartDashboard.putData(subsystems.ledSubsystem);
+		SmartDashboard.putData(subsystems.intakeSubsystem);
+		SmartDashboard.putData(subsystems.visionSubsystem);
+		DriverStation.silenceJoystickConnectionWarning(true);
+
 		PathPlannerServer.startServer(5811);
 	}
 
@@ -136,12 +146,18 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 		Shuffleboard.startRecording();
-		// Basic auto path that travels 1 meter, and then balances on the charge station
+		if (subsystems.armSubsystem != null) {
+			// if manual arm control is enabled in auto, the arm will never move
+			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
+		}
 		if (subsystems.drivebaseSubsystem != null) {
 			// TODO: change this to not be hardcoded
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
 		}
+
+		// Checks if FMS is attatched and enables joystick warning if true
+		DriverStation.silenceJoystickConnectionWarning(!DriverStation.isFMSAttached());
 	}
 
 	@Override

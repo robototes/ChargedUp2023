@@ -4,6 +4,8 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.MotorFeedbackSensor;
 import com.revrobotics.SparkMaxPIDController;
+import frc.team2412.robot.sim.PhysicsSim;
+import frc.team2412.robot.sim.SparkMaxSimProfile;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 
 public class BrushlessSparkMaxController extends MotorController {
@@ -110,5 +112,14 @@ public class BrushlessSparkMaxController extends MotorController {
 	@Override
 	public void setMeasurementPeriod(int periodMS) {
 		motor.getEncoder().setMeasurementPeriod(periodMS);
+	}
+
+	@Override
+	public void simulationConfig(PhysicsSim sim) {
+		sim.addSparkMax(
+				motor,
+				SparkMaxSimProfile.SparkMaxConstants.STALL_TORQUE,
+				SparkMaxSimProfile.SparkMaxConstants.FREE_SPEED_RPM);
+		;
 	}
 }
