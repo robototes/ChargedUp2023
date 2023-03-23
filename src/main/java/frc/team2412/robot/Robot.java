@@ -105,6 +105,12 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putData(subsystems.intakeSubsystem);
 		SmartDashboard.putData(subsystems.visionSubsystem);
 
+		SmartDashboard.putData(CommandScheduler.getInstance());
+		SmartDashboard.putData(subsystems.drivebaseSubsystem);
+		SmartDashboard.putData(subsystems.armSubsystem);
+		SmartDashboard.putData(subsystems.ledSubsystem);
+		SmartDashboard.putData(subsystems.intakeSubsystem);
+		SmartDashboard.putData(subsystems.visionSubsystem);
 		DriverStation.silenceJoystickConnectionWarning(true);
 
 		PathPlannerServer.startServer(5811);

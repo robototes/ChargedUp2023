@@ -1,10 +1,12 @@
 package frc.team2412.robot.util.gyroscope;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.team2412.robot.Robot;
 
 public abstract class Gyroscope {
 	private Rotation2d adjustmentAngle = Rotation2d.fromRotations(0);
 	private boolean inverted = false;
+	private Rotation2d simulatedAngle = Rotation2d.fromRotations(0);
 
 	public abstract Rotation2d getRawYaw();
 
@@ -21,6 +23,10 @@ public abstract class Gyroscope {
 	}
 
 	public Rotation2d getAngle() {
+		if (Robot.isSimulation()) {
+			return simulatedAngle.plus(adjustmentAngle);
+		}
+
 		return inverted
 				? getRawYaw().plus(adjustmentAngle).unaryMinus()
 				: getRawYaw().plus(adjustmentAngle);
@@ -32,5 +38,10 @@ public abstract class Gyroscope {
 
 	public Rotation2d getAngleAdjustment() {
 		return adjustmentAngle;
+	}
+
+	/** Takes in an angle and adds it to the current angle */
+	public void updateSimulatedAngle(Rotation2d angle) {
+		this.simulatedAngle = this.simulatedAngle.plus(angle);
 	}
 }
