@@ -115,7 +115,7 @@ public class Robot extends TimedRobot {
 					// Y
 					// PID controllers)
 					new PIDConstants(
-							2.0, 0.0,
+							3.0, 0.0,
 							0.0), // PID constants to correct for rotation error (used to create the rotation
 					// controller)
 					subsystems.drivebaseSubsystem
