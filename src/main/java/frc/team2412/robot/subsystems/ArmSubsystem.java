@@ -213,7 +213,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 		elbowEncoder = armMotor1.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 		wristEncoder = wristMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
-		wristEncoder.setZeroOffset(0.239);
+		wristEncoder.setZeroOffset(0.227);
 		wristEncoder.setInverted(true);
 		elbowEncoder.setInverted(true);
 
