@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.team2412.robot.sim.PhysicsSim;
+import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
 import io.github.oblarg.oblog.Logger;
@@ -169,6 +170,9 @@ public class Robot extends TimedRobot {
 		PhysicsSim sim = PhysicsSim.getInstance();
 		if (Subsystems.SubsystemConstants.DRIVEBASE_ENABLED) {
 			subsystems.drivebaseSubsystem.simInit(sim);
+		}
+		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
+			subsystems.armSubsystem.simInit(sim);
 		}
 	}
 
