@@ -84,12 +84,26 @@ public class Robot extends TimedRobot {
 
 		CommandScheduler.getInstance()
 				.onCommandInitialize(
-						command -> System.out.println("Command initialized: " + command.getName()));
+						command -> {
+							System.out.println("Command initialized: " + command.getName());
+						});
 		CommandScheduler.getInstance()
 				.onCommandInterrupt(
-						command -> System.out.println("Command interrupted: " + command.getName()));
+						command -> {
+							System.out.println("Command interrupted: " + command.getName());
+						});
 		CommandScheduler.getInstance()
-				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
+				.onCommandFinish(
+						command -> {
+							System.out.println("Command finished: " + command.getName());
+						});
+
+		SmartDashboard.putData(CommandScheduler.getInstance());
+		SmartDashboard.putData(subsystems.drivebaseSubsystem);
+		SmartDashboard.putData(subsystems.armSubsystem);
+		SmartDashboard.putData(subsystems.ledSubsystem);
+		SmartDashboard.putData(subsystems.intakeSubsystem);
+		SmartDashboard.putData(subsystems.visionSubsystem);
 
 		SmartDashboard.putData(CommandScheduler.getInstance());
 		SmartDashboard.putData(subsystems.drivebaseSubsystem);
@@ -116,7 +130,7 @@ public class Robot extends TimedRobot {
 					// Y
 					// PID controllers)
 					new PIDConstants(
-							2.0, 0.0,
+							3.0, 0.0,
 							0.0), // PID constants to correct for rotation error (used to create the rotation
 					// controller)
 					subsystems.drivebaseSubsystem
@@ -155,7 +169,6 @@ public class Robot extends TimedRobot {
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
 		}
-
 		// Checks if FMS is attatched and enables joystick warning if true
 		DriverStation.silenceJoystickConnectionWarning(!DriverStation.isFMSAttached());
 	}

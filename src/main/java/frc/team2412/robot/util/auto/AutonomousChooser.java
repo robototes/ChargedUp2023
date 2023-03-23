@@ -14,21 +14,36 @@ public class AutonomousChooser {
 
 	public AutonomousChooser() {
 		autonomousModeChooser.setDefaultOption(
-				"LeftLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("LeftLeaveCom"));
+				"FlatLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("FlatLeaveCom"));
 		autonomousModeChooser.addOption(
-				"RightLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("RightLeaveCom"));
+				"BumpLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("BumpLeaveCom"));
 		autonomousModeChooser.addOption(
-				"MiddleLeaveComCharge",
-				() -> AutonomousTrajectories.getAutoPathByName("MiddleLeaveComCharge"));
+				"ChargeLeaveComCharge",
+				() -> AutonomousTrajectories.getAutoPathByName("ChargeLeaveComCharge"));
 		autonomousModeChooser.addOption(
-				"LeftScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("LeftScoreLeaveCom"));
+				"FlatScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("FlatPieceScore"));
 		autonomousModeChooser.addOption(
-				"MiddleScoreLeaveComCharge",
-				() -> AutonomousTrajectories.getAutoPathByName("MiddleScoreLeaveComCharge"));
+				"ChargeScoreLeaveComCharge",
+				() -> AutonomousTrajectories.getAutoPathByName("ChargeScoreLeaveComCharge"));
 		autonomousModeChooser.addOption(
-				"RightScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("RightScoreLeaveCom"));
+				"BumpScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("BumpPieceScore"));
 		autonomousModeChooser.addOption(
-				"LeftScoreLeaveCom2", () -> AutonomousTrajectories.getAutoPathByName("LeftScoreLeaveCom2"));
+				"FlatScoreLeaveCom2", () -> AutonomousTrajectories.getAutoPathByName("FlatScoreLeaveCom2"));
+		autonomousModeChooser.addOption(
+				"ChargePreloadSecPiece",
+				() -> AutonomousTrajectories.getAutoPathByName("ChargePreloadSecPiece"));
+		autonomousModeChooser.addOption(
+				"BumpScoreTwo", () -> AutonomousTrajectories.getAutoPathByName("BumpScoreTwo"));
+		autonomousModeChooser.addOption(
+				"FlatScoreTwo", () -> AutonomousTrajectories.getAutoPathByName("FlatScoreTwo"));
+		autonomousModeChooser.addOption(
+				"ChargePickup", () -> AutonomousTrajectories.getAutoPathByName("ChargePickup"));
+		autonomousModeChooser.addOption(
+				"ChargePickupBot", () -> AutonomousTrajectories.getAutoPathByName("ChargePickupBot"));
+		autonomousModeChooser.addOption(
+				"BumpScoreTwo", () -> AutonomousTrajectories.getAutoPathByName("BumpScoreTwo"));
+		autonomousModeChooser.addOption(
+				"FlatScoreThree", () -> AutonomousTrajectories.getAutoPathByName("FlatScoreThree"));
 
 		// There are more paths that have been created in the deploy/pathplanner path, they should work
 		// however they have not been tested and thus are not added here yet.

@@ -21,6 +21,7 @@ public class Subsystems {
 		public static final boolean ARM_ENABLED = true;
 		public static final boolean INTAKE_ENABLED = true;
 		public static final boolean VISION_ENABLED = false;
+
 		public static final boolean LED_ENABLED = true;
 		public static final boolean DRIVER_VIS_ENABLED = true;
 	}
@@ -43,8 +44,6 @@ public class Subsystems {
 		poseEstimator =
 				new SwerveDrivePoseEstimator(
 						DrivebaseSubsystem.kinematics, new Rotation2d(), pseudoPositions, new Pose2d());
-
-		boolean comp = Robot.getInstance().isCompetition();
 
 		if (DRIVEBASE_ENABLED) {
 			drivebaseSubsystem = new DrivebaseSubsystem(poseEstimator);
