@@ -160,7 +160,10 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 		Shuffleboard.startRecording();
-		// Basic auto path that travels 1 meter, and then balances on the charge station
+		if (subsystems.armSubsystem != null) {
+			// if manual arm control is enabled in auto, the arm will never move
+			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
+		}
 		if (subsystems.drivebaseSubsystem != null) {
 			// TODO: change this to not be hardcoded
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
