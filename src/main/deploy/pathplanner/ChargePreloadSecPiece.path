@@ -17,7 +17,9 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "score"
+          "ArmHigh",
+          "WristOut",
+          "IntakeOut"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -74,5 +76,19 @@
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.5333333333333566,
+      "names": [
+        "WristOut",
+        "IntakeIn"
+      ]
+    },
+    {
+      "position": 0.193939393939416,
+      "names": [
+        "Stow"
+      ]
+    }
+  ]
 }

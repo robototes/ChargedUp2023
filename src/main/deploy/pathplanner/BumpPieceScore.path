@@ -2,22 +2,24 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.355760815787035,
-        "y": 0.46539875070271447
+        "x": 1.882004999164394,
+        "y": 1.0662953392415107
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.355760815787034,
-        "y": 0.46539875070271447
+        "x": 2.900697867904051,
+        "y": 0.8092419985315029
       },
-      "holonomicAngle": 0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "score"
+          "ArmHigh",
+          "WristOut",
+          "IntakeOut"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -26,37 +28,12 @@
     },
     {
       "anchorPoint": {
-        "x": 6.92154995684399,
-        "y": 1.0257768382835346
+        "x": 6.2328708030337685,
+        "y": 0.9044469395352096
       },
       "prevControl": {
-        "x": 6.92154995684399,
-        "y": 0.02577683828353461
-      },
-      "nextControl": {
-        "x": 6.92154995684399,
-        "y": 0.02577683828353461
-      },
-      "holonomicAngle": 0,
-      "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 3.5087210024044113,
-        "y": 0.8136801236008498
-      },
-      "prevControl": {
-        "x": 2.5087210024044113,
-        "y": 0.8136801236008498
+        "x": 5.1951369460933705,
+        "y": 0.5712296460222375
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -66,13 +43,27 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "score"
+          "IntakeIn"
         ],
-        "executionBehavior": "sequential",
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.10181818181817817,
+      "names": [
+        "Stow"
+      ]
+    },
+    {
+      "position": 0.8945454545454434,
+      "names": [
+        "IntakeOut",
+        "IntakeIn"
+      ]
+    }
+  ]
 }
