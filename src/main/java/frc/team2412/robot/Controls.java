@@ -68,8 +68,6 @@ public class Controls {
 		codriveController = new CommandXboxController(CODRIVER_CONTROLLER_PORT);
 		this.s = s;
 
-		// TODO: reimpliment arm + wrist presets after comp
-
 		armManualControlOn = codriveController.start();
 		armManualControlOff = codriveController.back();
 
