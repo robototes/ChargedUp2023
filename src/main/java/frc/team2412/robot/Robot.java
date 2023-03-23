@@ -12,8 +12,10 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.util.MACAddress;
@@ -83,13 +85,33 @@ public class Robot extends TimedRobot {
 
 		CommandScheduler.getInstance()
 				.onCommandInitialize(
-						command -> System.out.println("Command initialized: " + command.getName()));
+						command -> {
+							System.out.println("Command initialized: " + command.getName());
+						});
 		CommandScheduler.getInstance()
 				.onCommandInterrupt(
-						command -> System.out.println("Command interrupted: " + command.getName()));
+						command -> {
+							System.out.println("Command interrupted: " + command.getName());
+						});
 		CommandScheduler.getInstance()
-				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
+				.onCommandFinish(
+						command -> {
+							System.out.println("Command finished: " + command.getName());
+						});
 
+		SmartDashboard.putData(CommandScheduler.getInstance());
+		SmartDashboard.putData(subsystems.drivebaseSubsystem);
+		SmartDashboard.putData(subsystems.armSubsystem);
+		SmartDashboard.putData(subsystems.ledSubsystem);
+		SmartDashboard.putData(subsystems.intakeSubsystem);
+		SmartDashboard.putData(subsystems.visionSubsystem);
+
+		SmartDashboard.putData(CommandScheduler.getInstance());
+		SmartDashboard.putData(subsystems.drivebaseSubsystem);
+		SmartDashboard.putData(subsystems.armSubsystem);
+		SmartDashboard.putData(subsystems.ledSubsystem);
+		SmartDashboard.putData(subsystems.intakeSubsystem);
+		SmartDashboard.putData(subsystems.visionSubsystem);
 		DriverStation.silenceJoystickConnectionWarning(true);
 
 		PathPlannerServer.startServer(5811);
@@ -109,7 +131,7 @@ public class Robot extends TimedRobot {
 					// Y
 					// PID controllers)
 					new PIDConstants(
-							2.0, 0.0,
+							3.0, 0.0,
 							0.0), // PID constants to correct for rotation error (used to create the rotation
 					// controller)
 					subsystems.drivebaseSubsystem
@@ -139,13 +161,15 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 		Shuffleboard.startRecording();
-		// Basic auto path that travels 1 meter, and then balances on the charge station
+		if (subsystems.armSubsystem != null) {
+			// if manual arm control is enabled in auto, the arm will never move
+			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
+		}
 		if (subsystems.drivebaseSubsystem != null) {
 			// TODO: change this to not be hardcoded
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
 		}
-
 		// Checks if FMS is attatched and enables joystick warning if true
 		DriverStation.silenceJoystickConnectionWarning(!DriverStation.isFMSAttached());
 	}

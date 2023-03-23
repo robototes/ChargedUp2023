@@ -50,12 +50,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		Rotation2d.fromDegrees(298.388672),
 		Rotation2d.fromDegrees(314.912109),
 		Rotation2d.fromDegrees(27.685547)
-		// Rotation2d.fromDegrees(-111.796),
-		// Rotation2d.fromDegrees(-28 + 90),
-		// // OLD Rotation2d.fromDegrees(-343.388),
-		// Rotation2d.fromDegrees(-41),
-		// // OLDRotation2d.fromDegrees(-21.796),
-		// Rotation2d.fromDegrees(-332.841)
 	};
 
 	// max drive speed is from SDS website and not calculated with robot weight
@@ -65,7 +59,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			Rotation2d.fromRotations(IS_COMP ? 0.8574 : 1.0724);
 
 	// magic number found by trial and error (aka informal characterization)
-	private static final double ODOMETRY_ADJUSTMENT = 0.957;
+	private static final double ODOMETRY_ADJUSTMENT = 0.973748457;
 	// 4 inches * odemetry adjustment
 	private static final double WHEEL_DIAMETER_METERS =
 			IS_COMP ? 0.1016 * ODOMETRY_ADJUSTMENT : 0.1016;
@@ -329,6 +323,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		frontRightTargetAnglePublisher.set(states[1].angle.getDegrees());
 		backLeftTargetAnglePublisher.set(states[2].angle.getDegrees());
 		backRightTargetAnglePublisher.set(states[3].angle.getDegrees());
+
+		if (Robot.isSimulation()) {
+			ChassisSpeeds speeds = kinematics.toChassisSpeeds(states);
+			// Sim runs 50 times per second
+			updateSimAngle(Rotation2d.fromRadians(speeds.omegaRadiansPerSecond / 50));
+		}
 	}
 
 	/**
@@ -416,9 +416,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void simInit(PhysicsSim sim) {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
-			// sim.addTalonFX(moduleDriveMotors[i], 2, 20000, true);
-			// sim.addTalonFX(moduleAngleMotors[i], 2, 20000);
+			moduleDriveMotors[i].simulationConfig(sim);
+			moduleAngleMotors[i].simulationConfig(sim);
 		}
+	}
+
+	/** Update pose to reflect rotation */
+	private void updateSimAngle(Rotation2d rotation) {
+		gyroscope.updateSimulatedAngle(rotation);
 	}
 
 	private void configureNetworkTables() {

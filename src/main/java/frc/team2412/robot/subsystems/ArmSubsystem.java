@@ -94,7 +94,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final Constraints ARM_CONSTRAINTS =
 				new Constraints(MAX_ARM_VELOCITY, MAX_ARM_ACCELERATION);
 
-		public static final double MAX_WRIST_VELOCITY = .5;
+		public static final double MAX_WRIST_VELOCITY = 0.5;
 		public static final double MAX_WRIST_ACCELERATION = 0.5;
 
 		public static final Constraints WRIST_CONSTRAINTS =
@@ -204,7 +204,7 @@ public class ArmSubsystem extends SubsystemBase {
 		configMotors();
 
 		currentPosition = UNKNOWN_POSITION;
-		manualOverride = true;
+		manualOverride = false;
 
 		armPID.reset(getShoulderPosition());
 

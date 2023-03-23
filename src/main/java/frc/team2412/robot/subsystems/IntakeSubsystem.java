@@ -29,7 +29,7 @@ public class IntakeSubsystem extends SubsystemBase {
 		// speeds
 		public static final double INTAKE_HOLD_SPEED = 0.12;
 		public static final double INTAKE_IN_SPEED = 1.0;
-		public static final double INTAKE_OUT_SPEED = -0.5;
+		public static final double INTAKE_OUT_SPEED = -0.10;
 
 		public static final int INTAKE_COLOR_THRESHOLD = 10;
 		public static final double LED_PURPLE = 0.91;
