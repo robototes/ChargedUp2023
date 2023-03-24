@@ -55,9 +55,9 @@ public class VisionSubsystem extends SubsystemBase {
 							new Rotation3d(Math.toRadians(180), 0, 0));
 	public static final double MAX_TRUSTABLE_HORIZONTAL_DISTANCE = 1;
 
-	private PhotonCamera photonCamera;
+	private final PhotonCamera photonCamera;
 	private Optional<EstimatedRobotPose> latestPose = Optional.empty();
-	private PhotonPoseEstimator photonPoseEstimator;
+	private final PhotonPoseEstimator photonPoseEstimator;
 	private final SwerveDrivePoseEstimator poseEstimator;
 	private boolean targetTooFar = false;
 

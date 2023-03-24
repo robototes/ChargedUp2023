@@ -499,7 +499,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 				networkTableDrivebase.getDoubleTopic("Back right target angle").publish();
 
 		// Set value once to make it show up in UIs
-		useVisionMeasurementsSubscriber.getTopic().publish().set(true);
+		useVisionMeasurementsSubscriber.getTopic().publish().set(false);
 
 		frontLeftActualVelocityPublisher.set(0.0);
 		frontRightActualVelocityPublisher.set(0.0);
