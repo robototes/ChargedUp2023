@@ -125,12 +125,14 @@ public class Controls {
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
 		armManualControlOff.onTrue(new ManualArmOverrideOffCommand(s.armSubsystem));
 		armLowButton.onTrue(
-				new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT, FAST_WRIST_EXTEND_TOLERANCE));
+				new SetFullArmCommand(
+						s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT, FAST_WRIST_EXTEND_TOLERANCE));
 		armMiddleButton.onTrue(
 				new SetFullArmCommand(s.armSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
 		armHighButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
 		armSubstationButton.onTrue(
-				new SetFullArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE, FAST_WRIST_EXTEND_TOLERANCE));
+				new SetFullArmCommand(
+						s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE, FAST_WRIST_EXTEND_TOLERANCE));
 
 		wristCarryButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
 		wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_PRESCORE));

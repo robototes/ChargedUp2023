@@ -11,7 +11,6 @@ public class IntakeSetInCommand extends CommandBase {
 		addRequirements(intakeSubsystem);
 	}
 
-
 	@Override
 	public void execute() {
 		intakeSubsystem.intakeIn();

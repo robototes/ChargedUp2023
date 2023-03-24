@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.SerialPort;
@@ -180,13 +181,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private PIDController compTranslationalPID = new PIDController(0.0007, 0, 0);
 	private PIDController compRotationalPID = new PIDController(0.1, 0, 0.5);
-	private double compTranslationF = 0;
-	// 20 / (MAX_DRIVE_SPEED_METERS_PER_SEC * DRIVE_VELOCITY_COEFFICIENT);
+	private final double DEFAULT_COMP_TRANSLATIONAL_F = 1 / moduleDriveMotors[0].getFreeSpeedRPS();
+	
+	private DoubleSubscriber compTranslationalF;
+	
 
 	private NetworkTableInstance networkTableInstance;
 	private NetworkTable networkTableDrivebase;
 
 	public DrivebaseSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
+		// configure network tables
+		configureNetworkTables();
+
 		gyroscope = IS_COMP ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
 		// Bonk's gyro has positive as counter-clockwise
 		if (!IS_COMP) {
@@ -222,7 +228,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						compTranslationalPID.getP(),
 						compTranslationalPID.getI(),
 						compTranslationalPID.getD(),
-						compTranslationF);
+						compTranslationalF.get());
 				driveMotor.setMeasurementPeriod(8);
 			} else {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
@@ -254,9 +260,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
 		}
-
-		// configure network tables
-		configureNetworkTables();
 	}
 
 	/** Drives the robot using forward, strafe, and rotation. Units in meters */
@@ -502,9 +505,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 				networkTableDrivebase.getDoubleTopic("Back left target angle").publish();
 		backRightTargetAnglePublisher =
 				networkTableDrivebase.getDoubleTopic("Back right target angle").publish();
+		compTranslationalF =
+				networkTableDrivebase.getDoubleTopic("Translational FF").subscribe(DEFAULT_COMP_TRANSLATIONAL_F);
 
 		// Set value once to make it show up in UIs
 		useVisionMeasurementsSubscriber.getTopic().publish().set(false);
+		compTranslationalF.getTopic().publish().set(DEFAULT_COMP_TRANSLATIONAL_F);
 
 		frontLeftActualVelocityPublisher.set(0.0);
 		frontRightActualVelocityPublisher.set(0.0);
@@ -528,6 +534,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		SmartDashboard.putData("Translational PID", compTranslationalPID);
 		SmartDashboard.putData("Rotational PID", compRotationalPID);
+		
 	}
 
 	private double oldTranslationalSetpoint = 0.0;
@@ -553,7 +560,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						compTranslationalPID.getP(),
 						compTranslationalPID.getI(),
 						compTranslationalPID.getD(),
-						compTranslationF);
+						compTranslationalF.get());
 				oldTranslationalSetpoint = compTranslationalPID.getSetpoint();
 			}
 		}

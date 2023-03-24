@@ -80,7 +80,12 @@ public abstract class MotorController {
 
 	public abstract void configureOptimization();
 
+	/**
+	 * Units: rotations per second
+	 */
 	public abstract double getVelocity();
+
+	public abstract double getFreeSpeedRPS();
 
 	public abstract void setMeasurementPeriod(int periodMS);
 
