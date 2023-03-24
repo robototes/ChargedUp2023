@@ -9,14 +9,17 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
@@ -145,10 +148,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private Gyroscope gyroscope;
 
-	private SwerveDrivePoseEstimator poseEstimator;
+	private final SwerveDrivePoseEstimator poseEstimator;
+	private final SwerveDriveOdometry drivebaseOnlyOdometry;
 	private Pose2d pose;
 
 	private Field2d field = new Field2d();
+	private FieldObject2d odometryOnlyFieldObject = field.getObject("OdometryPosition");
+	private FieldObject2d sharedPoseEstimatorFieldObject = field.getObject("SharedPoseEstimator");
+
+	private BooleanSubscriber useVisionMeasurementsSubscriber;
 
 	private DoublePublisher frontLeftActualVelocityPublisher;
 	private DoublePublisher frontRightActualVelocityPublisher;
@@ -184,9 +192,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		}
 
 		poseEstimator = initialPoseEstimator;
-		poseEstimator.resetPosition(gyroscope.getRawYaw(), getModulePositions(), new Pose2d());
+		drivebaseOnlyOdometry =
+				new SwerveDriveOdometry(kinematics, gyroscope.getRawYaw(), getModulePositions());
 
-		pose = poseEstimator.getEstimatedPosition();
+		resetPose(new Pose2d(), gyroscope.getRawYaw());
 
 		balanceController =
 				PFFController.ofDouble(TIP_F, TIP_P)
@@ -401,7 +410,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	 * @param pose the new pose
 	 */
 	public void resetPose(Pose2d pose) {
-		poseEstimator.resetPosition(pose.getRotation(), getModulePositions(), pose);
+		resetPose(pose, pose.getRotation());
+	}
+
+	private void resetPose(Pose2d pose, Rotation2d gyroAngle) {
+		SwerveModulePosition[] modulePositions = getModulePositions();
+		synchronized (poseEstimator) {
+			poseEstimator.resetPosition(gyroAngle, modulePositions, pose);
+		}
+		drivebaseOnlyOdometry.resetPosition(gyroAngle, modulePositions, pose);
 		this.pose = pose;
 	}
 
@@ -412,6 +429,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	public void resetPose() {
 		resetGyroAngle();
 		resetPose(new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)));
+	}
+
+	public void resetPoseToOdometryPose() {
+		resetPose(drivebaseOnlyOdometry.getPoseMeters());
+	}
+
+	public void resetPoseToPoseEstimatorPose() {
+		synchronized (poseEstimator) {
+			resetPose(poseEstimator.getEstimatedPosition());
+		}
 	}
 
 	public void simInit(PhysicsSim sim) {
@@ -431,6 +458,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		networkTableInstance = NetworkTableInstance.getDefault();
 		networkTableDrivebase = networkTableInstance.getTable("Drivebase");
+
+		useVisionMeasurementsSubscriber =
+				networkTableDrivebase.getBooleanTopic("Use vision measurements").subscribe(false);
 
 		frontLeftActualVelocityPublisher =
 				networkTableDrivebase.getDoubleTopic("Front left actual velocity").publish();
@@ -468,6 +498,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		backRightTargetAnglePublisher =
 				networkTableDrivebase.getDoubleTopic("Back right target angle").publish();
 
+		// Set value once to make it show up in UIs
+		useVisionMeasurementsSubscriber.getTopic().publish().set(false);
+
 		frontLeftActualVelocityPublisher.set(0.0);
 		frontRightActualVelocityPublisher.set(0.0);
 		backLeftActualVelocityPublisher.set(0.0);
@@ -497,7 +530,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		pose = poseEstimator.update(gyroscope.getAngle(), getModulePositions());
+		Rotation2d gyroAngle = gyroscope.getAngle();
+		SwerveModulePosition[] modulePositions = getModulePositions();
+		Pose2d combinedPose, odometryPose;
+		synchronized (poseEstimator) {
+			combinedPose = poseEstimator.update(gyroAngle, modulePositions);
+		}
+		odometryPose = drivebaseOnlyOdometry.update(gyroAngle, modulePositions);
+		pose = useVisionMeasurementsSubscriber.get() ? combinedPose : odometryPose;
+		sharedPoseEstimatorFieldObject.setPose(combinedPose);
+		odometryOnlyFieldObject.setPose(odometryPose);
 		field.setRobotPose(pose);
 
 		if (compTranslationalPID.getSetpoint() != oldTranslationalSetpoint) {
@@ -514,9 +556,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			}
 		}
 
-		frontLeftActualAnglePublisher.set(getModuleAngles()[0].getDegrees());
-		frontRightActualAnglePublisher.set(getModuleAngles()[1].getDegrees());
-		backLeftActualAnglePublisher.set(getModuleAngles()[2].getDegrees());
-		backRightActualAnglePublisher.set(getModuleAngles()[3].getDegrees());
+		Rotation2d[] moduleAngles = getModuleAngles();
+		frontLeftActualAnglePublisher.set(moduleAngles[0].getDegrees());
+		frontRightActualAnglePublisher.set(moduleAngles[1].getDegrees());
+		backLeftActualAnglePublisher.set(moduleAngles[2].getDegrees());
+		backRightActualAnglePublisher.set(moduleAngles[3].getDegrees());
 	}
 }
