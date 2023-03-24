@@ -33,7 +33,7 @@ public class AutonomousChooser {
 				"ChargePreloadSecPiece",
 				() -> AutonomousTrajectories.getAutoPathByName("ChargePreloadSecPiece"));
 		autonomousModeChooser.addOption(
-				"BumpScoreTwo", () -> AutonomousTrajectories.getAutoPathByName("BotScoreTwo"));
+				"BumpScoreTwo", () -> AutonomousTrajectories.getAutoPathByName("BumpScoreTwo"));
 		autonomousModeChooser.addOption(
 				"FlatScoreTwo", () -> AutonomousTrajectories.getAutoPathByName("FlatScoreTwo"));
 		autonomousModeChooser.addOption(

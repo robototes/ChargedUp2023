@@ -153,7 +153,6 @@ public class Robot extends TimedRobot {
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
 		}
-
 		// Checks if FMS is attatched and enables joystick warning if true
 		DriverStation.silenceJoystickConnectionWarning(!DriverStation.isFMSAttached());
 	}
@@ -178,6 +177,9 @@ public class Robot extends TimedRobot {
 		PhysicsSim sim = PhysicsSim.getInstance();
 		if (Subsystems.SubsystemConstants.DRIVEBASE_ENABLED) {
 			subsystems.drivebaseSubsystem.simInit(sim);
+		}
+		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
+			subsystems.armSubsystem.simInit(sim);
 		}
 	}
 

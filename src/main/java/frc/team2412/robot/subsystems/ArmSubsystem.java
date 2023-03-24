@@ -1,11 +1,11 @@
 package frc.team2412.robot.subsystems;
 
 import static frc.team2412.robot.Hardware.*;
+import static frc.team2412.robot.sim.SparkMaxSimProfile.SparkMaxConstants.*;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.*;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMaxLowLevel.PeriodicFrame;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
@@ -23,6 +23,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Robot;
+import frc.team2412.robot.sim.PhysicsSim;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -32,12 +33,9 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// Conversion
 
-		public static final double TICKS_TO_INCHES = 42 / 360; // Maybe unneeded?
 		public static final float ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO = 75;
 		public static final float WRIST_MOTOR_TO_WRIST_ENCODER_RATIO = 90;
 		public static final float ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO = 4;
-		// TODO: this is still incorrect, current delta between extended and retracted is 0.1809 but
-		// should be 0.25
 		public static final double SHOULDER_ENCODER_TO_ARM_POSITION_RATIO = 4 / 1;
 		public static final double WRIST_ENCODER_TO_WRIST_POSITION_RATIO = 24 / 1;
 		public static final double SHOULDER_TO_ELBOW_GEAR_RATIO = 64.0 / 48.0;
@@ -47,19 +45,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double OUTER_ARM_MASS = 5.03;
 		public static final double INTAKE_MASS = 5.57;
 
-		// Center of mass stuff
-
-		// inches
-		public static final double INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 11.218;
-		public static final double OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 15.712;
-		public static final double WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT = 10.85;
-		public static final double WRIST_CENTER_OF_MASS_RADIAN_OFFSET = -0.112; // -20.15 / 360
-
-		public static final double INNER_ARM_LENGTH = 25;
-		public static final double OUTER_ARM_LENGTH = 27.25;
-
 		// PID
-		// TODO: Tune PID
 		public static final double ARM_K_P = 4;
 		public static final double ARM_K_I = 0;
 		public static final double ARM_K_D = 0;
@@ -91,11 +77,9 @@ public class ArmSubsystem extends SubsystemBase {
 
 		public static final float ARM_FORWARD_LIMIT = 93.8f; // motor rotations
 		public static final float ARM_REVERSE_LIMIT = 2;
-		public static final float WRIST_FORWARD_LIMIT = 58;
+		public static final float WRIST_FORWARD_LIMIT = 62;
 		public static final float WRIST_REVERSE_LIMIT = 2;
-
-		public static final double ARM_POS_TOLERANCE = 0.01;
-		public static final double WRIST_POS_TOLERANCE = 0.01;
+		public static final float WRIST_ENCODER_OFFSET = -0.22f;
 
 		public static final double ARM_VELOCITY_TOLERANCE = 0.2;
 		public static final double WRIST_VELOCITY_TOLERANCE = 0.2;
@@ -119,40 +103,35 @@ public class ArmSubsystem extends SubsystemBase {
 		// ENUM
 
 		/*
-		 * TODO: update/improve presets
+		 * TODO: Prescore presets
 		 *
 		 * Find arm and wrist angles (see onenote page)
 		 *
 		 * Values are angles that correspond to specific arm positions:
 		 * Arm Angle
 		 * Retracted Wrist Angle
-		 * Retracted Wrist Angle (cone edition)
 		 * Prescore Wrist Angle
 		 * Scoring Wrist Angle
 		 */
 		public static enum PositionType {
-			UNKNOWN_POSITION(0.212, 0.05, 0.05, 0.46, 0.46),
-			ARM_LOW_POSITION(0.212, 0.05, 0.05, 0.46, 0.46),
-			ARM_MIDDLE_POSITION(0.415, 0.05, 0.05, 0.42, 0.43),
-			ARM_HIGH_POSITION(0.6546, 0.05, 0.05, 0.465, 0.473),
-			ARM_SUBSTATION_POSITION(0.6, 0.05, 0.05, 0.56, 0.56); // ?
+			UNKNOWN_POSITION(0.212, 0.05, 0.46, 0.46),
+			ARM_LOW_POSITION(0.212, 0.05, 0.46, 0.46),
+			ARM_MIDDLE_POSITION(0.415, 0.05, 0.42, 0.43),
+			ARM_HIGH_POSITION(0.6546, 0.05, 0.465, 0.473),
+			ARM_SUBSTATION_POSITION(0.6, 0.05, 0.56, 0.56); // ?
 
 			public final double armAngle;
 			public final double retractedWristAngle;
-			public final double retractedConeWristAngle;
-
 			public final double prescoringWristAngle;
 			public final double scoringWristAngle;
 
 			PositionType(
 					double armAngle,
 					double retractedWristAngle,
-					double retractedConeWristAngle,
 					double prescoringWristAngle,
 					double scoringWristAngle) {
 				this.armAngle = armAngle;
 				this.retractedWristAngle = retractedWristAngle;
-				this.retractedConeWristAngle = retractedConeWristAngle;
 				this.prescoringWristAngle = prescoringWristAngle;
 				this.scoringWristAngle = scoringWristAngle;
 			}
@@ -183,19 +162,19 @@ public class ArmSubsystem extends SubsystemBase {
 	NetworkTableInstance NTInstance;
 	NetworkTable NTDevices;
 
-	StringPublisher shoulderPositionPublisher;
-	StringPublisher elbowPositionPublisher;
-	StringPublisher wristPositionPublisher;
+	DoublePublisher shoulderPositionPublisher;
+	DoublePublisher elbowPositionPublisher;
+	DoublePublisher wristPositionPublisher;
 
 	DoublePublisher armPIDPublisher;
 	DoublePublisher armFeedforwardPublisher;
 
-	StringPublisher armGoalPublisher;
+	DoublePublisher armGoalPublisher;
 	StringPublisher armPositionPublisher;
 
 	BooleanPublisher armManualOverridePublisher;
 
-	StringPublisher wristGoalPublisher;
+	DoublePublisher wristGoalPublisher;
 
 	DoubleSubscriber armVoltageOverride;
 	BooleanSubscriber armVoltageOverrideEnable;
@@ -213,7 +192,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 		elbowEncoder = armMotor1.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
 		wristEncoder = wristMotor.getAbsoluteEncoder(SparkMaxAbsoluteEncoder.Type.kDutyCycle);
-		wristEncoder.setZeroOffset(0.227);
+		wristEncoder.setZeroOffset(0);
 		wristEncoder.setInverted(true);
 		elbowEncoder.setInverted(true);
 
@@ -228,7 +207,6 @@ public class ArmSubsystem extends SubsystemBase {
 		manualOverride = false;
 
 		armPID.reset(getShoulderPosition());
-		// wristPID.reset(getWristPosition());
 
 		// Network Tables
 
@@ -236,35 +214,30 @@ public class ArmSubsystem extends SubsystemBase {
 
 		NTDevices = NTInstance.getTable("Devices");
 
-		shoulderPositionPublisher = NTDevices.getStringTopic("Shoulder Pos").publish();
-		elbowPositionPublisher = NTDevices.getStringTopic("Elbow Pos").publish();
-		wristPositionPublisher = NTDevices.getStringTopic("Wrist Pos").publish();
-
+		armPositionPublisher = NTDevices.getStringTopic("Position").publish();
+		shoulderPositionPublisher = NTDevices.getDoubleTopic("Shoulder Pos").publish();
+		elbowPositionPublisher = NTDevices.getDoubleTopic("Elbow Pos").publish();
+		wristPositionPublisher = NTDevices.getDoubleTopic("Wrist Pos").publish();
 		armPIDPublisher = NTDevices.getDoubleTopic("Arm PID").publish();
 		armFeedforwardPublisher = NTDevices.getDoubleTopic("Arm Feedforward").publish();
-		armGoalPublisher = NTDevices.getStringTopic("Arm Goal").publish();
-		armPositionPublisher = NTDevices.getStringTopic("Position").publish();
+		armGoalPublisher = NTDevices.getDoubleTopic("Arm Goal").publish();
 		armVoltagePublisher = NTDevices.getDoubleTopic("Arm voltage").publish();
 		armOutputPublisher = NTDevices.getDoubleTopic("Arm output").publish();
 		armCurrentPublisher = NTDevices.getDoubleTopic("Arm current").publish();
 		armLastSetValuePublisher = NTDevices.getDoubleTopic("Arm last set value").publish();
-
-		wristGoalPublisher = NTDevices.getStringTopic("Wrist Goal").publish();
-
+		wristGoalPublisher = NTDevices.getDoubleTopic("Wrist Goal").publish();
 		armManualOverridePublisher = NTDevices.getBooleanTopic("Manual Override").publish();
 
-		shoulderPositionPublisher.set(0 + " rotations | " + 0 + " degrees");
-		elbowPositionPublisher.set(0 + " rotations | " + 0 + " degrees");
-		wristPositionPublisher.set(0 + " rotations | " + 0 + " degrees");
-
+		shoulderPositionPublisher.set(0.0);
+		elbowPositionPublisher.set(0.0);
+		wristPositionPublisher.set(0.0);
+		armGoalPublisher.set(0.0);
 		armPIDPublisher.set(0.0);
 		armFeedforwardPublisher.set(0.0);
-		armVoltagePublisher.set(0);
-		armOutputPublisher.set(0);
-		armCurrentPublisher.set(0);
-		armLastSetValuePublisher.set(0);
-
-		armGoalPublisher.set(0.0 + " rotations | " + 0.0 + " degrees");
+		armVoltagePublisher.set(0.0);
+		armOutputPublisher.set(0.0);
+		armCurrentPublisher.set(0.0);
+		armLastSetValuePublisher.set(0.0);
 	}
 
 	// METHODS
@@ -317,14 +290,11 @@ public class ArmSubsystem extends SubsystemBase {
 		wristPID.setD(d);
 	}
 
-	public void disableShoulderLimits() {
-		armMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
-		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
-	}
+	public void simInit(PhysicsSim sim) {
+		sim.addSparkMax(armMotor1, STALL_TORQUE, FREE_SPEED_RPM);
+		sim.addSparkMax(armMotor2, STALL_TORQUE, FREE_SPEED_RPM);
 
-	public void enableShoulderLimits() {
-		armMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
-		armMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
+		sim.addSparkMax(wristMotor, STALL_TORQUE, FREE_SPEED_RPM);
 	}
 
 	/**
@@ -395,16 +365,14 @@ public class ArmSubsystem extends SubsystemBase {
 	 * @return The calculated feedforward.
 	 */
 	public double calculateArmFeedforward() {
+		// The values below are from our maximum and minimum elbow positions line of best fit for feed
+		// forward values
 		// -0.111639604	0.064541504
-		double wristPosition = getWristPosition();
+		double elbowPosition = getElbowPosition();
 
-		return ARM_K_S * Math.signum(armGoal - wristPosition) + wristPosition <= 0.48
+		return ARM_K_S * Math.signum(armGoal - elbowPosition) + elbowPosition <= 0.48
 				? 0.0
-				: (wristPosition * -0.111639604 + 0.064541504);
-		/**
-		 * return ARM_K_S * Math.signum(armGoal - getShoulderPosition()) + ARM_K_G *
-		 * getAngleTowardsCenterOfMass() + ARM_K_V * 0 + ARM_K_A * 0;
-		 */
+				: (elbowPosition * -0.111639604 + 0.064541504);
 	}
 
 	/**
@@ -450,16 +418,7 @@ public class ArmSubsystem extends SubsystemBase {
 	 * @return Current wrist encoder position
 	 */
 	public double getWristPosition() {
-		return wristEncoder.getPosition();
-	}
-
-	/**
-	 * Returns whether or not arm/wrist manual override is on.
-	 *
-	 * @return If manual override is on.
-	 */
-	public boolean getManualOverride() {
-		return manualOverride;
+		return Math.max(wristEncoder.getPosition() + WRIST_ENCODER_OFFSET, 0);
 	}
 
 	/**
@@ -472,66 +431,21 @@ public class ArmSubsystem extends SubsystemBase {
 		return percentOutput * Robot.getInstance().getVoltage();
 	}
 
-	/**
-	 * Calculates the angle towards center of mass by averaging and weighing the individual arm parts
-	 * (inner arm, outer arm, and intake) together.
-	 *
-	 * @return The calculated angle in radians.
-	 */
-	public double getAngleTowardsCenterOfMass() {
-		// Theta to be in Radians, encoder values in rotations
-		// Inner Arm angle and Wrist Angle's 0 positions are at 180 degrees(relative to elbow angle)
-		// (refer to feedforward page),
-		// calculations directly below were made accordingly.
-		double innerArmTheta = Math.PI - rotationsToRadians(getShoulderPosition());
-		double outerArmTheta = rotationsToRadians(getElbowPosition());
-		double wristTheta =
-				Math.PI - (rotationsToRadians(getWristPosition()) + WRIST_CENTER_OF_MASS_RADIAN_OFFSET);
-
-		// Calculate CoM Coordinates (relative to shoulder joint)
-		double innerArmCenterOfMassX =
-				INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.cos(innerArmTheta);
-		double innerArmCenterOfMassY =
-				INNER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.sin(innerArmTheta);
-
-		double outerArmCenterOfMassX =
-				OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.cos(outerArmTheta)
-						+ INNER_ARM_LENGTH * Math.cos(innerArmTheta);
-		double outerArmCenterOfMassY =
-				OUTER_ARM_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.sin(outerArmTheta)
-						+ INNER_ARM_LENGTH * Math.sin(innerArmTheta);
-
-		double wristCenterOfMassX =
-				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.cos(wristTheta)
-						+ OUTER_ARM_LENGTH * Math.cos(outerArmTheta)
-						+ INNER_ARM_LENGTH * Math.cos(innerArmTheta);
-		double wristCenterOfMassY =
-				WRIST_CENTER_OF_MASS_DISTANCE_FROM_JOINT * Math.sin(wristTheta)
-						+ OUTER_ARM_LENGTH * Math.sin(outerArmTheta)
-						+ INNER_ARM_LENGTH * Math.sin(innerArmTheta);
-
-		// Calculate Average CoM Coordinates
-		double CenterOfMassX =
-				((INNER_ARM_MASS * innerArmCenterOfMassX)
-								+ (OUTER_ARM_MASS * outerArmCenterOfMassX)
-								+ (INTAKE_MASS * wristCenterOfMassX))
-						/ (INNER_ARM_MASS + OUTER_ARM_MASS + INTAKE_MASS);
-		double CenterOfMassY =
-				((INNER_ARM_MASS * innerArmCenterOfMassY)
-								+ (OUTER_ARM_MASS * outerArmCenterOfMassY)
-								+ (INTAKE_MASS * wristCenterOfMassY))
-						/ (INNER_ARM_MASS + OUTER_ARM_MASS + INTAKE_MASS);
-
-		// Return Angle Towards CoM
-		return Math.atan(CenterOfMassY / CenterOfMassX);
-	}
-
 	public double rotationsToRadians(double rotations) {
 		return rotations * 2 * Math.PI;
 	}
 
-	public boolean isArmNearGoal() {
-		return Math.abs(getElbowPosition() - armPID.getGoal().position) <= 0.2;
+	/**
+	 * Returns whether or not arm/wrist manual override is on.
+	 *
+	 * @return If manual override is on.
+	 */
+	public boolean getManualOverride() {
+		return manualOverride;
+	}
+
+	public boolean isArmNearGoal(double nearValue) {
+		return Math.abs(getElbowPosition() - armPID.getGoal().position) <= nearValue;
 	}
 
 	/** Updates the arm motor's output based off of the wrist's goal */
@@ -561,23 +475,12 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// Network Tables
 
-		shoulderPositionPublisher.set(
-				getShoulderPosition() + " rotations | " + (getShoulderPosition() * 360) + " degrees");
-		elbowPositionPublisher.set(
-				getElbowPosition() + " rotations | " + (getElbowPosition() * 360) + " degrees");
-		wristPositionPublisher.set(
-				getWristPosition() + " rotations | " + (getWristPosition() * 360) + " degrees");
+		shoulderPositionPublisher.set(getShoulderPosition());
+		elbowPositionPublisher.set(getElbowPosition());
+		wristPositionPublisher.set(getWristPosition());
 
-		armGoalPublisher.set(
-				armPID.getGoal().position
-						+ " rotations | "
-						+ (armPID.getGoal().position * 360)
-						+ " degrees");
-		wristGoalPublisher.set(
-				(wristGoal / WRIST_MOTOR_TO_WRIST_ENCODER_RATIO)
-						+ " encoder | "
-						+ (wristGoal)
-						+ " motor rotations");
+		armGoalPublisher.set(armPID.getGoal().position);
+		wristGoalPublisher.set(wristGoal / WRIST_MOTOR_TO_WRIST_ENCODER_RATIO);
 
 		armPIDPublisher.set(calculateArmPID());
 
