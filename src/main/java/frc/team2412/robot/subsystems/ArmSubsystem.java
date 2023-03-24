@@ -77,9 +77,9 @@ public class ArmSubsystem extends SubsystemBase {
 
 		public static final float ARM_FORWARD_LIMIT = 93.8f; // motor rotations
 		public static final float ARM_REVERSE_LIMIT = 2;
-		public static final float WRIST_FORWARD_LIMIT = 72;
+		public static final float WRIST_FORWARD_LIMIT = 62;
 		public static final float WRIST_REVERSE_LIMIT = 2;
-		public static final float WRIST_ENCODER_OFFSET = 0.227f;
+		public static final float WRIST_ENCODER_OFFSET = -0.22f;
 
 		public static final double ARM_VELOCITY_TOLERANCE = 0.2;
 		public static final double WRIST_VELOCITY_TOLERANCE = 0.2;
@@ -131,9 +131,9 @@ public class ArmSubsystem extends SubsystemBase {
 					double prescoringWristAngle,
 					double scoringWristAngle) {
 				this.armAngle = armAngle;
-				this.retractedWristAngle = retractedWristAngle + WRIST_ENCODER_OFFSET;
-				this.prescoringWristAngle = prescoringWristAngle + WRIST_ENCODER_OFFSET;
-				this.scoringWristAngle = scoringWristAngle + WRIST_ENCODER_OFFSET;
+				this.retractedWristAngle = retractedWristAngle;
+				this.prescoringWristAngle = prescoringWristAngle;
+				this.scoringWristAngle = scoringWristAngle;
 			}
 		}
 	}
@@ -418,7 +418,7 @@ public class ArmSubsystem extends SubsystemBase {
 	 * @return Current wrist encoder position
 	 */
 	public double getWristPosition() {
-		return wristEncoder.getPosition();
+		return Math.max(wristEncoder.getPosition() + WRIST_ENCODER_OFFSET, 0);
 	}
 
 	/**
