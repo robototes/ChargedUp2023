@@ -414,10 +414,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	}
 
 	private void resetPose(Pose2d pose, Rotation2d gyroAngle) {
+		SwerveModulePosition[] modulePositions = getModulePositions();
 		synchronized (poseEstimator) {
-			poseEstimator.resetPosition(gyroAngle, getModulePositions(), pose);
+			poseEstimator.resetPosition(gyroAngle, modulePositions, pose);
 		}
-		drivebaseOnlyOdometry.resetPosition(gyroAngle, getModulePositions(), pose);
+		drivebaseOnlyOdometry.resetPosition(gyroAngle, modulePositions, pose);
 		this.pose = pose;
 	}
 
@@ -529,11 +530,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	@Override
 	public void periodic() {
+		Rotation2d gyroAngle = gyroscope.getAngle();
+		SwerveModulePosition[] modulePositions = getModulePositions();
 		Pose2d combinedPose, odometryPose;
 		synchronized (poseEstimator) {
-			combinedPose = poseEstimator.update(gyroscope.getAngle(), getModulePositions());
+			combinedPose = poseEstimator.update(gyroAngle, modulePositions);
 		}
-		odometryPose = drivebaseOnlyOdometry.update(gyroscope.getAngle(), getModulePositions());
+		odometryPose = drivebaseOnlyOdometry.update(gyroAngle, modulePositions);
 		pose = useVisionMeasurementsSubscriber.get() ? combinedPose : odometryPose;
 		sharedPoseEstimatorFieldObject.setPose(combinedPose);
 		odometryOnlyFieldObject.setPose(odometryPose);
@@ -553,9 +556,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			}
 		}
 
-		frontLeftActualAnglePublisher.set(getModuleAngles()[0].getDegrees());
-		frontRightActualAnglePublisher.set(getModuleAngles()[1].getDegrees());
-		backLeftActualAnglePublisher.set(getModuleAngles()[2].getDegrees());
-		backRightActualAnglePublisher.set(getModuleAngles()[3].getDegrees());
+		Rotation2d[] moduleAngles = getModuleAngles();
+		frontLeftActualAnglePublisher.set(moduleAngles[0].getDegrees());
+		frontRightActualAnglePublisher.set(moduleAngles[1].getDegrees());
+		backLeftActualAnglePublisher.set(moduleAngles[2].getDegrees());
+		backRightActualAnglePublisher.set(moduleAngles[3].getDegrees());
 	}
 }
