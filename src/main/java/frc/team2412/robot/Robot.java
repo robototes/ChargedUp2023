@@ -194,6 +194,9 @@ public class Robot extends TimedRobot {
 		if (Subsystems.SubsystemConstants.DRIVEBASE_ENABLED) {
 			subsystems.drivebaseSubsystem.simInit(sim);
 		}
+		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
+			subsystems.armSubsystem.simInit(sim);
+		}
 	}
 
 	@Override
