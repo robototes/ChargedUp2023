@@ -39,10 +39,11 @@ public class BrushlessSparkMaxController extends MotorController {
 	}
 
 	@Override
-	public void setPID(double P, double I, double D) {
+	public void setPIDF(double P, double I, double D, double F) {
 		motorPID.setP(P);
 		motorPID.setI(I);
 		motorPID.setD(D);
+		motorPID.setFF(F);
 	}
 
 	@Override

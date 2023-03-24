@@ -37,10 +37,11 @@ public class TalonFXController extends MotorController {
 	}
 
 	@Override
-	public void setPID(double P, double I, double D) {
+	public void setPIDF(double P, double I, double D, double F) {
 		motor.config_kP(motorPIDIndex, P);
 		motor.config_kI(motorPIDIndex, I);
 		motor.config_kD(motorPIDIndex, D);
+		motor.config_kF(motorPIDIndex, F);
 	}
 
 	@Override

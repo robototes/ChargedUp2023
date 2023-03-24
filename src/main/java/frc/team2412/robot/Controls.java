@@ -22,7 +22,7 @@ import frc.team2412.robot.commands.drivebase.DriveCommand;
 import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
 import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
-import frc.team2412.robot.commands.intake.IntakeSetStopCommand;
+import frc.team2412.robot.commands.intake.IntakeSetSlowOutCommand;
 import frc.team2412.robot.commands.led.LEDPurpleCommand;
 import frc.team2412.robot.commands.led.LEDYellowCommand;
 
@@ -56,7 +56,7 @@ public class Controls {
 	// public final Trigger codriveIntakeStopButton;
 	public final Trigger driveIntakeInButton;
 	public final Trigger driveIntakeOutButton;
-	public final Trigger driveIntakeStopButton;
+	public final Trigger driveIntakeSlowOutButton;
 
 	public final Trigger ledPurple;
 	public final Trigger ledYellow;
@@ -85,7 +85,7 @@ public class Controls {
 		codriveIntakeOutButton = codriveController.leftTrigger();
 		driveIntakeInButton = driveController.a();
 		driveIntakeOutButton = driveController.y();
-		driveIntakeStopButton = driveController.b();
+		driveIntakeSlowOutButton = driveController.b();
 
 		ledPurple = codriveController.rightBumper();
 		ledYellow = codriveController.leftBumper();
@@ -123,12 +123,13 @@ public class Controls {
 				new ManualArmOverrideOnCommand(
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
 		armManualControlOff.onTrue(new ManualArmOverrideOffCommand(s.armSubsystem));
-		armLowButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
+		armLowButton.onTrue(
+				new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT, 0.5));
 		armMiddleButton.onTrue(
 				new SetFullArmCommand(s.armSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
 		armHighButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
 		armSubstationButton.onTrue(
-				new SetFullArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE));
+				new SetFullArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE, 0.5));
 
 		wristCarryButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
 		wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_PRESCORE));
@@ -144,8 +145,7 @@ public class Controls {
 
 		driveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
 		driveIntakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
-
-		driveIntakeStopButton.onTrue(new IntakeSetStopCommand(s.intakeSubsystem));
+		driveIntakeSlowOutButton.onTrue(new IntakeSetSlowOutCommand(s.intakeSubsystem));
 
 		// Codrive buttons
 		codriveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));

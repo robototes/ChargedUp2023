@@ -86,10 +86,10 @@ public class ArmSubsystem extends SubsystemBase {
 
 		// Trapezoid Profile
 		public static final double MAX_ARM_VELOCITY = 1;
-		public static final double MAX_ARM_ACCELERATION =
-				ARM_FORWARD_LIMIT
-						/ ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO
-						/ ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO; // arm rotations / second^2
+		public static final double MAX_ARM_ACCELERATION = 0.5;
+		// ARM_FORWARD_LIMIT
+		// 		/ ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO
+		// 		/ ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO; // arm rotations / second^2
 
 		public static final Constraints ARM_CONSTRAINTS =
 				new Constraints(MAX_ARM_VELOCITY, MAX_ARM_ACCELERATION);
@@ -118,7 +118,7 @@ public class ArmSubsystem extends SubsystemBase {
 			ARM_LOW_POSITION(0.212, 0.05, 0.46, 0.46),
 			ARM_MIDDLE_POSITION(0.415, 0.05, 0.42, 0.43),
 			ARM_HIGH_POSITION(0.6546, 0.05, 0.465, 0.473),
-			ARM_SUBSTATION_POSITION(0.6, 0.05, 0.56, 0.56); // ?
+			ARM_SUBSTATION_POSITION(0.6, 0.05, 0.58, 0.58); // ?
 
 			public final double armAngle;
 			public final double retractedWristAngle;

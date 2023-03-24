@@ -180,6 +180,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private PIDController compTranslationalPID = new PIDController(0.0007, 0, 0);
 	private PIDController compRotationalPID = new PIDController(0.1, 0, 0.5);
+	private double compTranslationF = 0;
+	// 20 / (MAX_DRIVE_SPEED_METERS_PER_SEC * DRIVE_VELOCITY_COEFFICIENT);
 
 	private NetworkTableInstance networkTableInstance;
 	private NetworkTable networkTableDrivebase;
@@ -216,12 +218,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 			if (IS_COMP) {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
-				driveMotor.setPID(
-						compTranslationalPID.getP(), compTranslationalPID.getI(), compTranslationalPID.getD());
+				driveMotor.setPIDF(
+						compTranslationalPID.getP(),
+						compTranslationalPID.getI(),
+						compTranslationalPID.getD(),
+						compTranslationF);
 				driveMotor.setMeasurementPeriod(8);
 			} else {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
-				driveMotor.setPID(0.1, 0.001, 1023.0 / 20660.0);
+				driveMotor.setPIDF(0.1, 0.001, 1023.0 / 20660.0, 0);
 			}
 		}
 
@@ -232,10 +237,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.setNeutralMode(MotorNeutralMode.BRAKE);
 			// Configure PID values
 			if (IS_COMP) {
-				steeringMotor.setPID(
-						compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD());
+				steeringMotor.setPIDF(
+						compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD(), 0);
 			} else {
-				steeringMotor.setPID(0.15, 0.00, 1.0);
+				steeringMotor.setPIDF(0.15, 0.00, 1.0, 0);
 			}
 
 			if (IS_COMP) {
@@ -544,14 +549,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		if (compTranslationalPID.getSetpoint() != oldTranslationalSetpoint) {
 			for (MotorController motor : moduleDriveMotors) {
-				motor.setPID(
-						compTranslationalPID.getP(), compTranslationalPID.getI(), compTranslationalPID.getD());
+				motor.setPIDF(
+						compTranslationalPID.getP(),
+						compTranslationalPID.getI(),
+						compTranslationalPID.getD(),
+						compTranslationF);
 				oldTranslationalSetpoint = compTranslationalPID.getSetpoint();
 			}
 		}
 		if (compRotationalPID.getSetpoint() != oldRotationalSetpoint) {
 			for (MotorController motor : moduleAngleMotors) {
-				motor.setPID(compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD());
+				motor.setPIDF(
+						compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD(), 0);
 				oldRotationalSetpoint = compRotationalPID.getSetpoint();
 			}
 		}
