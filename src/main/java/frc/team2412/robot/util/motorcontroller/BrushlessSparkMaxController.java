@@ -107,6 +107,11 @@ public class BrushlessSparkMaxController extends MotorController {
 	}
 
 	@Override
+	public void setAverageDepth(int depth) {
+		motor.getEncoder().setAverageDepth(depth);
+	}
+
+	@Override
 	public double getVelocity() {
 		// rpm to rps
 		return motor.getEncoder().getVelocity() / 60;
@@ -120,6 +125,11 @@ public class BrushlessSparkMaxController extends MotorController {
 	@Override
 	public void setMeasurementPeriod(int periodMS) {
 		motor.getEncoder().setMeasurementPeriod(periodMS);
+	}
+
+	@Override
+	public void flashMotor() {
+		motor.burnFlash();
 	}
 
 	@Override

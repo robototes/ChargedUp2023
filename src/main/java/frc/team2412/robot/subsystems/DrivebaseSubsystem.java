@@ -234,6 +234,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
 				driveMotor.setPIDF(0.1, 0.001, 1023.0 / 20660.0, 0);
 			}
+			driveMotor.flashMotor();
 		}
 
 		// configure angle motors
@@ -259,6 +260,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.configureOptimization();
 
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
+
+			steeringMotor.flashMotor();
 		}
 	}
 

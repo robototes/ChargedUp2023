@@ -106,6 +106,11 @@ public class TalonFXController extends MotorController {
 	}
 
 	@Override
+	public void setAverageDepth(int depth) {
+		// cannot do with talonfx
+	}
+
+	@Override
 	public double getVelocity() {
 		// ticks per 100ms to rps
 		return motor.getSelectedSensorVelocity() / TICKS_PER_ROTATION * 10;
@@ -119,6 +124,11 @@ public class TalonFXController extends MotorController {
 	@Override
 	public void setMeasurementPeriod(int periodMS) {
 		// nothing hehe
+	}
+
+	@Override
+	public void flashMotor() {
+		// talonfx cannot do this
 	}
 
 	@Override

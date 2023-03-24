@@ -80,6 +80,8 @@ public abstract class MotorController {
 
 	public abstract void configureOptimization();
 
+	public abstract void setAverageDepth(int depth);
+
 	/**
 	 * Units: rotations per second
 	 */
@@ -88,6 +90,8 @@ public abstract class MotorController {
 	public abstract double getFreeSpeedRPS();
 
 	public abstract void setMeasurementPeriod(int periodMS);
+
+	public abstract void flashMotor();
 
 	public abstract void simulationConfig(PhysicsSim sim);
 }
