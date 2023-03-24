@@ -1,7 +1,6 @@
 package frc.team2412.robot;
 
-import static frc.team2412.robot.Controls.ControlConstants.CODRIVER_CONTROLLER_PORT;
-import static frc.team2412.robot.Controls.ControlConstants.CONTROLLER_PORT;
+import static frc.team2412.robot.Controls.ControlConstants.*;
 import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_PRESCORE;
 import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_RETRACT;
 import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_SCORE;
@@ -30,6 +29,8 @@ public class Controls {
 	public static class ControlConstants {
 		public static final int CONTROLLER_PORT = 0;
 		public static final int CODRIVER_CONTROLLER_PORT = 1;
+
+		public static final double FAST_WRIST_EXTEND_TOLERANCE = 0.5;
 	}
 
 	private final CommandXboxController driveController;
@@ -124,12 +125,12 @@ public class Controls {
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
 		armManualControlOff.onTrue(new ManualArmOverrideOffCommand(s.armSubsystem));
 		armLowButton.onTrue(
-				new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT, 0.5));
+				new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT, FAST_WRIST_EXTEND_TOLERANCE));
 		armMiddleButton.onTrue(
 				new SetFullArmCommand(s.armSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE));
 		armHighButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE));
 		armSubstationButton.onTrue(
-				new SetFullArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE, 0.5));
+				new SetFullArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE, FAST_WRIST_EXTEND_TOLERANCE));
 
 		wristCarryButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
 		wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_PRESCORE));

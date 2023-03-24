@@ -16,10 +16,8 @@ public class IntakeSetSlowOutCommand extends CommandBase {
 		intakeSubsystem.intakeSlowOut();
 	}
 
-	// TODO: uncomment when color matching works
 	@Override
 	public boolean isFinished() {
-		// return !intakeSubsystem.hasObject();
 		return false;
 	}
 }

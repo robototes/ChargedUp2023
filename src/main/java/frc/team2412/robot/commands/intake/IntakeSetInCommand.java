@@ -11,7 +11,6 @@ public class IntakeSetInCommand extends CommandBase {
 		addRequirements(intakeSubsystem);
 	}
 
-	// TODO: uncomment when color matching works
 
 	@Override
 	public void execute() {
@@ -20,7 +19,6 @@ public class IntakeSetInCommand extends CommandBase {
 
 	@Override
 	public boolean isFinished() {
-		// return intakeSubsystem.isSecured();
 		return false;
 	}
 }
