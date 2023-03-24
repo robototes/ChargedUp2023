@@ -39,7 +39,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	// ordered from front left, front right, back left, back right
 	private static final Rotation2d[] PRACTICE_DRIVEBASE_ENCODER_OFFSETS = {
-		Rotation2d.fromDegrees(337.236),
+		Rotation2d.fromDegrees(165.674),
 		Rotation2d.fromDegrees(251.982),
 		Rotation2d.fromDegrees(205.839),
 		Rotation2d.fromDegrees(311.396)
