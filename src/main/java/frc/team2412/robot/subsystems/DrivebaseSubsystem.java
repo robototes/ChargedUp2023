@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.SerialPort;
@@ -180,11 +181,19 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private PIDController compTranslationalPID = new PIDController(0.0007, 0, 0);
 	private PIDController compRotationalPID = new PIDController(0.1, 0, 0.5);
+	private final double DEFAULT_COMP_TRANSLATIONAL_F = 1 / moduleDriveMotors[0].getFreeSpeedRPS();
+
+	private DoubleSubscriber compTranslationalF;
 
 	private NetworkTableInstance networkTableInstance;
 	private NetworkTable networkTableDrivebase;
 
+	private boolean xWheelToggle = false;
+
 	public DrivebaseSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
+		// configure network tables
+		configureNetworkTables();
+
 		gyroscope = IS_COMP ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
 		// Bonk's gyro has positive as counter-clockwise
 		if (!IS_COMP) {
@@ -216,13 +225,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 			if (IS_COMP) {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
-				driveMotor.setPID(
-						compTranslationalPID.getP(), compTranslationalPID.getI(), compTranslationalPID.getD());
+				driveMotor.setPIDF(
+						compTranslationalPID.getP(),
+						compTranslationalPID.getI(),
+						compTranslationalPID.getD(),
+						compTranslationalF.get());
 				driveMotor.setMeasurementPeriod(8);
 			} else {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
-				driveMotor.setPID(0.1, 0.001, 1023.0 / 20660.0);
+				driveMotor.setPIDF(0.1, 0.001, 1023.0 / 20660.0, 0);
 			}
+			driveMotor.flashMotor();
 		}
 
 		// configure angle motors
@@ -232,10 +245,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.setNeutralMode(MotorNeutralMode.BRAKE);
 			// Configure PID values
 			if (IS_COMP) {
-				steeringMotor.setPID(
-						compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD());
+				steeringMotor.setPIDF(
+						compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD(), 0);
 			} else {
-				steeringMotor.setPID(0.15, 0.00, 1.0);
+				steeringMotor.setPIDF(0.15, 0.00, 1.0, 0);
 			}
 
 			if (IS_COMP) {
@@ -248,10 +261,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			steeringMotor.configureOptimization();
 
 			steeringMotor.setControlMode(MotorControlMode.POSITION);
-		}
 
-		// configure network tables
-		configureNetworkTables();
+			steeringMotor.flashMotor();
+		}
 	}
 
 	/** Drives the robot using forward, strafe, and rotation. Units in meters */
@@ -281,13 +293,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] moduleStates = getModuleStates(chassisSpeeds);
-		if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
-				&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
-				&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
-			moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-			moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-			moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-			moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+		if (xWheelToggle) {
+			if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
+					&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
+					&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
+				moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+				moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+				moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+				moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+			}
 		}
 		drive(moduleStates);
 	}
@@ -441,6 +455,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		}
 	}
 
+	public void toggleXWheels() {
+		xWheelToggle = !xWheelToggle;
+	}
+
 	public void simInit(PhysicsSim sim) {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			moduleDriveMotors[i].simulationConfig(sim);
@@ -497,9 +515,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 				networkTableDrivebase.getDoubleTopic("Back left target angle").publish();
 		backRightTargetAnglePublisher =
 				networkTableDrivebase.getDoubleTopic("Back right target angle").publish();
+		compTranslationalF =
+				networkTableDrivebase
+						.getDoubleTopic("Translational FF")
+						.subscribe(DEFAULT_COMP_TRANSLATIONAL_F);
 
 		// Set value once to make it show up in UIs
 		useVisionMeasurementsSubscriber.getTopic().publish().set(false);
+		compTranslationalF.getTopic().publish().set(DEFAULT_COMP_TRANSLATIONAL_F);
 
 		frontLeftActualVelocityPublisher.set(0.0);
 		frontRightActualVelocityPublisher.set(0.0);
@@ -544,14 +567,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		if (compTranslationalPID.getSetpoint() != oldTranslationalSetpoint) {
 			for (MotorController motor : moduleDriveMotors) {
-				motor.setPID(
-						compTranslationalPID.getP(), compTranslationalPID.getI(), compTranslationalPID.getD());
+				motor.setPIDF(
+						compTranslationalPID.getP(),
+						compTranslationalPID.getI(),
+						compTranslationalPID.getD(),
+						compTranslationalF.get());
 				oldTranslationalSetpoint = compTranslationalPID.getSetpoint();
 			}
 		}
 		if (compRotationalPID.getSetpoint() != oldRotationalSetpoint) {
 			for (MotorController motor : moduleAngleMotors) {
-				motor.setPID(compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD());
+				motor.setPIDF(
+						compRotationalPID.getP(), compRotationalPID.getI(), compRotationalPID.getD(), 0);
 				oldRotationalSetpoint = compRotationalPID.getSetpoint();
 			}
 		}

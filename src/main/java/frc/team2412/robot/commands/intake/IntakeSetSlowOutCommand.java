@@ -3,17 +3,17 @@ package frc.team2412.robot.commands.intake;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
 
-public class IntakeSetInCommand extends CommandBase {
+public class IntakeSetSlowOutCommand extends CommandBase {
 	IntakeSubsystem intakeSubsystem;
 
-	public IntakeSetInCommand(IntakeSubsystem intakeSubsystem) {
+	public IntakeSetSlowOutCommand(IntakeSubsystem intakeSubsystem) {
 		this.intakeSubsystem = intakeSubsystem;
 		addRequirements(intakeSubsystem);
 	}
 
 	@Override
-	public void execute() {
-		intakeSubsystem.intakeIn();
+	public void initialize() {
+		intakeSubsystem.intakeSlowOut();
 	}
 
 	@Override

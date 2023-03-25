@@ -53,7 +53,7 @@ public class VisionSubsystem extends SubsystemBase {
 							new Translation3d(0, 0, Units.inchesToMeters(28)),
 							// Camera's upside down
 							new Rotation3d(Math.toRadians(180), 0, 0));
-	public static final double MAX_TRUSTABLE_HORIZONTAL_DISTANCE = 1;
+	public static final double MAX_TRUSTABLE_HORIZONTAL_DISTANCE = 3;
 
 	private final PhotonCamera photonCamera;
 	private Optional<EstimatedRobotPose> latestPose = Optional.empty();

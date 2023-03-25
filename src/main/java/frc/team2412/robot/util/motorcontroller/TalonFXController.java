@@ -9,6 +9,7 @@ import frc.team2412.robot.sim.TalonFXSimProfile;
 public class TalonFXController extends MotorController {
 	private static final double TICKS_PER_ROTATION = 2048.0;
 	private static final double ACCEL_TO_FULL_TIME = 2.0;
+	private static final double FREE_SPEED_RPS = 6380.0 / 60.0;
 
 	private final WPI_TalonFX motor;
 	private final int motorPIDIndex = 0;
@@ -37,10 +38,11 @@ public class TalonFXController extends MotorController {
 	}
 
 	@Override
-	public void setPID(double P, double I, double D) {
+	public void setPIDF(double P, double I, double D, double F) {
 		motor.config_kP(motorPIDIndex, P);
 		motor.config_kI(motorPIDIndex, I);
 		motor.config_kD(motorPIDIndex, D);
+		motor.config_kF(motorPIDIndex, F);
 	}
 
 	@Override
@@ -104,13 +106,29 @@ public class TalonFXController extends MotorController {
 	}
 
 	@Override
+	public void setAverageDepth(int depth) {
+		// cannot do with talonfx
+	}
+
+	@Override
 	public double getVelocity() {
-		return motor.getSelectedSensorVelocity();
+		// ticks per 100ms to rps
+		return motor.getSelectedSensorVelocity() / TICKS_PER_ROTATION * 10;
+	}
+
+	@Override
+	public double getFreeSpeedRPS() {
+		return FREE_SPEED_RPS;
 	}
 
 	@Override
 	public void setMeasurementPeriod(int periodMS) {
 		// nothing hehe
+	}
+
+	@Override
+	public void flashMotor() {
+		// talonfx cannot do this
 	}
 
 	@Override

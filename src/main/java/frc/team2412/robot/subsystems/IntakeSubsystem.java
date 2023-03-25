@@ -3,9 +3,7 @@ package frc.team2412.robot.subsystems;
 import static frc.team2412.robot.Hardware.INTAKE_DISTANCE_SENSOR;
 import static frc.team2412.robot.Hardware.INTAKE_MOTOR_1;
 import static frc.team2412.robot.Hardware.INTAKE_MOTOR_2;
-import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_HOLD_SPEED;
-import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_IN_SPEED;
-import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.INTAKE_OUT_SPEED;
+import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -29,7 +27,8 @@ public class IntakeSubsystem extends SubsystemBase {
 		// speeds
 		public static final double INTAKE_HOLD_SPEED = 0.12;
 		public static final double INTAKE_IN_SPEED = 1.0;
-		public static final double INTAKE_OUT_SPEED = -0.10;
+		public static final double INTAKE_OUT_SPEED = -0.1;
+		public static final double INTAKE_SLOW_OUT_SPEED = -0.02;
 
 		public static final int INTAKE_COLOR_THRESHOLD = 10;
 		public static final double LED_PURPLE = 0.91;
@@ -174,6 +173,11 @@ public class IntakeSubsystem extends SubsystemBase {
 	/** Runs the motors outwards */
 	public void intakeOut() {
 		setSpeed(INTAKE_OUT_SPEED);
+	}
+
+	/** Runs the motors outwards */
+	public void intakeSlowOut() {
+		setSpeed(INTAKE_SLOW_OUT_SPEED);
 	}
 
 	/** Stops the motors */

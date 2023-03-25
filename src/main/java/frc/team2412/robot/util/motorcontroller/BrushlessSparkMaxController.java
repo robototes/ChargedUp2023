@@ -10,6 +10,7 @@ import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 
 public class BrushlessSparkMaxController extends MotorController {
 	private static final double TICKS_PER_ROTATION = 42.0;
+	private static final double FREE_SPEED_RPS = 5676.0 / 60.0;
 
 	private final CANSparkMax motor;
 	private final SparkMaxPIDController motorPID;
@@ -39,10 +40,11 @@ public class BrushlessSparkMaxController extends MotorController {
 	}
 
 	@Override
-	public void setPID(double P, double I, double D) {
+	public void setPIDF(double P, double I, double D, double F) {
 		motorPID.setP(P);
 		motorPID.setI(I);
 		motorPID.setD(D);
+		motorPID.setFF(F);
 	}
 
 	@Override
@@ -105,8 +107,19 @@ public class BrushlessSparkMaxController extends MotorController {
 	}
 
 	@Override
+	public void setAverageDepth(int depth) {
+		motor.getEncoder().setAverageDepth(depth);
+	}
+
+	@Override
 	public double getVelocity() {
-		return motor.getEncoder().getVelocity();
+		// rpm to rps
+		return motor.getEncoder().getVelocity() / 60;
+	}
+
+	@Override
+	public double getFreeSpeedRPS() {
+		return FREE_SPEED_RPS;
 	}
 
 	@Override
@@ -115,11 +128,13 @@ public class BrushlessSparkMaxController extends MotorController {
 	}
 
 	@Override
+	public void flashMotor() {
+		motor.burnFlash();
+	}
+
+	@Override
 	public void simulationConfig(PhysicsSim sim) {
-		sim.addSparkMax(
-				motor,
-				SparkMaxSimProfile.SparkMaxConstants.STALL_TORQUE,
-				SparkMaxSimProfile.SparkMaxConstants.FREE_SPEED_RPM);
+		sim.addSparkMax(motor, SparkMaxSimProfile.SparkMaxConstants.STALL_TORQUE, FREE_SPEED_RPS * 60);
 		;
 	}
 }

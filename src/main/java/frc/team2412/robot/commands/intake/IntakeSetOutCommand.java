@@ -16,10 +16,8 @@ public class IntakeSetOutCommand extends CommandBase {
 		intakeSubsystem.intakeOut();
 	}
 
-	// TODO: uncomment when color matching works
 	@Override
 	public boolean isFinished() {
-		// return !intakeSubsystem.hasObject();
 		return false;
 	}
 }
