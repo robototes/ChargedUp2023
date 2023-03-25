@@ -56,7 +56,7 @@ public abstract class MotorController {
 
 	public abstract void configFactoryDefault();
 
-	public abstract void setPID(double P, double I, double D);
+	public abstract void setPIDF(double P, double I, double D, double F);
 
 	/** Units: rotations for position or velocity, voltage for voltage, percent for percent */
 	public abstract void set(double setpoint);
@@ -80,9 +80,16 @@ public abstract class MotorController {
 
 	public abstract void configureOptimization();
 
+	public abstract void setAverageDepth(int depth);
+
+	/** Units: rotations per second */
 	public abstract double getVelocity();
 
+	public abstract double getFreeSpeedRPS();
+
 	public abstract void setMeasurementPeriod(int periodMS);
+
+	public abstract void flashMotor();
 
 	public abstract void simulationConfig(PhysicsSim sim);
 }

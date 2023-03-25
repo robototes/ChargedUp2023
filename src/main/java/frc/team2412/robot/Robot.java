@@ -19,7 +19,6 @@ import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
-import io.github.oblarg.oblog.Logger;
 import java.util.HashMap;
 
 public class Robot extends TimedRobot {
@@ -84,26 +83,12 @@ public class Robot extends TimedRobot {
 
 		CommandScheduler.getInstance()
 				.onCommandInitialize(
-						command -> {
-							System.out.println("Command initialized: " + command.getName());
-						});
+						command -> System.out.println("Command initialized: " + command.getName()));
 		CommandScheduler.getInstance()
 				.onCommandInterrupt(
-						command -> {
-							System.out.println("Command interrupted: " + command.getName());
-						});
+						command -> System.out.println("Command interrupted: " + command.getName()));
 		CommandScheduler.getInstance()
-				.onCommandFinish(
-						command -> {
-							System.out.println("Command finished: " + command.getName());
-						});
-
-		SmartDashboard.putData(CommandScheduler.getInstance());
-		SmartDashboard.putData(subsystems.drivebaseSubsystem);
-		SmartDashboard.putData(subsystems.armSubsystem);
-		SmartDashboard.putData(subsystems.ledSubsystem);
-		SmartDashboard.putData(subsystems.intakeSubsystem);
-		SmartDashboard.putData(subsystems.visionSubsystem);
+				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
 
 		SmartDashboard.putData(CommandScheduler.getInstance());
 		SmartDashboard.putData(subsystems.drivebaseSubsystem);
@@ -153,7 +138,6 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotPeriodic() {
-		Logger.updateEntries();
 		CommandScheduler.getInstance().run();
 	}
 
