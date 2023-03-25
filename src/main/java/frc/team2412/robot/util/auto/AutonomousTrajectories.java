@@ -25,7 +25,7 @@ public class AutonomousTrajectories {
 
 	public static Command getAutoPathByName(String name) {
 		List<PathPlannerTrajectory> pathGroup =
-				PathPlanner.loadPathGroup(name, new PathConstraints(2, 2.0));
+				PathPlanner.loadPathGroup(name, new PathConstraints(2.0, 2.0));
 		HashMap<String, Command> eventMap = new HashMap<String, Command>();
 		eventMap.put(
 				"AutoBalance", new AutoBalanceCommand(Robot.getInstance().subsystems.drivebaseSubsystem));

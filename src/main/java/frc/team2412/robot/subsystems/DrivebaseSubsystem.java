@@ -181,7 +181,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private PIDController compTranslationalPID = new PIDController(0.0007, 0, 0);
 	private PIDController compRotationalPID = new PIDController(0.1, 0, 0.5);
-	private final double DEFAULT_COMP_TRANSLATIONAL_F = 1 / moduleDriveMotors[0].getFreeSpeedRPS();
+	private final double DEFAULT_COMP_TRANSLATIONAL_F = 0.000175;
+	// old way of getting F
+	// 1 / moduleDriveMotors[0].getFreeSpeedRPS();
 
 	private DoubleSubscriber compTranslationalF;
 
