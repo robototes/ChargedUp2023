@@ -182,12 +182,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private PIDController compTranslationalPID = new PIDController(0.0007, 0, 0);
 	private PIDController compRotationalPID = new PIDController(0.1, 0, 0.5);
 	private final double DEFAULT_COMP_TRANSLATIONAL_F = 1 / moduleDriveMotors[0].getFreeSpeedRPS();
-	
+
 	private DoubleSubscriber compTranslationalF;
-	
 
 	private NetworkTableInstance networkTableInstance;
 	private NetworkTable networkTableDrivebase;
+
+	private boolean xWheelToggle = false;
 
 	public DrivebaseSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
 		// configure network tables
@@ -292,13 +293,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void drive(ChassisSpeeds chassisSpeeds) {
 		SwerveModuleState[] moduleStates = getModuleStates(chassisSpeeds);
-		if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
-				&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
-				&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
-			moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
-			moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-			moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
-			moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+		if (xWheelToggle) {
+			if (Math.abs(chassisSpeeds.vxMetersPerSecond) <= 0.01
+					&& Math.abs(chassisSpeeds.vyMetersPerSecond) <= 0.01
+					&& Math.abs(chassisSpeeds.omegaRadiansPerSecond) <= 0.01) {
+				moduleStates[0] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+				moduleStates[1] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+				moduleStates[2] = new SwerveModuleState(0, Rotation2d.fromDegrees(-45));
+				moduleStates[3] = new SwerveModuleState(0, Rotation2d.fromDegrees(45));
+			}
 		}
 		drive(moduleStates);
 	}
@@ -452,6 +455,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		}
 	}
 
+	public void toggleXWheels() {
+		xWheelToggle = !xWheelToggle;
+	}
+
 	public void simInit(PhysicsSim sim) {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			moduleDriveMotors[i].simulationConfig(sim);
@@ -509,7 +516,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		backRightTargetAnglePublisher =
 				networkTableDrivebase.getDoubleTopic("Back right target angle").publish();
 		compTranslationalF =
-				networkTableDrivebase.getDoubleTopic("Translational FF").subscribe(DEFAULT_COMP_TRANSLATIONAL_F);
+				networkTableDrivebase
+						.getDoubleTopic("Translational FF")
+						.subscribe(DEFAULT_COMP_TRANSLATIONAL_F);
 
 		// Set value once to make it show up in UIs
 		useVisionMeasurementsSubscriber.getTopic().publish().set(false);
@@ -537,7 +546,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		SmartDashboard.putData("Translational PID", compTranslationalPID);
 		SmartDashboard.putData("Rotational PID", compRotationalPID);
-		
 	}
 
 	private double oldTranslationalSetpoint = 0.0;

@@ -82,9 +82,7 @@ public abstract class MotorController {
 
 	public abstract void setAverageDepth(int depth);
 
-	/**
-	 * Units: rotations per second
-	 */
+	/** Units: rotations per second */
 	public abstract double getVelocity();
 
 	public abstract double getFreeSpeedRPS();

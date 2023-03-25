@@ -134,10 +134,7 @@ public class BrushlessSparkMaxController extends MotorController {
 
 	@Override
 	public void simulationConfig(PhysicsSim sim) {
-		sim.addSparkMax(
-				motor,
-				SparkMaxSimProfile.SparkMaxConstants.STALL_TORQUE,
-				FREE_SPEED_RPS * 60);
+		sim.addSparkMax(motor, SparkMaxSimProfile.SparkMaxConstants.STALL_TORQUE, FREE_SPEED_RPS * 60);
 		;
 	}
 }

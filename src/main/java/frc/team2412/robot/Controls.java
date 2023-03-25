@@ -117,6 +117,7 @@ public class Controls {
 								driveController::getRightTriggerAxis));
 		driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
+		driveController.leftStick().onTrue(new InstantCommand(s.drivebaseSubsystem::toggleXWheels));
 	}
 
 	public void bindArmControls() {
