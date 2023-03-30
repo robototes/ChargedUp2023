@@ -4,7 +4,9 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -27,11 +29,14 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 /**
- * All poses and transforms use the NWU (North-West-Up) coordinate system, where +X is
+ * All 3D poses and transforms use the NWU (North-West-Up) coordinate system, where +X is
  * north/forward, +Y is west/left, and +Z is up. On the field, this is based on the blue driver
  * station (+X is forward from blue driver station, +Y is left, +Z is up).
  *
- * <p>At some point we should discuss how we want to handle the different alliances.
+ * <p>2D field poses are different. +X is away from the driver and +Y is toward the opposing loading
+ * station. Rotations are CCW+ looking down. When on the blue alliance, this means that from the
+ * (blue) driver's perspective +X is away and +Y is to the left. When on the red alliance, this
+ * means that from the (red) driver's perspective +X is away and +Y is to the right.
  */
 public class VisionSubsystem extends SubsystemBase {
 	private static final boolean IS_COMP = Robot.getInstance().isCompetition();
@@ -54,6 +59,27 @@ public class VisionSubsystem extends SubsystemBase {
 							// Camera's upside down
 							new Rotation3d(Math.toRadians(180), 0, 0));
 	public static final double MAX_TRUSTABLE_HORIZONTAL_DISTANCE = 3;
+	// This is from the metric approximations from section 5.1 of the game manual
+	private static final double FIELD_LENGTH_METERS = 16.54;
+
+	private static Pose2d convertToFieldPose(Pose3d pose3d) {
+		return convertToFieldPose(pose3d, DriverStation.getAlliance());
+	}
+
+	private static Pose2d convertToFieldPose(Pose3d pose3d, DriverStation.Alliance alliance) {
+		switch (alliance) {
+			case Red:
+				return new Pose2d(
+						FIELD_LENGTH_METERS - pose3d.getX(),
+						pose3d.getY(),
+						new Rotation2d(pose3d.getRotation().getZ()));
+			case Invalid:
+				DriverStation.reportWarning("Unknown alliance! Assuming blue", true);
+				// fall through
+			default:
+				return pose3d.toPose2d();
+		}
+	}
 
 	private final PhotonCamera photonCamera;
 	private Optional<EstimatedRobotPose> latestPose = Optional.empty();
@@ -62,6 +88,8 @@ public class VisionSubsystem extends SubsystemBase {
 	private boolean targetTooFar = false;
 
 	private double lastTimestampSeconds = 0;
+	private Pose2d lastFieldPose = new Pose2d(-1, -1);
+
 	/*
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
 	 */
@@ -137,10 +165,10 @@ public class VisionSubsystem extends SubsystemBase {
 		latestPose = photonPoseEstimator.update(pipelineResult);
 		if (latestPose.isPresent()) {
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
+			lastRobotPose = convertToFieldPose(latestPose.get().estimatedPose);
 			if (!targetTooFar) {
 				synchronized (poseEstimator) {
-					poseEstimator.addVisionMeasurement(
-							latestPose.get().estimatedPose.toPose2d(), lastTimestampSeconds);
+					poseEstimator.addVisionMeasurement(lastRobotPose, lastTimestampSeconds);
 				}
 			}
 		}
