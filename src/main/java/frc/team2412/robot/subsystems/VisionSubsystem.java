@@ -88,7 +88,7 @@ public class VisionSubsystem extends SubsystemBase {
 	private boolean targetTooFar = false;
 
 	private double lastTimestampSeconds = 0;
-	private Pose2d lastFieldPose = new Pose2d(-1, -1);
+	private Pose2d lastFieldPose = new Pose2d(-1, -1, new Rotation2d());
 
 	/*
 	 * Because we have to handle an IOException, we can't initialize fieldLayout in the variable declaration (private static final AprilTagFieldLayout fieldLayout = ...;). Instead, we have to initialize it in a static initializer (static { ... }).
@@ -165,10 +165,10 @@ public class VisionSubsystem extends SubsystemBase {
 		latestPose = photonPoseEstimator.update(pipelineResult);
 		if (latestPose.isPresent()) {
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
-			lastRobotPose = convertToFieldPose(latestPose.get().estimatedPose);
+			lastFieldPose = convertToFieldPose(latestPose.get().estimatedPose);
 			if (!targetTooFar) {
 				synchronized (poseEstimator) {
-					poseEstimator.addVisionMeasurement(lastRobotPose, lastTimestampSeconds);
+					poseEstimator.addVisionMeasurement(lastFieldPose, lastTimestampSeconds);
 				}
 			}
 		}
