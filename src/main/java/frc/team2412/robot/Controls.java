@@ -19,9 +19,9 @@ import frc.team2412.robot.commands.arm.SetFullArmCommand;
 import frc.team2412.robot.commands.arm.SetWristCommand;
 import frc.team2412.robot.commands.drivebase.DriveCommand;
 import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
+import frc.team2412.robot.commands.intake.IntakeSetFastOutCommand;
 import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
-import frc.team2412.robot.commands.intake.IntakeSetSlowOutCommand;
 import frc.team2412.robot.commands.led.LEDPurpleCommand;
 import frc.team2412.robot.commands.led.LEDYellowCommand;
 
@@ -57,7 +57,7 @@ public class Controls {
 	// public final Trigger codriveIntakeStopButton;
 	public final Trigger driveIntakeInButton;
 	public final Trigger driveIntakeOutButton;
-	public final Trigger driveIntakeSlowOutButton;
+	public final Trigger driveIntakeFastOutButton;
 
 	public final Trigger ledPurple;
 	public final Trigger ledYellow;
@@ -86,7 +86,7 @@ public class Controls {
 		codriveIntakeOutButton = codriveController.leftTrigger();
 		driveIntakeInButton = driveController.a();
 		driveIntakeOutButton = driveController.y();
-		driveIntakeSlowOutButton = driveController.b();
+		driveIntakeFastOutButton = driveController.b();
 
 		ledPurple = codriveController.rightBumper();
 		ledYellow = codriveController.leftBumper();
@@ -149,7 +149,7 @@ public class Controls {
 
 		driveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
 		driveIntakeOutButton.onTrue(new IntakeSetOutCommand(s.intakeSubsystem));
-		driveIntakeSlowOutButton.onTrue(new IntakeSetSlowOutCommand(s.intakeSubsystem));
+		driveIntakeFastOutButton.onTrue(new IntakeSetFastOutCommand(s.intakeSubsystem));
 
 		// Codrive buttons
 		codriveIntakeInButton.onTrue(new IntakeSetInCommand(s.intakeSubsystem));
