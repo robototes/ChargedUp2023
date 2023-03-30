@@ -79,14 +79,14 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final float ARM_REVERSE_LIMIT = 2;
 		public static final float WRIST_FORWARD_LIMIT = 62;
 		public static final float WRIST_REVERSE_LIMIT = 2;
-		public static final float WRIST_ENCODER_OFFSET = -0.22f;
+		public static final float WRIST_ENCODER_OFFSET = -0.20f;
 
 		public static final double ARM_VELOCITY_TOLERANCE = 0.2;
 		public static final double WRIST_VELOCITY_TOLERANCE = 0.2;
 
 		// Trapezoid Profile
 		public static final double MAX_ARM_VELOCITY = 1;
-		public static final double MAX_ARM_ACCELERATION = 0.5;
+		public static final double MAX_ARM_ACCELERATION = 1;
 
 		public static final Constraints ARM_CONSTRAINTS =
 				new Constraints(MAX_ARM_VELOCITY, MAX_ARM_ACCELERATION);
@@ -112,8 +112,8 @@ public class ArmSubsystem extends SubsystemBase {
 		 */
 		public static enum PositionType {
 			UNKNOWN_POSITION(0.212, 0.08, 0.46, 0.46),
-			ARM_LOW_POSITION(0.212, 0.08, 0.46, 0.46),
-			ARM_MIDDLE_POSITION(0.415, 0.08, 0.42, 0.43),
+			ARM_LOW_POSITION(0.212, 0.08, 0.46, 0.453),
+			ARM_MIDDLE_POSITION(0.415, 0.08, 0.42, 0.5),
 			ARM_HIGH_POSITION(0.6546, 0.08, 0.465, 0.473),
 			ARM_SUBSTATION_POSITION(0.6, 0.08, 0.56, 0.56); // ?
 
