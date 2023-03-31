@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 2.115324914410513,
-        "y": 2.740600352995578
+        "x": 1.838981045483458,
+        "y": 2.7520195211330605
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.115324914410513,
-        "y": 2.740600352995578
+        "x": 2.838981045483458,
+        "y": 2.7520195211330605
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -17,7 +17,8 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "ScoreBottom"
+          "ScoreHigh",
+          "Stow"
         ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",

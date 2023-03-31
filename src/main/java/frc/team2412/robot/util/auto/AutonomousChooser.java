@@ -37,7 +37,8 @@ public class AutonomousChooser {
 		autonomousModeChooser.addOption(
 				"FlatScoreTwo", () -> AutonomousTrajectories.getAutoPathByName("FlatScoreTwo"));
 		autonomousModeChooser.addOption(
-				"ChargePickup", () -> AutonomousTrajectories.getAutoPathByName("ChargePickup"));
+				"ChargeShootChargeShoot",
+				() -> AutonomousTrajectories.getAutoPathByName("ChargeShootChargeShoot"));
 		autonomousModeChooser.addOption(
 				"ChargePickupBot", () -> AutonomousTrajectories.getAutoPathByName("ChargePickupBot"));
 		autonomousModeChooser.addOption(
