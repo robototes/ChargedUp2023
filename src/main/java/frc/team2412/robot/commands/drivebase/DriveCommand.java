@@ -10,13 +10,13 @@ import java.util.Map;
 import java.util.function.DoubleSupplier;
 
 public class DriveCommand extends CommandBase {
-	private static final double TRIGGER_MODIFIER_DEFAULT = 0.7;
+	private static final double TURBO_ROTATION_DEFAULT = 1.5;
 
 	private final DrivebaseSubsystem drivebaseSubsystem;
 	private final DoubleSupplier forward;
 	private final DoubleSupplier strafe;
 	private final DoubleSupplier rotation;
-	private final DoubleSupplier speedLimiter;
+	private final DoubleSupplier turboRotation;
 
 	// shuffleboard
 	private static GenericEntry driveSpeedEntry =
@@ -40,14 +40,14 @@ public class DriveCommand extends CommandBase {
 					.getEntry();
 	private static GenericEntry cubeSpeedEntry =
 			Shuffleboard.getTab("Drivebase")
-					.add("Cube Speed", true)
+					.addPersistent("Cube Speed", true)
 					.withWidget(BuiltInWidgets.kToggleSwitch)
 					.getEntry();
-	private static GenericEntry triggerModifierEntry =
+	private static GenericEntry turboRotationEntry =
 			Shuffleboard.getTab("Drivebase")
-					.add("Trigger Modifier", TRIGGER_MODIFIER_DEFAULT)
+					.addPersistent("Turbo Rotation Modifier", TURBO_ROTATION_DEFAULT)
 					.withWidget(BuiltInWidgets.kNumberSlider)
-					.withProperties(Map.of("Min", 0, "Max", 1))
+					.withProperties(Map.of("Min", 0.5, "Max", 2.5))
 					.getEntry();
 
 	public DriveCommand(
@@ -55,25 +55,24 @@ public class DriveCommand extends CommandBase {
 			DoubleSupplier forward,
 			DoubleSupplier strafe,
 			DoubleSupplier rotation,
-			DoubleSupplier speedLimiter) {
+			DoubleSupplier turboRotation) {
 		this.drivebaseSubsystem = drivebaseSubsystem;
 		this.forward = forward;
 		this.strafe = strafe;
 		this.rotation = rotation;
 		// this variable give the right trigger input
-		this.speedLimiter = speedLimiter;
+		this.turboRotation = turboRotation;
 
 		addRequirements(drivebaseSubsystem);
 	}
 
 	@Override
 	public void execute() {
-		// this is so ugly spotless
-		double driveSpeedModifier =
-				driveSpeedEntry.getDouble(1.0)
+		double rotationSpeedModifier =
+				rotationSpeedEntry.getDouble(1.0)
 						* (1
-								- (speedLimiter.getAsDouble()
-										* (1 - triggerModifierEntry.getDouble(TRIGGER_MODIFIER_DEFAULT))));
+								- (turboRotation.getAsDouble()
+										* (1 - turboRotationEntry.getDouble(TURBO_ROTATION_DEFAULT))));
 
 		double x = deadbandCorrection(-forward.getAsDouble());
 		double y = deadbandCorrection(strafe.getAsDouble());
@@ -87,14 +86,14 @@ public class DriveCommand extends CommandBase {
 
 		drivebaseSubsystem.drive(
 				(cubeSpeedEntry.getBoolean(false) ? cubed_x : x)
-						* driveSpeedModifier
+						* driveSpeedEntry.getDouble(1.0)
 						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC, // convert from percent to m/s
 				(cubeSpeedEntry.getBoolean(false) ? cubed_y : y)
-						* driveSpeedModifier
+						* driveSpeedEntry.getDouble(1.0)
 						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC,
 				Rotation2d.fromRotations(
 						rot
-								* rotationSpeedEntry.getDouble(1.0)
+								* rotationSpeedModifier
 								* DrivebaseSubsystem.MAX_ROTATIONS_PER_SEC
 										.getRotations()), // convert from percent to rotations per second
 				fieldOrientedEntry.getBoolean(true),
