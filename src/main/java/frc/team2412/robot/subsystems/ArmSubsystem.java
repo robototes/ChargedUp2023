@@ -101,8 +101,8 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final Constraints WRIST_CONSTRAINTS =
 				new Constraints(MAX_WRIST_VELOCITY, MAX_WRIST_ACCELERATION);
 
-		public static final double ARM_POS_ADJUST_SENSITIVITY_DEFAULT = 0.001;
-		public static final double WRIST_POS_ADJUST_SENSITIVITY_DEFAULT = 0.001;
+		public static final double ARM_POS_ADJUST_SENSITIVITY_DEFAULT = 0.007;
+		public static final double WRIST_POS_ADJUST_SENSITIVITY_DEFAULT = 0.01;
 
 		// ENUM
 
