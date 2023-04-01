@@ -40,17 +40,17 @@ public class ShuffleboardUtil {
 		layout
 				.addDouble(
 						"Rot X",
-						mapNullableSupplierToDouble(poseSupplier, pose -> pose.getRotation().getX(), -1))
+						mapNullableSupplierToDouble(poseSupplier, pose -> Math.toDegrees(pose.getRotation().getX()), -1))
 				.withPosition(1, 0);
 		layout
 				.addDouble(
 						"Rot Y",
-						mapNullableSupplierToDouble(poseSupplier, pose -> pose.getRotation().getY(), -1))
+						mapNullableSupplierToDouble(poseSupplier, pose -> Math.toDegrees(pose.getRotation().getY()), -1))
 				.withPosition(1, 1);
 		layout
 				.addDouble(
 						"Rot Z",
-						mapNullableSupplierToDouble(poseSupplier, pose -> pose.getRotation().getZ(), -1))
+						mapNullableSupplierToDouble(poseSupplier, pose -> Math.toDegrees(pose.getRotation().getZ()), -1))
 				.withPosition(1, 2);
 		return layout;
 	}
