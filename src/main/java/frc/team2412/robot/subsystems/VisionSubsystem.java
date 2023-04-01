@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.Robot;
+import frc.team2412.robot.util.ShuffleboardUtil;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -141,13 +142,10 @@ public class VisionSubsystem extends SubsystemBase {
 		ShuffleboardTab visionTab = Shuffleboard.getTab("Vision");
 		visionTab.addBoolean("Has targets", this::hasTargets).withPosition(0, 0).withSize(1, 1);
 		visionTab
-				.addString("Robot pose", () -> String.valueOf(getRobotPose()))
-				.withPosition(1, 0)
-				.withSize(8, 1);
-		visionTab
 				.addDouble("Last timestamp", this::getLastTimestampSeconds)
-				.withPosition(1, 1)
+				.withPosition(1, 0)
 				.withSize(1, 1);
+		ShuffleboardUtil.addPose3dLayout(visionTab, "Robot pose", this::getRobotPose, 2, 0);
 		visionTab
 				.addBoolean("Target was too far", () -> targetTooFar)
 				.withPosition(0, 1)
