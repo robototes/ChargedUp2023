@@ -15,21 +15,17 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanSubscriber;
-import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Robot;
 import frc.team2412.robot.sim.PhysicsSim;
-
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 
@@ -104,7 +100,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 		public static final Constraints WRIST_CONSTRAINTS =
 				new Constraints(MAX_WRIST_VELOCITY, MAX_WRIST_ACCELERATION);
-		
+
 		public static final double ARM_POS_ADJUST_SENSITIVITY_DEFAULT = 0.001;
 		public static final double WRIST_POS_ADJUST_SENSITIVITY_DEFAULT = 0.001;
 
@@ -197,18 +193,20 @@ public class ArmSubsystem extends SubsystemBase {
 	DoublePublisher armCurrentPublisher;
 	DoublePublisher armLastSetValuePublisher;
 
-	GenericEntry armPosAdjustSensitivity = Shuffleboard.getTab("Arm")
-											.add("Arm Adjust Sensitivity", ARM_POS_ADJUST_SENSITIVITY_DEFAULT)
-											.withSize(2, 1)
-											.withWidget(BuiltInWidgets.kNumberSlider)
-											.withProperties(Map.of("Min", 0, "Max", 0.025))
-											.getEntry();
-	GenericEntry wristPosAdjustSensitivity = Shuffleboard.getTab("Arm")
-											.add("Wrist Adjust Sensitivity", WRIST_POS_ADJUST_SENSITIVITY_DEFAULT)
-											.withSize(2, 1)
-											.withWidget(BuiltInWidgets.kNumberSlider)
-											.withProperties(Map.of("Min", 0, "Max", 0.025))
-											.getEntry();
+	GenericEntry armPosAdjustSensitivity =
+			Shuffleboard.getTab("Arm")
+					.add("Arm Adjust Sensitivity", ARM_POS_ADJUST_SENSITIVITY_DEFAULT)
+					.withSize(2, 1)
+					.withWidget(BuiltInWidgets.kNumberSlider)
+					.withProperties(Map.of("Min", 0, "Max", 0.025))
+					.getEntry();
+	GenericEntry wristPosAdjustSensitivity =
+			Shuffleboard.getTab("Arm")
+					.add("Wrist Adjust Sensitivity", WRIST_POS_ADJUST_SENSITIVITY_DEFAULT)
+					.withSize(2, 1)
+					.withWidget(BuiltInWidgets.kNumberSlider)
+					.withProperties(Map.of("Min", 0, "Max", 0.025))
+					.getEntry();
 
 	// CONSTRUCTOR
 
