@@ -144,7 +144,7 @@ public class VisionSubsystem extends SubsystemBase {
 						.getSubTable(Hardware.PHOTON_CAM)
 						.getEntry("rawBytes"),
 				EnumSet.of(NetworkTableEvent.Kind.kValueAll),
-				this::updateEvent);
+				event -> update());
 
 		ShuffleboardTab visionTab = Shuffleboard.getTab("Vision");
 		visionTab.addBoolean("Has targets", this::hasTargets).withPosition(0, 0).withSize(1, 1);
@@ -159,7 +159,7 @@ public class VisionSubsystem extends SubsystemBase {
 				.withSize(1, 1);
 	}
 
-	public void updateEvent(NetworkTableEvent event) {
+	public void update() {
 		PhotonPipelineResult pipelineResult = photonCamera.getLatestResult();
 		targetTooFar =
 				pipelineResult.getTargets().stream()
