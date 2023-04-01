@@ -46,15 +46,17 @@ public class VisionSubsystem extends SubsystemBase {
 			IS_COMP
 					? new Transform3d(
 							new Translation3d(
-									// 6.5 inches from back of robot, back is -half of length (30 in.)
-									Units.inchesToMeters(-30.0 / 2 + 6.5),
-									// 7 inches from left, left is +half of width (26 in.)
-									Units.inchesToMeters(26.0 / 2 - 7),
-									// 29 inches above the ground
-									Units.inchesToMeters(29)),
-							// Camera has a slight yaw, -6.7 degrees following right-hand rule (thumb points to
-							// +Z/up, fingers curl in positive rotation (CCW looking down))
-							new Rotation3d(0, 0, Math.toRadians(-6.7)))
+									// 6 5/8 inches from back of robot, back is -half of length (30 in.)
+									Units.inchesToMeters(-30.0 / 2 + 6.625),
+									// 6 3/4 inches from left, left is +half of width (26 in.)
+									Units.inchesToMeters(26.0 / 2 - 6.75),
+									// 39 1/4 inches above the ground
+									Units.inchesToMeters(39.25)),
+							// Limelight top back edge is 1 inch forward from bottom back edge (opposite), and
+							// limelight is 2 3/16 inches tall (hypotenuse)
+							// Pitch is positive following right-hand rule (thumb points to +Y/left, fingers curl
+							// positive rotation (CCW looking right))
+							new Rotation3d(0, Math.asin(1 / 2.1875), 0))
 					: new Transform3d(
 							new Translation3d(
 									// 4 3/4 inches from front of robot, front is +half of length (24 in.)
