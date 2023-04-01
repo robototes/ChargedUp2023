@@ -90,11 +90,14 @@ public class VisionSubsystem extends SubsystemBase {
 	}
 
 	private final PhotonCamera photonCamera;
-	private Optional<EstimatedRobotPose> latestPose = Optional.empty();
 	private final PhotonPoseEstimator photonPoseEstimator;
 	private final SwerveDrivePoseEstimator poseEstimator;
+	// These are always set with every pipeline result
+	private PhotonPipelineResult latestResult = null;
+	private Optional<EstimatedRobotPose> latestPose = Optional.empty();
 	private boolean targetTooFar = false;
 
+	// These are only set when there's a valid pose
 	private double lastTimestampSeconds = 0;
 	private Pose2d lastFieldPose = new Pose2d(-1, -1, new Rotation2d());
 
@@ -148,15 +151,16 @@ public class VisionSubsystem extends SubsystemBase {
 
 		ShuffleboardTab visionTab = Shuffleboard.getTab("Vision");
 		visionTab.addBoolean("Has targets", this::hasTargets).withPosition(0, 0).withSize(1, 1);
+		visionTab.addInteger("Num targets", this::getNumTargets).withPosition(0, 1).withSize(1, 1);
 		visionTab
 				.addDouble("Last timestamp", this::getLastTimestampSeconds)
 				.withPosition(1, 0)
 				.withSize(1, 1);
-		ShuffleboardUtil.addPose3dLayout(visionTab, "Robot pose", this::getRobotPose, 2, 0);
 		visionTab
 				.addBoolean("Target was too far", () -> targetTooFar)
-				.withPosition(0, 1)
+				.withPosition(1, 1)
 				.withSize(1, 1);
+		ShuffleboardUtil.addPose3dLayout(visionTab, "Robot pose", this::getRobotPose, 2, 0);
 	}
 
 	public void update() {
@@ -167,6 +171,7 @@ public class VisionSubsystem extends SubsystemBase {
 								(target) ->
 										target.getBestCameraToTarget().getTranslation().toTranslation2d().getNorm()
 												< MAX_TRUSTABLE_HORIZONTAL_DISTANCE);
+		latestResult = pipelineResult;
 		latestPose = photonPoseEstimator.update(pipelineResult);
 		if (latestPose.isPresent()) {
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
@@ -181,6 +186,10 @@ public class VisionSubsystem extends SubsystemBase {
 
 	public boolean hasTargets() {
 		return latestPose.isPresent();
+	}
+
+	public int getNumTargets() {
+		return latestResult == null ? -1 : latestResult.getTargets().size();
 	}
 
 	/**
