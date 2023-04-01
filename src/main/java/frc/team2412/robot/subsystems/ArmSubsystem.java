@@ -3,7 +3,6 @@ package frc.team2412.robot.subsystems;
 import static frc.team2412.robot.Hardware.*;
 import static frc.team2412.robot.sim.SparkMaxSimProfile.SparkMaxConstants.*;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.*;
-import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -16,14 +15,23 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Robot;
 import frc.team2412.robot.sim.PhysicsSim;
+
+import java.util.Map;
+import java.util.function.DoubleSupplier;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -96,6 +104,9 @@ public class ArmSubsystem extends SubsystemBase {
 
 		public static final Constraints WRIST_CONSTRAINTS =
 				new Constraints(MAX_WRIST_VELOCITY, MAX_WRIST_ACCELERATION);
+		
+		public static final double ARM_POS_ADJUST_SENSITIVITY_DEFAULT = 0.001;
+		public static final double WRIST_POS_ADJUST_SENSITIVITY_DEFAULT = 0.001;
 
 		// ENUM
 
@@ -137,10 +148,16 @@ public class ArmSubsystem extends SubsystemBase {
 
 	// VARIABLES
 
-	private PositionType currentPosition;
-	private boolean manualOverride;
-	private double armGoal;
-	private double wristGoal;
+	private PositionType currentPosition = PositionType.UNKNOWN_POSITION;
+	private boolean manualOverride = false;
+	private double armGoal = PositionType.UNKNOWN_POSITION.armAngle;
+	private double wristGoal =
+			PositionType.UNKNOWN_POSITION.retractedWristAngle * WRIST_MOTOR_TO_WRIST_ENCODER_RATIO;
+
+	// Joysticks (for fine tune control in preset mode)
+
+	private DoubleSupplier armPosAdjustJoystick;
+	private DoubleSupplier wristPosAdjustJoystick;
 
 	// Hardware
 	private final CANSparkMax armMotor1;
@@ -180,6 +197,19 @@ public class ArmSubsystem extends SubsystemBase {
 	DoublePublisher armCurrentPublisher;
 	DoublePublisher armLastSetValuePublisher;
 
+	GenericEntry armPosAdjustSensitivity = Shuffleboard.getTab("Arm")
+											.add("Arm Adjust Sensitivity", ARM_POS_ADJUST_SENSITIVITY_DEFAULT)
+											.withSize(2, 1)
+											.withWidget(BuiltInWidgets.kNumberSlider)
+											.withProperties(Map.of("Min", 0, "Max", 0.025))
+											.getEntry();
+	GenericEntry wristPosAdjustSensitivity = Shuffleboard.getTab("Arm")
+											.add("Wrist Adjust Sensitivity", WRIST_POS_ADJUST_SENSITIVITY_DEFAULT)
+											.withSize(2, 1)
+											.withWidget(BuiltInWidgets.kNumberSlider)
+											.withProperties(Map.of("Min", 0, "Max", 0.025))
+											.getEntry();
+
 	// CONSTRUCTOR
 
 	public ArmSubsystem() {
@@ -199,9 +229,6 @@ public class ArmSubsystem extends SubsystemBase {
 		wristFeedforward = new ArmFeedforward(WRIST_K_A, WRIST_K_G, WRIST_K_S, WRIST_K_V);
 
 		configMotors();
-
-		currentPosition = UNKNOWN_POSITION;
-		manualOverride = false;
 
 		armPID.reset(getShoulderPosition());
 
@@ -272,6 +299,13 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor2.burnFlash();
 		wristMotor.burnFlash();
 	}
+
+	public void setPresetAdjustJoysticks(
+			DoubleSupplier armPosAdjustJoystick, DoubleSupplier wristPosAdjustJoystick) {
+		this.armPosAdjustJoystick = armPosAdjustJoystick;
+		this.wristPosAdjustJoystick = wristPosAdjustJoystick;
+	}
+
 	/**
 	 * Sets Arm Manual Override to be on or off.
 	 *
@@ -466,6 +500,17 @@ public class ArmSubsystem extends SubsystemBase {
 	public void periodic() {
 		// Periodic Arm movement for Preset Angle Control
 		if (!manualOverride && !currentPosition.equals(PositionType.UNKNOWN_POSITION)) {
+			// fine tune adjust presets
+			double armPosAdjust =
+					(-MathUtil.applyDeadband(armPosAdjustJoystick.getAsDouble(), 0.05))
+							* armPosAdjustSensitivity.getDouble(ARM_POS_ADJUST_SENSITIVITY_DEFAULT);
+			double wristPosAdjust =
+					(MathUtil.applyDeadband(wristPosAdjustJoystick.getAsDouble(), 0.05))
+							* wristPosAdjustSensitivity.getDouble(WRIST_POS_ADJUST_SENSITIVITY_DEFAULT);
+
+			setArmGoal(armPID.getGoal().position + armPosAdjust);
+			setWristGoal((wristGoal / WRIST_MOTOR_TO_WRIST_ENCODER_RATIO) + wristPosAdjust);
+
 			updateArmMotorOutput();
 			updateWristMotorOutput();
 		}

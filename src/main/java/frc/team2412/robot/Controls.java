@@ -121,6 +121,9 @@ public class Controls {
 	}
 
 	public void bindArmControls() {
+		s.armSubsystem.setPresetAdjustJoysticks(
+				codriveController::getRightY, codriveController::getLeftY);
+
 		armManualControlOn.onTrue(
 				new ManualArmOverrideOnCommand(
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
