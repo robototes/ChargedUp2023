@@ -56,9 +56,15 @@ public class VisionSubsystem extends SubsystemBase {
 							// +Z/up, fingers curl in positive rotation (CCW looking down))
 							new Rotation3d(0, 0, Math.toRadians(-6.7)))
 					: new Transform3d(
-							new Translation3d(0, 0, Units.inchesToMeters(28)),
-							// Camera's upside down
-							new Rotation3d(Math.toRadians(180), 0, 0));
+							new Translation3d(
+									// 15 5/8 inches from back of robot, back is -half of length (24 in.)
+									Units.inchesToMeters(-24.0 / 2 + (15 + 5.0 / 8)),
+									// 7 1/8 inches from left of robot, left is +half of width (24 in.)
+									Units.inchesToMeters(24.0 / 2 - (7 + 1.0 / 8)),
+									// 41.5 inches above the ground
+									Units.inchesToMeters(41.5)),
+							// Limelight's facing backwards
+							new Rotation3d(0, 0, Math.toRadians(180)));
 	public static final double MAX_TRUSTABLE_HORIZONTAL_DISTANCE = 3;
 	// This is from the metric approximations from section 5.1 of the game manual
 	private static final double FIELD_LENGTH_METERS = 16.54;
