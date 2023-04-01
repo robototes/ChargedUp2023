@@ -118,7 +118,7 @@ public class ArmSubsystem extends SubsystemBase {
 		 * Scoring Wrist Angle
 		 */
 		public static enum PositionType {
-			UNKNOWN_POSITION(0.212, 0.08, 0.46, 0.46),
+			UNKNOWN_POSITION(0.212, 0.08, 0.467, 0.467),
 			ARM_LOW_POSITION(0.212, 0.08, 0.46, 0.453),
 			ARM_MIDDLE_POSITION(0.415, 0.08, 0.42, 0.5),
 			ARM_HIGH_POSITION(0.6546, 0.08, 0.465, 0.473),
@@ -497,18 +497,19 @@ public class ArmSubsystem extends SubsystemBase {
 	@Override
 	public void periodic() {
 		// Periodic Arm movement for Preset Angle Control
-		if (!manualOverride && !currentPosition.equals(PositionType.UNKNOWN_POSITION)) {
+		if (!manualOverride) {
 			// fine tune adjust presets
 			double armPosAdjust =
-					(-MathUtil.applyDeadband(armPosAdjustJoystick.getAsDouble(), 0.05))
+					-MathUtil.applyDeadband(armPosAdjustJoystick.getAsDouble(), 0.05)
 							* armPosAdjustSensitivity.getDouble(ARM_POS_ADJUST_SENSITIVITY_DEFAULT);
 			double wristPosAdjust =
-					(MathUtil.applyDeadband(wristPosAdjustJoystick.getAsDouble(), 0.05))
+					MathUtil.applyDeadband(wristPosAdjustJoystick.getAsDouble(), 0.05)
 							* wristPosAdjustSensitivity.getDouble(WRIST_POS_ADJUST_SENSITIVITY_DEFAULT);
 
 			setArmGoal(armPID.getGoal().position + armPosAdjust);
 			setWristGoal((wristGoal / WRIST_MOTOR_TO_WRIST_ENCODER_RATIO) + wristPosAdjust);
-
+		}
+		if (!manualOverride && !currentPosition.equals(PositionType.UNKNOWN_POSITION)) {
 			updateArmMotorOutput();
 			updateWristMotorOutput();
 		}
