@@ -3,6 +3,7 @@ package frc.team2412.robot.subsystems;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -10,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEvent;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -89,6 +91,10 @@ public class VisionSubsystem extends SubsystemBase {
 		}
 	}
 
+	private static Vector<N3> getStdDevs(PhotonPipelineResult result) {
+		return VecBuilder.fill(0.0385, 0.0392, Math.toRadians(2.85));
+	}
+
 	private final PhotonCamera photonCamera;
 	private final PhotonPoseEstimator photonPoseEstimator;
 	private final SwerveDrivePoseEstimator poseEstimator;
@@ -125,10 +131,6 @@ public class VisionSubsystem extends SubsystemBase {
 
 	public VisionSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
 		poseEstimator = initialPoseEstimator;
-		synchronized (poseEstimator) {
-			poseEstimator.setVisionMeasurementStdDevs(
-					VecBuilder.fill(0.0385, 0.0392, Math.toRadians(2.85)));
-		}
 
 		var networkTables = NetworkTableInstance.getDefault();
 		if (Robot.isSimulation()) {
@@ -178,7 +180,8 @@ public class VisionSubsystem extends SubsystemBase {
 			lastFieldPose = convertToFieldPose(latestPose.get().estimatedPose);
 			if (!targetTooFar) {
 				synchronized (poseEstimator) {
-					poseEstimator.addVisionMeasurement(lastFieldPose, lastTimestampSeconds);
+					poseEstimator.addVisionMeasurement(
+							lastFieldPose, lastTimestampSeconds, getStdDevs(pipelineResult));
 				}
 			}
 		}
