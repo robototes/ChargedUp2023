@@ -129,7 +129,7 @@ public class VisionSubsystem extends SubsystemBase {
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
 		this.photonPoseEstimator =
 				new PhotonPoseEstimator(
-						fieldLayout, PoseStrategy.AVERAGE_BEST_TARGETS, photonCamera, ROBOT_TO_CAM);
+						fieldLayout, PoseStrategy.MULTI_TAG_PNP, photonCamera, ROBOT_TO_CAM);
 
 		networkTables.addListener(
 				networkTables
