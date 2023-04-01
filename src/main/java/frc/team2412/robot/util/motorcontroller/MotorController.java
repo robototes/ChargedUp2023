@@ -85,6 +85,12 @@ public abstract class MotorController {
 	/** Units: rotations per second */
 	public abstract double getVelocity();
 
+	public abstract double getPercentOutput();
+
+	public abstract double getCurrentOutput();
+
+	public abstract void configCurrentLimit(int limit);
+
 	public abstract double getFreeSpeedRPS();
 
 	public abstract void setMeasurementPeriod(int periodMS);
