@@ -180,3 +180,6 @@ local.properties
 
 # Don't know what's creating this
 .project
+
+# Generated git info file
+src/main/deploy/git-info.txt

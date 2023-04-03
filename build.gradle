@@ -134,6 +134,34 @@ spotless {
 		trimTrailingWhitespace();
 	}
 }
+
+task writeGitInfo {
+	def addGitOutput = { PrintStream output, String name, String... args ->
+		output.println("### $name (git ${String.join(' ', args)})")
+		def execOutput = new ByteArrayOutputStream()
+		def ex = exec {
+			workingDir projectDir
+			executable 'git'
+			delegate.args args
+			standardOutput = execOutput
+		}
+		output.print(execOutput)
+	}
+
+	doLast {
+		try (PrintStream output = new PrintStream('src\\main\\deploy\\git-info.txt')) {
+			addGitOutput(output, 'Latest commit', 'log', '-1', '--decorate=short', '--format=medium')
+			addGitOutput(output, 'Changed files', 'diff-index', '--name-only', 'HEAD', '--')
+			addGitOutput(output, 'Untracked files', 'ls-files', '--exclude-standard', '--others')
+			output.println('### (END)')
+		}
+	}
+}
+if (getProjectBooleanProperty('jarWriteGitInfo', true)) {
+	jar.dependsOn(writeGitInfo)
+}
+
+// Set up spotless
 tasks.named("build") { finalizedBy("spotlessApply") }
 tasks.named("deploy") { finalizedBy("spotlessApply") }
 spotlessCheck.mustRunAfter(compileJava);

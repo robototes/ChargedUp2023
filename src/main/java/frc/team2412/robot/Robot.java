@@ -16,6 +16,9 @@ import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -103,6 +106,17 @@ public class Robot extends TimedRobot {
 		DriverStation.silenceJoystickConnectionWarning(true);
 
 		PathPlannerServer.startServer(5811);
+
+		logRobotInfo();
+	}
+
+	private void logRobotInfo() {
+		try {
+			File gitInfoFile = new File(Filesystem.getDeployDirectory(), "git-info.txt");
+			System.out.println("Git info:\n" + Files.readString(gitInfoFile.toPath()));
+		} catch (IOException e) {
+			DriverStation.reportWarning("Could not open git info file", true);
+		}
 	}
 
 	public SwerveAutoBuilder getAutoBuilder(HashMap<String, Command> eventMap) {
