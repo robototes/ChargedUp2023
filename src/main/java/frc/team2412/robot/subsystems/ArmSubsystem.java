@@ -497,7 +497,7 @@ public class ArmSubsystem extends SubsystemBase {
 	@Override
 	public void periodic() {
 		// Periodic Arm movement for Preset Angle Control
-		if (!manualOverride) {
+		if (!manualOverride && armPosAdjustJoystick != null && wristPosAdjustJoystick != null) {
 			// fine tune adjust presets
 			double armPosAdjust =
 					-MathUtil.applyDeadband(armPosAdjustJoystick.getAsDouble(), 0.05)
