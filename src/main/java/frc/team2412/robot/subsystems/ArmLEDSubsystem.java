@@ -20,6 +20,12 @@ public class ArmLEDSubsystem {
 
 	private static final String IP = "wled-00e2b4"; // TODO: get IP
 
+	private static final int LED_ALPHA = 205; 
+	private static final int EFFECT_SPEED = 50;
+	private static final int EFFECT_INTENSITY = 10;
+	
+	
+	
 	// color URIs
 	// private static final String RED_URI = "https://" + IP + "/win&T=1&A=255&R=255&G=0&B=0&FX=0";
 	// private static final String ORANGE_URI = "https://" + IP +
@@ -37,31 +43,39 @@ public class ArmLEDSubsystem {
 	// enum selector
 
 	public static enum ColorSelector {
-		RED("/win&T=1&A=255&R=255&G=0&B=0&FX=0"),
-		ORANGE("/win&T=1&A=255&R=255&G=165&B=0&FX=0"),
-		YELLOW("/win&T=1&A=255&R=255&G=255&B=0&FX=0"),
-		GREEN("/win&T=1&A=255&R=0&G=255&B=0&FX=0"),
-		BLUE("/win&T=1&A=255&R=0&G=0&B=255&FX=0"),
-		PURPLE("/win&T=1&A=255&R=255&G=0&B=255&FX=0"),
-		WHITE("/win&T=1&A=205&R=205&G=205&B=205&FX=0"),
-		BLACK("/win&T=1&A=255&R=0&G=0&B=0&FX=0");
+		RED("/win&T=1&A=255&R=255&G=0&B=0&FX=0", 255, 0, 0),
+		ORANGE("/win&T=1&A=255&R=255&G=165&B=0&FX=0", 255, 165, 0),
+		YELLOW("/win&T=1&A=255&R=255&G=255&B=0&FX=0", 255, 255, 0),
+		GREEN("/win&T=1&A=255&R=0&G=255&B=0&FX=0", 0, 255, 0),
+		BLUE("/win&T=1&A=255&R=0&G=0&B=255&FX=0", 0, 0, 255),
+		PURPLE("/win&T=1&A=255&R=255&G=0&B=255&FX=0", 255, 0, 255),
+		WHITE("/win&T=1&A=205&R=205&G=205&B=205&FX=0", 205, 205, 205),
+		BLACK("/win&T=1&A=255&R=0&G=0&B=0&FX=0", 0, 0, 0);
 
 		public final String url;
+		public final int r;
+		public final int g;
+		public final int b;
 
-		ColorSelector(String url) {
+		ColorSelector(String url, int r, int g, int b) {
 			this.url = url;
+			this.r = r;
+			this.g = g;
+			this.b = b;
 		}
 	}
 
 	// VARIABLES
-
-	private HttpClient client;
-	private HttpRequest request;
-
-	// alliance colors
+	
+	// led
 	private ColorSelector color1;
 	private ColorSelector color2;
-	private ColorSelector color3;
+	private int enable;
+	private int effect; // https://kno.wled.ge/features/effects/
+
+	// http get request
+	private HttpClient client;
+	private HttpRequest request;
 
 	// logging
 	private SendableChooser<ColorSelector> color1Chooser = new SendableChooser<>();
@@ -74,6 +88,15 @@ public class ArmLEDSubsystem {
 
 	public ArmLEDSubsystem() {
 
+		//
+		
+		enable = 1;
+		effect = 0;
+		color1 = RED;
+		color2 = BLACK;
+		
+		
+		//
 		client =
 				HttpClient.newBuilder()
 						.connectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT_DURATION))
@@ -138,7 +161,10 @@ public class ArmLEDSubsystem {
 		request();
 	}
 
-	public void setLEDAlliance() {}
+	public void setLEDAlliance() {
+		effectIndex = 
+	
+	}
 
 	public void request() {
 		try {
@@ -148,7 +174,19 @@ public class ArmLEDSubsystem {
 		}
 	}
 
-	public String getURI(ColorSelector color) {
-		return "https://" + IP + color.url;
+// 	public String getURI(ColorSelector color) {
+// 		return "https://" + IP + color.url;
+// 	}
+	
+	public void enableLED(boolean enable) {
+		if (enable) {
+			enabled = 1;
+			return;
+		}
+		enabled = 0;
+	}
+	// TODO: finish URI getter
+	public String getURI() {
+		return "https://" + IP + "/win&T=" + toggle + "&A=" + LED_ALPHA + "&R=" + color1.r = "&G=" + color1.g + "&B=" + color1.b + "&R2=" + color2.r = "&G2=" + color2.g + "&B2=" + color2.b + "&FX=" + 0; 
 	}
 }
