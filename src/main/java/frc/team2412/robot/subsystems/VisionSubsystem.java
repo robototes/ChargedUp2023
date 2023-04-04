@@ -70,7 +70,7 @@ public class VisionSubsystem extends SubsystemBase {
 									// 41.5 inches above the ground
 									Units.inchesToMeters(41.5)),
 							new Rotation3d(0, 0, 0));
-	private static final double MAX_TRUSTABLE_XY_DISTANCE = 1.9;
+	private static final double MAX_TRUSTABLE_XY_DISTANCE = 2;
 	private static final double MAX_TRUSTABLE_AMBIGUITY = 0.1;
 	private static final double EDGE_THRESHOLD_PIXELS = 10;
 	private static final double RESOLUTION_WIDTH = 960;
@@ -189,6 +189,7 @@ public class VisionSubsystem extends SubsystemBase {
 		Vector<N3> stdDevs = VecBuilder.fill(0.0385, 0.0392, Math.toRadians(2.85));
 		double minTargetDistance = Double.POSITIVE_INFINITY;
 		double minTargetAmbiguity = Double.POSITIVE_INFINITY;
+		tooCloseToEdge = false;
 		for (PhotonTrackedTarget target : result.getTargets()) {
 			double xyDistance =
 					target.getBestCameraToTarget().getTranslation().toTranslation2d().getNorm();
@@ -199,16 +200,16 @@ public class VisionSubsystem extends SubsystemBase {
 				minTargetAmbiguity = target.getPoseAmbiguity();
 			}
 			for (TargetCorner corner : target.getDetectedCorners()) {
-				if (corner.x < EDGE_THRESHOLD_PIXELS
-						|| corner.x > RESOLUTION_WIDTH - EDGE_THRESHOLD_PIXELS
-						|| corner.y < EDGE_THRESHOLD_PIXELS
-						|| corner.y > RESOLUTION_HEIGHT - EDGE_THRESHOLD_PIXELS) {
+				if (corner.x <= EDGE_THRESHOLD_PIXELS
+						|| corner.x >= RESOLUTION_WIDTH - EDGE_THRESHOLD_PIXELS
+						|| corner.y <= EDGE_THRESHOLD_PIXELS
+						|| corner.y >= RESOLUTION_HEIGHT - EDGE_THRESHOLD_PIXELS) {
 					tooCloseToEdge = true;
 				}
 			}
 		}
-		targetTooFar = minTargetDistance < MAX_TRUSTABLE_XY_DISTANCE;
-		ambiguityTooHigh = minTargetAmbiguity < MAX_TRUSTABLE_AMBIGUITY;
+		targetTooFar = minTargetDistance >= MAX_TRUSTABLE_XY_DISTANCE;
+		ambiguityTooHigh = minTargetAmbiguity >= MAX_TRUSTABLE_AMBIGUITY;
 		if (targetTooFar || ambiguityTooHigh || tooCloseToEdge) {
 			return null;
 		}
