@@ -121,6 +121,9 @@ public class Controls {
 	}
 
 	public void bindArmControls() {
+		s.armSubsystem.setPresetAdjustJoysticks(
+				codriveController::getRightY, codriveController::getLeftY);
+
 		armManualControlOn.onTrue(
 				new ManualArmOverrideOnCommand(
 						s.armSubsystem, codriveController::getRightY, codriveController::getLeftY));
@@ -138,7 +141,8 @@ public class Controls {
 		wristCarryButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_RETRACT));
 		wristPrescoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_PRESCORE));
 		wristScoreButton.onTrue(new SetWristCommand(s.armSubsystem, WRIST_SCORE));
-		wristIntakeButton.onTrue(new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_SCORE));
+		wristIntakeButton.onTrue(
+				new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_PRESCORE));
 	}
 
 	public void bindIntakeControls() {
