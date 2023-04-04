@@ -30,6 +30,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 /**
  * All 3D poses and transforms use the NWU (North-West-Up) coordinate system, where +X is
@@ -68,7 +69,7 @@ public class VisionSubsystem extends SubsystemBase {
 									// 41.5 inches above the ground
 									Units.inchesToMeters(41.5)),
 							new Rotation3d(0, 0, 0));
-	public static final double MAX_TRUSTABLE_HORIZONTAL_DISTANCE = 3;
+	private static final double MAX_TRUSTABLE_XY_DISTANCE = 1.9;
 	// This is from the metric approximations from section 5.1 of the game manual
 	private static final double FIELD_LENGTH_METERS = 16.54;
 
@@ -89,10 +90,6 @@ public class VisionSubsystem extends SubsystemBase {
 			default:
 				return pose3d.toPose2d();
 		}
-	}
-
-	private static Vector<N3> getStdDevs(PhotonPipelineResult result) {
-		return VecBuilder.fill(0.0385, 0.0392, Math.toRadians(2.85));
 	}
 
 	private final PhotonCamera photonCamera;
@@ -165,23 +162,42 @@ public class VisionSubsystem extends SubsystemBase {
 		ShuffleboardUtil.addPose3dLayout(visionTab, "Robot pose", this::getRobotPose, 2, 0);
 	}
 
+	/**
+	 * Calculates the standard deviations of the vision measurements. Also updates some logging
+	 * variables.
+	 *
+	 * @param result The current pipeline result.
+	 * @return The standard deviations of the vision measurements. Null is used to indicate the
+	 *     measurement should not be added.
+	 */
+	private Vector<N3> getStdDevs(PhotonPipelineResult result) {
+		Vector<N3> stdDevs = VecBuilder.fill(0.0385, 0.0392, Math.toRadians(2.85));
+		double minDistance = Double.POSITIVE_INFINITY;
+		for (PhotonTrackedTarget target : result.getTargets()) {
+			double xyDistance =
+					target.getBestCameraToTarget().getTranslation().toTranslation2d().getNorm();
+			if (xyDistance < minDistance) {
+				minDistance = xyDistance;
+			}
+		}
+		targetTooFar = minDistance < MAX_TRUSTABLE_XY_DISTANCE;
+		if (targetTooFar) {
+			return null;
+		}
+		return stdDevs;
+	}
+
 	public void update() {
 		PhotonPipelineResult pipelineResult = photonCamera.getLatestResult();
-		targetTooFar =
-				pipelineResult.getTargets().stream()
-						.noneMatch(
-								(target) ->
-										target.getBestCameraToTarget().getTranslation().toTranslation2d().getNorm()
-												< MAX_TRUSTABLE_HORIZONTAL_DISTANCE);
 		latestResult = pipelineResult;
 		latestPose = photonPoseEstimator.update(pipelineResult);
 		if (latestPose.isPresent()) {
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
 			lastFieldPose = convertToFieldPose(latestPose.get().estimatedPose);
-			if (!targetTooFar) {
+			Vector<N3> stdDevs = getStdDevs(pipelineResult);
+			if (stdDevs != null) {
 				synchronized (poseEstimator) {
-					poseEstimator.addVisionMeasurement(
-							lastFieldPose, lastTimestampSeconds, getStdDevs(pipelineResult));
+					poseEstimator.addVisionMeasurement(lastFieldPose, lastTimestampSeconds, stdDevs);
 				}
 			}
 		}
