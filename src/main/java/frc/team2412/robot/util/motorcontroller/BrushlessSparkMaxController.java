@@ -118,6 +118,21 @@ public class BrushlessSparkMaxController extends MotorController {
 	}
 
 	@Override
+	public double getPercentOutput() {
+		return motor.getAppliedOutput();
+	}
+
+	@Override
+	public double getCurrentOutput() {
+		return motor.getOutputCurrent();
+	}
+
+	@Override
+	public void configCurrentLimit(int limit) {
+		motor.setSmartCurrentLimit(limit);
+	}
+
+	@Override
 	public double getFreeSpeedRPS() {
 		return FREE_SPEED_RPS;
 	}

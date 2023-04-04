@@ -1,5 +1,6 @@
 package frc.team2412.robot.util.motorcontroller;
 
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import frc.team2412.robot.Hardware;
@@ -114,6 +115,21 @@ public class TalonFXController extends MotorController {
 	public double getVelocity() {
 		// ticks per 100ms to rps
 		return motor.getSelectedSensorVelocity() / TICKS_PER_ROTATION * 10;
+	}
+
+	@Override
+	public double getPercentOutput() {
+		return motor.getMotorOutputPercent();
+	}
+
+	@Override
+	public double getCurrentOutput() {
+		return motor.getStatorCurrent();
+	}
+
+	@Override
+	public void configCurrentLimit(int limit) {
+		motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, limit, 0, 0));
 	}
 
 	@Override

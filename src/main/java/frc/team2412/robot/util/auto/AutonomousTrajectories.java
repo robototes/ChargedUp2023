@@ -25,7 +25,7 @@ public class AutonomousTrajectories {
 
 	public static Command getAutoPathByName(String name) {
 		List<PathPlannerTrajectory> pathGroup =
-				PathPlanner.loadPathGroup(name, new PathConstraints(2, 2.0));
+				PathPlanner.loadPathGroup(name, new PathConstraints(2.0, 2.0));
 		HashMap<String, Command> eventMap = new HashMap<String, Command>();
 		eventMap.put(
 				"AutoBalance", new AutoBalanceCommand(Robot.getInstance().subsystems.drivebaseSubsystem));
@@ -36,14 +36,21 @@ public class AutonomousTrajectories {
 			Command intakeOut = new IntakeSetOutCommand(s.intakeSubsystem).withTimeout(0.5);
 			Command intakeIn = new IntakeSetInCommand(s.intakeSubsystem).withTimeout(0.5);
 			SetWristCommand wristIn = new SetWristCommand(s.armSubsystem, WristPosition.WRIST_RETRACT);
-			SequentialCommandGroup score =
+			SequentialCommandGroup scoreBottom =
 					new SequentialCommandGroup(intakeIn, wristOut, intakeOut.withTimeout(1.5), wristIn);
 			Command armLow = new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_PRESCORE);
 			Command armMid = new SetFullArmCommand(s.armSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE);
 			Command armHigh = new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE);
 			Command stow =
-					new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WristPosition.WRIST_RETRACT);
-			eventMap.put("ScoreBottom", score);
+					new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WristPosition.WRIST_RETRACT, 0.3);
+			Command scoreHigh =
+					new SequentialCommandGroup(
+							new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION, WristPosition.WRIST_SCORE),
+							new WaitCommand(0.5),
+							new IntakeSetOutCommand(s.intakeSubsystem).withTimeout(0.3));
+
+			eventMap.put("ScoreBottom", scoreBottom);
+			eventMap.put("ScoreHigh", scoreHigh);
 
 			eventMap.put("WristRetract", wristIn);
 			eventMap.put("WristPrescore", wristPrescore);

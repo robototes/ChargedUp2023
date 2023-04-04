@@ -169,6 +169,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private DoublePublisher backLeftTargetVelocityPublisher;
 	private DoublePublisher backRightTargetVelocityPublisher;
 
+	private DoublePublisher frontLeftPercentPublisher;
+	private DoublePublisher frontRightPercentPublisher;
+	private DoublePublisher backLeftPercentPublisher;
+	private DoublePublisher backRightPercentPublisher;
+
+	private DoublePublisher frontLeftCurrentPublisher;
+	private DoublePublisher frontRightCurrentPublisher;
+	private DoublePublisher backLeftCurrentPublisher;
+	private DoublePublisher backRightCurrentPublisher;
+
 	private DoublePublisher frontLeftActualAnglePublisher;
 	private DoublePublisher frontRightActualAnglePublisher;
 	private DoublePublisher backLeftActualAnglePublisher;
@@ -181,7 +191,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private PIDController compTranslationalPID = new PIDController(0.0007, 0, 0);
 	private PIDController compRotationalPID = new PIDController(0.1, 0, 0.5);
-	private final double DEFAULT_COMP_TRANSLATIONAL_F = 1 / moduleDriveMotors[0].getFreeSpeedRPS();
+	private final double DEFAULT_COMP_TRANSLATIONAL_F = 0.000175;
+	// old way of getting F
+	// 1 / moduleDriveMotors[0].getFreeSpeedRPS();
 
 	private DoubleSubscriber compTranslationalF;
 
@@ -235,6 +247,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
 				driveMotor.setPIDF(0.1, 0.001, 1023.0 / 20660.0, 0);
 			}
+			driveMotor.configCurrentLimit(30);
 			driveMotor.flashMotor();
 		}
 
@@ -341,6 +354,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		frontRightTargetVelocityPublisher.set(states[1].speedMetersPerSecond);
 		backLeftTargetVelocityPublisher.set(states[2].speedMetersPerSecond);
 		backRightTargetVelocityPublisher.set(states[3].speedMetersPerSecond);
+
+		frontLeftPercentPublisher.set(moduleDriveMotors[0].getPercentOutput());
+		frontRightPercentPublisher.set(moduleDriveMotors[1].getPercentOutput());
+		backLeftPercentPublisher.set(moduleDriveMotors[2].getPercentOutput());
+		backRightPercentPublisher.set(moduleDriveMotors[3].getPercentOutput());
+
+		frontLeftCurrentPublisher.set(moduleDriveMotors[0].getCurrentOutput());
+		frontRightCurrentPublisher.set(moduleDriveMotors[1].getCurrentOutput());
+		backLeftCurrentPublisher.set(moduleDriveMotors[2].getCurrentOutput());
+		backRightCurrentPublisher.set(moduleDriveMotors[3].getCurrentOutput());
 
 		frontLeftTargetAnglePublisher.set(states[0].angle.getDegrees());
 		frontRightTargetAnglePublisher.set(states[1].angle.getDegrees());
@@ -498,6 +521,24 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		backRightTargetVelocityPublisher =
 				networkTableDrivebase.getDoubleTopic("Back right target velocity").publish();
 
+		frontLeftPercentPublisher =
+				networkTableDrivebase.getDoubleTopic("Front left target percent").publish();
+		frontRightPercentPublisher =
+				networkTableDrivebase.getDoubleTopic("Front right target percent").publish();
+		backLeftPercentPublisher =
+				networkTableDrivebase.getDoubleTopic("Back left target percent").publish();
+		backRightPercentPublisher =
+				networkTableDrivebase.getDoubleTopic("Back right target percent").publish();
+
+		frontLeftCurrentPublisher =
+				networkTableDrivebase.getDoubleTopic("Front left target current").publish();
+		frontRightCurrentPublisher =
+				networkTableDrivebase.getDoubleTopic("Front right target current").publish();
+		backLeftCurrentPublisher =
+				networkTableDrivebase.getDoubleTopic("Back left target current").publish();
+		backRightCurrentPublisher =
+				networkTableDrivebase.getDoubleTopic("Back right target current").publish();
+
 		frontLeftActualAnglePublisher =
 				networkTableDrivebase.getDoubleTopic("Front left actual angle").publish();
 		frontRightActualAnglePublisher =
@@ -533,6 +574,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		frontRightTargetVelocityPublisher.set(0.0);
 		backLeftTargetVelocityPublisher.set(0.0);
 		backRightTargetVelocityPublisher.set(0.0);
+
+		frontLeftPercentPublisher.set(0.0);
+		frontRightPercentPublisher.set(0.0);
+		backLeftPercentPublisher.set(0.0);
+		backRightPercentPublisher.set(0.0);
+
+		frontLeftCurrentPublisher.set(0.0);
+		frontRightCurrentPublisher.set(0.0);
+		backLeftCurrentPublisher.set(0.0);
+		backRightCurrentPublisher.set(0.0);
 
 		frontLeftActualAnglePublisher.set(0.0);
 		frontRightActualAnglePublisher.set(0.0);
