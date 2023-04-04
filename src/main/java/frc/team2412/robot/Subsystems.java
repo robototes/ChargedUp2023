@@ -9,11 +9,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
 import frc.team2412.robot.subsystems.LEDSubsystem;
 import frc.team2412.robot.subsystems.VisionSubsystem;
+import java.util.Map;
 
 public class Subsystems {
 	public static class SubsystemConstants {
@@ -73,6 +76,10 @@ public class Subsystems {
 				// YUYV only:
 				// 2304x1296, 2304x1536
 				driverVisionCamera.setResolution(160, 120);
+				Shuffleboard.getTab("Driver vision")
+						.add("Test cam", driverVisionCamera)
+						.withWidget(BuiltInWidgets.kCameraStream)
+						.withProperties(Map.of("Show crosshair", false, "Rotation", "QUARTER_CW"));
 			}
 		}
 		if (ARM_ENABLED) {
