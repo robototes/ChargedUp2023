@@ -34,7 +34,7 @@ public class ArmSubsystem extends SubsystemBase {
 		// Conversion
 
 		public static final float ARM_MOTOR_TO_SHOULDER_ENCODER_RATIO = 75;
-		public static final float WRIST_MOTOR_TO_WRIST_ENCODER_RATIO = 80;
+		public static final float WRIST_MOTOR_TO_WRIST_ENCODER_RATIO = 60.0f * 24.0f / 17.0f;
 		public static final float ARM_ROTATIONS_TO_SHOULDER_ENCODER_RATIO = 4;
 		public static final double SHOULDER_ENCODER_TO_ARM_POSITION_RATIO = 4 / 1;
 		public static final double WRIST_ENCODER_TO_WRIST_POSITION_RATIO = 24 / 1;
