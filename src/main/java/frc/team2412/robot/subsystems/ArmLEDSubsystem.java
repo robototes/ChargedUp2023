@@ -22,12 +22,16 @@ public class ArmLEDSubsystem {
 
 	// color URIs
 	// private static final String RED_URI = "https://" + IP + "/win&T=1&A=255&R=255&G=0&B=0&FX=0";
-	// private static final String ORANGE_URI = "https://" + IP + "/win&T=1&A=255&R=255&G=165&B=0&FX=0";
-	// private static final String YELLOW_URI = "https://" + IP + "/win&T=1&A=255&R=255&G=255&B=0&FX=0";
+	// private static final String ORANGE_URI = "https://" + IP +
+	// "/win&T=1&A=255&R=255&G=165&B=0&FX=0";
+	// private static final String YELLOW_URI = "https://" + IP +
+	// "/win&T=1&A=255&R=255&G=255&B=0&FX=0";
 	// private static final String GREEN_URI = "https://" + IP + "/win&T=1&A=255&R=0&G=255&B=0&FX=0";
 	// private static final String BLUE_URI = "https://" + IP + "/win&T=1&A=255&R=0&G=0&B=255&FX=0";
-	// private static final String PURPLE_URI = "https://" + IP + "/win&T=1&A=255&R=255&G=0&B=255&FX=0";
-	// private static final String WHITE_URI = "https://" + IP + "/win&T=1&A=205&R=205&G=205&B=205&FX=0";
+	// private static final String PURPLE_URI = "https://" + IP +
+	// "/win&T=1&A=255&R=255&G=0&B=255&FX=0";
+	// private static final String WHITE_URI = "https://" + IP +
+	// "/win&T=1&A=205&R=205&G=205&B=205&FX=0";
 	// private static final String BLACK_URI = "https://" + IP + "/win&T=1&A=255&R=0&G=0&B=0&FX=0";
 
 	// enum selector
@@ -75,7 +79,9 @@ public class ArmLEDSubsystem {
 						.connectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT_DURATION))
 						.build();
 		request =
-				HttpRequest.newBuilder().uri(URI.create(GREEN_URI)).build(); // TODO: set timeout duration
+				HttpRequest.newBuilder()
+						.uri(URI.create(getURI(ColorSelector.GREEN)))
+						.build(); // TODO: set timeout duration
 
 		// logging
 		color1Chooser.setDefaultOption("RED", ColorSelector.RED);
@@ -108,8 +114,8 @@ public class ArmLEDSubsystem {
 		armLEDTab = Shuffleboard.getTab("Arm LED");
 
 		armLEDTab.add("Color 1", color1Chooser).withPosition(0, 0).withSize(2, 1);
-		armLEDTab.add("Color 2", color2Chooser).withPosition(0, 0).withSize(2, 1);
-		armLEDTab.add("Color 3", color3Chooser).withPosition(0, 0).withSize(2, 1);
+		armLEDTab.add("Color 2", color2Chooser).withPosition(1, 0).withSize(2, 1);
+		armLEDTab.add("Color 3", color3Chooser).withPosition(2, 0).withSize(2, 1);
 	}
 
 	// METHODS
@@ -142,7 +148,7 @@ public class ArmLEDSubsystem {
 		}
 	}
 
-    public String getURI(ColorSelector color) {
+	public String getURI(ColorSelector color) {
 		return "https://" + IP + color.url;
 	}
 }
