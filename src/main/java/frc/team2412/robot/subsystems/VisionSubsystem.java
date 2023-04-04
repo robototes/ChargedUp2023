@@ -70,6 +70,7 @@ public class VisionSubsystem extends SubsystemBase {
 									Units.inchesToMeters(41.5)),
 							new Rotation3d(0, 0, 0));
 	private static final double MAX_TRUSTABLE_XY_DISTANCE = 1.9;
+	private static final double MAX_TRUSTABLE_AMBIGUITY = 0.1;
 	// This is from the metric approximations from section 5.1 of the game manual
 	private static final double FIELD_LENGTH_METERS = 16.54;
 
@@ -99,6 +100,7 @@ public class VisionSubsystem extends SubsystemBase {
 	private PhotonPipelineResult latestResult = null;
 	private Optional<EstimatedRobotPose> latestPose = Optional.empty();
 	private boolean targetTooFar = false;
+	private boolean ambiguityTooHigh = false;
 
 	// These are only set when there's a valid pose
 	private double lastTimestampSeconds = 0;
@@ -159,6 +161,10 @@ public class VisionSubsystem extends SubsystemBase {
 				.addBoolean("Target was too far", () -> targetTooFar)
 				.withPosition(1, 1)
 				.withSize(1, 1);
+		visionTab
+				.addBoolean("Too high ambiguity", () -> ambiguityTooHigh)
+				.withPosition(1, 1)
+				.withSize(1, 1);
 		ShuffleboardUtil.addPose3dLayout(visionTab, "Robot pose", this::getRobotPose, 2, 0);
 	}
 
@@ -172,16 +178,21 @@ public class VisionSubsystem extends SubsystemBase {
 	 */
 	private Vector<N3> getStdDevs(PhotonPipelineResult result) {
 		Vector<N3> stdDevs = VecBuilder.fill(0.0385, 0.0392, Math.toRadians(2.85));
-		double minDistance = Double.POSITIVE_INFINITY;
+		double minTargetDistance = Double.POSITIVE_INFINITY;
+		double minTargetAmbiguity = Double.POSITIVE_INFINITY;
 		for (PhotonTrackedTarget target : result.getTargets()) {
 			double xyDistance =
 					target.getBestCameraToTarget().getTranslation().toTranslation2d().getNorm();
-			if (xyDistance < minDistance) {
-				minDistance = xyDistance;
+			if (xyDistance < minTargetDistance) {
+				minTargetDistance = xyDistance;
+			}
+			if (target.getPoseAmbiguity() < minTargetAmbiguity) {
+				minTargetAmbiguity = target.getPoseAmbiguity();
 			}
 		}
-		targetTooFar = minDistance < MAX_TRUSTABLE_XY_DISTANCE;
-		if (targetTooFar) {
+		targetTooFar = minTargetDistance < MAX_TRUSTABLE_XY_DISTANCE;
+		ambiguityTooHigh = minTargetAmbiguity < MAX_TRUSTABLE_AMBIGUITY;
+		if (targetTooFar || ambiguityTooHigh) {
 			return null;
 		}
 		return stdDevs;
