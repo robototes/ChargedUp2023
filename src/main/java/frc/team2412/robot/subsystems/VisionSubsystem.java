@@ -31,6 +31,7 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.TargetCorner;
 
 /**
  * All 3D poses and transforms use the NWU (North-West-Up) coordinate system, where +X is
@@ -71,6 +72,9 @@ public class VisionSubsystem extends SubsystemBase {
 							new Rotation3d(0, 0, 0));
 	private static final double MAX_TRUSTABLE_XY_DISTANCE = 1.9;
 	private static final double MAX_TRUSTABLE_AMBIGUITY = 0.1;
+	private static final double EDGE_THRESHOLD_PIXELS = 10;
+	private static final double RESOLUTION_WIDTH = 960;
+	private static final double RESOLUTION_HEIGHT = 720;
 	// This is from the metric approximations from section 5.1 of the game manual
 	private static final double FIELD_LENGTH_METERS = 16.54;
 
@@ -101,6 +105,7 @@ public class VisionSubsystem extends SubsystemBase {
 	private Optional<EstimatedRobotPose> latestPose = Optional.empty();
 	private boolean targetTooFar = false;
 	private boolean ambiguityTooHigh = false;
+	private boolean tooCloseToEdge = false;
 
 	// These are only set when there's a valid pose
 	private double lastTimestampSeconds = 0;
@@ -163,7 +168,11 @@ public class VisionSubsystem extends SubsystemBase {
 				.withSize(1, 1);
 		visionTab
 				.addBoolean("Too high ambiguity", () -> ambiguityTooHigh)
-				.withPosition(1, 1)
+				.withPosition(1, 2)
+				.withSize(1, 1);
+		visionTab
+				.addBoolean("Corner too close to edge", () -> tooCloseToEdge)
+				.withPosition(1, 3)
 				.withSize(1, 1);
 		ShuffleboardUtil.addPose3dLayout(visionTab, "Robot pose", this::getRobotPose, 2, 0);
 	}
@@ -189,10 +198,18 @@ public class VisionSubsystem extends SubsystemBase {
 			if (target.getPoseAmbiguity() < minTargetAmbiguity) {
 				minTargetAmbiguity = target.getPoseAmbiguity();
 			}
+			for (TargetCorner corner : target.getDetectedCorners()) {
+				if (corner.x < EDGE_THRESHOLD_PIXELS
+						|| corner.x > RESOLUTION_WIDTH - EDGE_THRESHOLD_PIXELS
+						|| corner.y < EDGE_THRESHOLD_PIXELS
+						|| corner.y > RESOLUTION_HEIGHT - EDGE_THRESHOLD_PIXELS) {
+					tooCloseToEdge = true;
+				}
+			}
 		}
 		targetTooFar = minTargetDistance < MAX_TRUSTABLE_XY_DISTANCE;
 		ambiguityTooHigh = minTargetAmbiguity < MAX_TRUSTABLE_AMBIGUITY;
-		if (targetTooFar || ambiguityTooHigh) {
+		if (targetTooFar || ambiguityTooHigh || tooCloseToEdge) {
 			return null;
 		}
 		return stdDevs;
