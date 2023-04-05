@@ -152,7 +152,7 @@ public class Robot extends TimedRobot {
 			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
 		}
 		if (subsystems.drivebaseSubsystem != null) {
-			subsystems.drivebaseSubsystem.setUseVisionMeasurements(true);
+			subsystems.drivebaseSubsystem.setUseVisionMeasurements(false);
 			// TODO: change this to not be hardcoded
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
