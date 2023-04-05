@@ -125,17 +125,21 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		color1 = color1Chooser.getSelected();
 		color2 = color2Chooser.getSelected();
 		color3 = color3Chooser.getSelected();
+
+		setLEDTeleop();
 	}
 
 	// METHODS
 
+	/** Called during autonomous to be green (color might be changed later?) */
 	public void setLEDAutonomous() {
 		color1 = ColorSelector.GREEN;
 		request = HttpRequest.newBuilder().uri(URI.create(getURI())).build();
 		updateLED();
 	}
 
-	public void setLEDTeleOp() {
+	/** Called during Teleop to set LED to red or blue based off alliance. */
+	public void setLEDTeleop() {
 
 		if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
 			// red
@@ -150,6 +154,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		updateLED();
 	}
 
+	/** Potentially called during Teleop after alliance selection to represent overall team colors */
 	public void setLEDAlliance() {
 		effectIndex = 1;
 
@@ -160,6 +165,9 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		updateLED();
 	}
 
+	/*
+	 * Updates the LED by sending an HTTP request
+	 */
 	public void updateLED() {
 		try {
 			client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
@@ -168,13 +176,20 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		}
 	}
 
+	/*
+	 * Enables/Disables the LED.
+	 * @param enable Enables if true, disables if false.
+	 */
 	public void enableLED(boolean enable) {
 		if (enable) {
 			enabled = 1;
 			return;
 		}
 		enabled = 0;
+
+		updateLED();
 	}
+
 	// TODO: finish URI getter
 	public String getURI() {
 		return "https://"
