@@ -159,6 +159,7 @@ public class Robot extends TimedRobot {
 		}
 		if (subsystems.armLedSubsystem != null) {
 			subsystems.armLedSubsystem.setLEDAutonomous();
+		}
 		if (subsystems.visionSubsystem != null) {
 			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance());
 		}
@@ -169,6 +170,10 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopInit() {
 		Shuffleboard.startRecording();
+
+		if (subsystems.armLedSubsystem != null) {
+			subsystems.armLedSubsystem.setLEDAlliance();
+		}
 		if (subsystems.visionSubsystem != null) {
 			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance());
 		}

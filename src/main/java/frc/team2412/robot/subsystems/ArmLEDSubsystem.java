@@ -165,8 +165,9 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		armLEDTab = Shuffleboard.getTab("Arm LED");
 
 		armLEDTab.add("Color 1", color1Chooser).withPosition(0, 0).withSize(2, 1);
-		armLEDTab.add("Color 2", color2Chooser).withPosition(1, 0).withSize(2, 1);
-		armLEDTab.add("Color 3", color3Chooser).withPosition(2, 0).withSize(2, 1);
+		armLEDTab.add("Color 2", color2Chooser).withPosition(2, 0).withSize(2, 1);
+		armLEDTab.add("Color 3", color3Chooser).withPosition(4, 0).withSize(2, 1);
+		armLEDTab.add("State", stateChooser).withPosition(6, 0).withSize(2, 1);
 
 		color1 = color1Chooser.getSelected();
 		color2 = color2Chooser.getSelected();
@@ -256,7 +257,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	public String getURI() {
 		return "http://"
 				+ IP
-				+ "/win?&T="
+				+ "/win&T="
 				+ enabled
 				+ "&A="
 				+ LED_ALPHA
