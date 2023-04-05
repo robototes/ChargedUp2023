@@ -83,6 +83,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	// Balance controller is in degrees
 	private final PFFController<Double> balanceController;
 
+	private SwerveModuleState[] currentStates;
+
 	private final MotorController[] moduleDriveMotors =
 			IS_COMP
 					? new BrushlessSparkMaxController[] {
@@ -341,6 +343,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			moduleAngleMotors[i].set(states[i].angle.getRotations() * STEER_REDUCTION);
 		}
 
+		currentStates = states;
+
 		frontLeftActualVelocityPublisher.set(
 				moduleDriveMotors[0].getVelocity() / DRIVE_VELOCITY_COEFFICIENT);
 		frontRightActualVelocityPublisher.set(
@@ -413,6 +417,19 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	/** Returns the kinematics */
 	public SwerveDriveKinematics getKinematics() {
 		return kinematics;
+	}
+
+	public SwerveModuleState[] getCurrentStates() {
+		return currentStates;
+	}
+
+	public double getVelocity() {
+		if (currentStates == null) {
+			return 0.0;
+		}
+		return Math.sqrt(
+				Math.pow(kinematics.toChassisSpeeds(getCurrentStates()).vxMetersPerSecond, 2)
+						+ Math.pow(kinematics.toChassisSpeeds(getCurrentStates()).vyMetersPerSecond, 2));
 	}
 
 	/**
