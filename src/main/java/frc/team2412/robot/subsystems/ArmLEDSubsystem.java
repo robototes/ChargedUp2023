@@ -80,23 +80,21 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		color3 = ColorSelector.RED;
 
 		// http request
-        try {
-		    client =
-				HttpClient.newBuilder()
-						.connectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT_DURATION))
-						.build();
-        }
-        catch (Exception e) {
-            System.out.println("Failed to initialize http client");
-            System.out.println(e.getMessage());
-        }
-        try {
-            request = getRequest();
-        }
-        catch (Exception e) {
-            System.out.println("Failed to initialize http request");
-            System.out.println(e.getMessage());
-        }
+		try {
+			client =
+					HttpClient.newBuilder()
+							.connectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT_DURATION))
+							.build();
+		} catch (Exception e) {
+			System.out.println("Failed to initialize http client");
+			System.out.println(e.getMessage());
+		}
+		try {
+			request = getRequest();
+		} catch (Exception e) {
+			System.out.println("Failed to initialize http request");
+			System.out.println(e.getMessage());
+		}
 
 		// logging
 		color1Chooser.setDefaultOption("RED", ColorSelector.RED);
@@ -183,14 +181,14 @@ public class ArmLEDSubsystem extends SubsystemBase {
 			request = getRequest();
 		} catch (Exception e) {
 			System.out.println("Failed to create Http Request");
-            System.out.println(e.getMessage());
+			System.out.println(e.getMessage());
 		}
 
 		try {
 			client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
 		} catch (Exception e) {
 			System.out.println("Failed to send http request");
-            System.out.println(e.getMessage());
+			System.out.println(e.getMessage());
 		}
 	}
 
