@@ -78,10 +78,6 @@ public class VisionSubsystem extends SubsystemBase {
 	// This is from the metric approximations from section 5.1 of the game manual
 	private static final double FIELD_LENGTH_METERS = 16.54;
 
-	private static Pose2d convertToFieldPose(Pose3d pose3d) {
-		return convertToFieldPose(pose3d, DriverStation.getAlliance());
-	}
-
 	private static Pose2d convertToFieldPose(Pose3d pose3d, DriverStation.Alliance alliance) {
 		switch (alliance) {
 			case Red:
@@ -100,6 +96,7 @@ public class VisionSubsystem extends SubsystemBase {
 	private final PhotonCamera photonCamera;
 	private final PhotonPoseEstimator photonPoseEstimator;
 	private final SwerveDrivePoseEstimator poseEstimator;
+	private DriverStation.Alliance alliance;
 	// These are always set with every pipeline result
 	private PhotonPipelineResult latestResult = null;
 	private Optional<EstimatedRobotPose> latestPose = Optional.empty();
@@ -146,6 +143,8 @@ public class VisionSubsystem extends SubsystemBase {
 		this.photonPoseEstimator =
 				new PhotonPoseEstimator(
 						fieldLayout, PoseStrategy.MULTI_TAG_PNP, photonCamera, ROBOT_TO_CAM);
+
+		alliance = DriverStation.getAlliance();
 
 		networkTables.addListener(
 				networkTables
@@ -222,7 +221,7 @@ public class VisionSubsystem extends SubsystemBase {
 		latestPose = photonPoseEstimator.update(pipelineResult);
 		if (latestPose.isPresent()) {
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
-			lastFieldPose = convertToFieldPose(latestPose.get().estimatedPose);
+			lastFieldPose = convertToFieldPose(latestPose.get().estimatedPose, alliance);
 			Vector<N3> stdDevs = getStdDevs(pipelineResult);
 			if (stdDevs != null) {
 				synchronized (poseEstimator) {
@@ -259,5 +258,9 @@ public class VisionSubsystem extends SubsystemBase {
 	 */
 	public double getLastTimestampSeconds() {
 		return lastTimestampSeconds;
+	}
+
+	public void setAlliance(DriverStation.Alliance alliance) {
+		this.alliance = alliance;
 	}
 }
