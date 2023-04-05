@@ -153,6 +153,9 @@ public class Robot extends TimedRobot {
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
 		}
+		if (subsystems.armLedSubsystem != null) {
+			subsystems.armLedSubsystem.setLEDAutonomous();
+		}
 		// Checks if FMS is attatched and enables joystick warning if true
 		DriverStation.silenceJoystickConnectionWarning(!DriverStation.isFMSAttached());
 	}

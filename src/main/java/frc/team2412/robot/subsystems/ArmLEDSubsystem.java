@@ -19,7 +19,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	private static final long CONNECT_TIMEOUT_DURATION = 15;
 	private static final long REQUEST_TIMEOUT_DURATION = 15;
 
-	private static final String IP = "wled-00e2b4"; // TODO: get IP
+	private static final String IP = "10.24.12.12"; // TODO: get IP
 
 	private static final int LED_ALPHA = 205;
 	private static final int EFFECT_SPEED = 50;
@@ -48,6 +48,10 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		}
 	}
 
+    public static enum LEDStateSelector {
+        OFF, ALLIANCE_COLOR, CUSTOM_COLOR;
+    }
+
 	// VARIABLES
 
 	// led
@@ -56,6 +60,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	private ColorSelector color3;
 	private int enabled;
 	private int effectIndex; // https://kno.wled.ge/features/effects/
+    private LEDStateSelector state;
 
 	// http get request
 	private HttpClient client;
@@ -65,6 +70,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	private SendableChooser<ColorSelector> color1Chooser = new SendableChooser<>();
 	private SendableChooser<ColorSelector> color2Chooser = new SendableChooser<>();
 	private SendableChooser<ColorSelector> color3Chooser = new SendableChooser<>();
+    private SendableChooser<LEDStateSelector> stateChooser = new SendableChooser<>();
 
 	private ShuffleboardTab armLEDTab;
 
@@ -78,6 +84,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		color1 = ColorSelector.RED;
 		color2 = ColorSelector.BLACK;
 		color3 = ColorSelector.RED;
+        state = LEDStateSelector.ALLIANCE_COLOR;
 
 		// http request
 		try {
@@ -124,6 +131,22 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		color3Chooser.addOption("WHITE", ColorSelector.WHITE);
 		color3Chooser.addOption("BLACK", ColorSelector.BLACK);
 
+        stateChooser.addOption("Disable Arm LEDs", new InstandCommand(() -> { 
+            enableLED(false);
+        }));
+        stateChooser.addOption("Use Alliance Color (RED/BLUE)", new InstandCommand(() -> { 
+            enableLED(true);
+            setLEDAlliance();
+        }));
+        stateChooser.addOption("Use Custom Colors", new InstandCommand(() -> { 
+            enableLED(true);
+            setLEDCustom();
+        }));
+        stateChooser.setDefaultOption("Use Alliance Color (RED/BLUE)", new InstantCommand(()-> {
+            enableLED(true);
+            setLEDAlliance();
+        }))
+
 		armLEDTab = Shuffleboard.getTab("Arm LED");
 
 		armLEDTab.add("Color 1", color1Chooser).withPosition(0, 0).withSize(2, 1);
@@ -148,7 +171,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	}
 
 	/** Called during Teleop to set LED to red or blue based off alliance. */
-	public void setLEDTeleop() {
+	public void setLEDAlliance() {
 
 		if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
 			// red
@@ -164,8 +187,8 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	}
 
 	/** Potentially called during Teleop after alliance selection to represent overall team colors */
-	public void setLEDAlliance() {
-		effectIndex = 1;
+	public void setLEDCustom() {
+		effectIndex = 2;
 
 		color1 = color1Chooser.getSelected();
 		color2 = color2Chooser.getSelected();
@@ -218,7 +241,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	public String getURI() {
 		return "http://"
 				+ IP
-				+ "/win&T="
+				+ "/win?&T="
 				+ enabled
 				+ "&A="
 				+ LED_ALPHA
