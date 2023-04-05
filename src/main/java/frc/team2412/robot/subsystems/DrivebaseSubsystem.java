@@ -158,6 +158,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private final FieldObject2d sharedPoseEstimatorFieldObject;
 
 	private BooleanSubscriber useVisionMeasurementsSubscriber;
+	private BooleanPublisher useVisionMeasurementsPublisher;
 
 	private DoublePublisher frontLeftActualVelocityPublisher;
 	private DoublePublisher frontRightActualVelocityPublisher;
@@ -501,8 +502,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		networkTableInstance = NetworkTableInstance.getDefault();
 		networkTableDrivebase = networkTableInstance.getTable("Drivebase");
 
-		useVisionMeasurementsSubscriber =
-				networkTableDrivebase.getBooleanTopic("Use vision measurements").subscribe(false);
+		BooleanTopic useVisionMeasurementsTopic =
+				networkTableDrivebase.getBooleanTopic("Use vision measurements");
+		useVisionMeasurementsTopic.setPersistent(true);
+		useVisionMeasurementsSubscriber = useVisionMeasurementsTopic.subscribe(false);
+		useVisionMeasurementsPublisher = useVisionMeasurementsTopic.publish();
 
 		frontLeftActualVelocityPublisher =
 				networkTableDrivebase.getDoubleTopic("Front left actual velocity").publish();
@@ -563,8 +567,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						.subscribe(DEFAULT_COMP_TRANSLATIONAL_F);
 
 		// Set value once to make it show up in UIs
-		useVisionMeasurementsSubscriber.getTopic().publish().set(false);
-		useVisionMeasurementsSubscriber.getTopic().setPersistent(true);
+		useVisionMeasurementsPublisher.set(false);
 		compTranslationalF.getTopic().publish().set(DEFAULT_COMP_TRANSLATIONAL_F);
 
 		frontLeftActualVelocityPublisher.set(0.0);
@@ -641,5 +644,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		frontRightActualAnglePublisher.set(moduleAngles[1].getDegrees());
 		backLeftActualAnglePublisher.set(moduleAngles[2].getDegrees());
 		backRightActualAnglePublisher.set(moduleAngles[3].getDegrees());
+	}
+
+	public void setUseVisionMeasurements(boolean useVisionMeasurements) {
+		useVisionMeasurementsPublisher.set(useVisionMeasurements);
 	}
 }
