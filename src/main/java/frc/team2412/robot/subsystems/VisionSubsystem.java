@@ -204,12 +204,11 @@ public class VisionSubsystem extends SubsystemBase {
 				minTargetAmbiguity = target.getPoseAmbiguity();
 			}
 			for (TargetCorner corner : target.getDetectedCorners()) {
-				if (corner.x <= EDGE_THRESHOLD_PIXELS
-						|| corner.x >= RESOLUTION_WIDTH - EDGE_THRESHOLD_PIXELS
-						|| corner.y <= EDGE_THRESHOLD_PIXELS
-						|| corner.y >= RESOLUTION_HEIGHT - EDGE_THRESHOLD_PIXELS) {
-					tooCloseToEdge = true;
-				}
+				tooCloseToEdge |=
+						(corner.x <= EDGE_THRESHOLD_PIXELS
+								|| corner.x >= RESOLUTION_WIDTH - EDGE_THRESHOLD_PIXELS
+								|| corner.y <= EDGE_THRESHOLD_PIXELS
+								|| corner.y >= RESOLUTION_HEIGHT - EDGE_THRESHOLD_PIXELS);
 			}
 		}
 		targetTooFar = minTargetDistance >= MAX_TRUSTABLE_XY_DISTANCE;
