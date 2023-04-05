@@ -173,7 +173,7 @@ public class Robot extends TimedRobot {
 
 		if (subsystems.armLedSubsystem != null) {
 			subsystems.armLedSubsystem.setLEDAlliance();
-    }
+		}
 		if (subsystems.visionSubsystem != null) {
 			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance());
 		}
