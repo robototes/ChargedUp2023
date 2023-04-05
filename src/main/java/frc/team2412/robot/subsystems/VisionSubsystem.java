@@ -18,6 +18,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.Robot;
@@ -75,16 +77,17 @@ public class VisionSubsystem extends SubsystemBase {
 	private static final double EDGE_THRESHOLD_PIXELS = 10;
 	private static final double RESOLUTION_WIDTH = 960;
 	private static final double RESOLUTION_HEIGHT = 720;
-	// This is from the metric approximations from section 5.1 of the game manual
+	// These are from the metric approximations from section 5.1 of the game manual
 	private static final double FIELD_LENGTH_METERS = 16.54;
+	private static final double FIELD_WIDTH_METERS = 8.02;
 
 	private static Pose2d convertToFieldPose(Pose3d pose3d, DriverStation.Alliance alliance) {
 		switch (alliance) {
 			case Red:
 				return new Pose2d(
 						FIELD_LENGTH_METERS - pose3d.getX(),
-						pose3d.getY(),
-						new Rotation2d(pose3d.getRotation().getZ()));
+						FIELD_WIDTH_METERS - pose3d.getY(),
+						new Rotation2d(2 * Math.PI + pose3d.getRotation().getZ()));
 			case Invalid:
 				DriverStation.reportWarning("Unknown alliance! Assuming blue", true);
 				// fall through
@@ -96,6 +99,7 @@ public class VisionSubsystem extends SubsystemBase {
 	private final PhotonCamera photonCamera;
 	private final PhotonPoseEstimator photonPoseEstimator;
 	private final SwerveDrivePoseEstimator poseEstimator;
+	private final FieldObject2d visionOnlyPoseObject;
 	private DriverStation.Alliance alliance;
 	// These are always set with every pipeline result
 	private PhotonPipelineResult latestResult = null;
@@ -130,8 +134,9 @@ public class VisionSubsystem extends SubsystemBase {
 		fieldLayout = temp;
 	}
 
-	public VisionSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
+	public VisionSubsystem(SwerveDrivePoseEstimator initialPoseEstimator, Field2d field) {
 		poseEstimator = initialPoseEstimator;
+		visionOnlyPoseObject = field.getObject("VisionPose");
 
 		var networkTables = NetworkTableInstance.getDefault();
 		if (Robot.isSimulation()) {
@@ -188,7 +193,6 @@ public class VisionSubsystem extends SubsystemBase {
 		Vector<N3> stdDevs = VecBuilder.fill(0.0385, 0.0392, Math.toRadians(2.85));
 		double minTargetDistance = Double.POSITIVE_INFINITY;
 		double minTargetAmbiguity = Double.POSITIVE_INFINITY;
-		tooCloseToEdge = false;
 		for (PhotonTrackedTarget target : result.getTargets()) {
 			double xyDistance =
 					target.getBestCameraToTarget().getTranslation().toTranslation2d().getNorm();
@@ -199,12 +203,11 @@ public class VisionSubsystem extends SubsystemBase {
 				minTargetAmbiguity = target.getPoseAmbiguity();
 			}
 			for (TargetCorner corner : target.getDetectedCorners()) {
-				if (corner.x <= EDGE_THRESHOLD_PIXELS
-						|| corner.x >= RESOLUTION_WIDTH - EDGE_THRESHOLD_PIXELS
-						|| corner.y <= EDGE_THRESHOLD_PIXELS
-						|| corner.y >= RESOLUTION_HEIGHT - EDGE_THRESHOLD_PIXELS) {
-					tooCloseToEdge = true;
-				}
+				tooCloseToEdge |=
+						(corner.x <= EDGE_THRESHOLD_PIXELS
+								|| corner.x >= RESOLUTION_WIDTH - EDGE_THRESHOLD_PIXELS
+								|| corner.y <= EDGE_THRESHOLD_PIXELS
+								|| corner.y >= RESOLUTION_HEIGHT - EDGE_THRESHOLD_PIXELS);
 			}
 		}
 		targetTooFar = minTargetDistance >= MAX_TRUSTABLE_XY_DISTANCE;
@@ -222,6 +225,7 @@ public class VisionSubsystem extends SubsystemBase {
 		if (latestPose.isPresent()) {
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
 			lastFieldPose = convertToFieldPose(latestPose.get().estimatedPose, alliance);
+			visionOnlyPoseObject.setPose(lastFieldPose);
 			Vector<N3> stdDevs = getStdDevs(pipelineResult);
 			if (stdDevs != null) {
 				synchronized (poseEstimator) {

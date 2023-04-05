@@ -155,9 +155,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private final SwerveDriveOdometry drivebaseOnlyOdometry;
 	private Pose2d pose;
 
-	private Field2d field = new Field2d();
-	private FieldObject2d odometryOnlyFieldObject = field.getObject("OdometryPosition");
-	private FieldObject2d sharedPoseEstimatorFieldObject = field.getObject("SharedPoseEstimator");
+	private final Field2d field;
+	private final FieldObject2d odometryOnlyFieldObject;
+	private final FieldObject2d sharedPoseEstimatorFieldObject;
 
 	private BooleanSubscriber useVisionMeasurementsSubscriber;
 
@@ -204,7 +204,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private boolean xWheelToggle = false;
 
-	public DrivebaseSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
+	public DrivebaseSubsystem(SwerveDrivePoseEstimator initialPoseEstimator, Field2d field) {
+		this.field = field;
+		odometryOnlyFieldObject = field.getObject("OdometryPosition");
+		sharedPoseEstimatorFieldObject = field.getObject("SharedPoseEstimator");
 		// configure network tables
 		configureNetworkTables();
 
@@ -512,8 +515,6 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	}
 
 	private void configureNetworkTables() {
-		SmartDashboard.putData("Field", field);
-
 		networkTableInstance = NetworkTableInstance.getDefault();
 		networkTableDrivebase = networkTableInstance.getTable("Drivebase");
 
