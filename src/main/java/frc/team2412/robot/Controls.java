@@ -24,6 +24,7 @@ import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import frc.team2412.robot.commands.led.LEDPurpleCommand;
 import frc.team2412.robot.commands.led.LEDYellowCommand;
+import frc.team2412.robot.util.DriverAssist;
 
 public class Controls {
 	public static class ControlConstants {
@@ -35,6 +36,10 @@ public class Controls {
 
 	private final CommandXboxController driveController;
 	private final CommandXboxController codriveController;
+
+	// Drivebase
+
+	public final Trigger triggerDriverAssist;
 
 	// Arm
 
@@ -71,6 +76,7 @@ public class Controls {
 
 		armManualControlOn = codriveController.start();
 		armManualControlOff = codriveController.back();
+		triggerDriverAssist = driveController.x();
 
 		armLowButton = codriveController.y();
 		armMiddleButton = codriveController.x();
@@ -118,6 +124,12 @@ public class Controls {
 		driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 		driveController.leftStick().onTrue(new InstantCommand(s.drivebaseSubsystem::toggleXWheels));
+
+		triggerDriverAssist.onTrue(
+				new InstantCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem)));
+
+		triggerDriverAssist.onFalse(
+				new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
 	}
 
 	public void bindArmControls() {
