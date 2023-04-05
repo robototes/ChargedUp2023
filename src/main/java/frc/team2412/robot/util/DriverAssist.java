@@ -18,13 +18,12 @@ public class DriverAssist {
 	private static final PIDController ASSIST_TRANSLATION_PID = new PIDController(10.0, 0, 0);
 	private static final PIDController ASSIST_ROTATION_PID = new PIDController(8.0, 0, 0);
 	private static final PathConstraints ASSIST_CONSTRAINTS = new PathConstraints(4.0, 2.0);
-	private static final double MAX_ALIGNMENT_DISTANCE_METERS = 100.0;
 
 	// comments are relative to the driver, with numbers increasing from right to left
 	private static final Pose2d[] CUBE_ALIGNMENT_POSES = {
-		new Pose2d(new Translation2d(1.80, 1.05), Rotation2d.fromDegrees(180)), // 1st cube scoring area
-		new Pose2d(new Translation2d(1.80, 2.75), Rotation2d.fromDegrees(180)), // 2nd cube scoring area
-		new Pose2d(new Translation2d(1.80, 4.43), Rotation2d.fromDegrees(180)), // 3rd cube scoring area
+		new Pose2d(new Translation2d(1.90, 1.05), Rotation2d.fromDegrees(180)), // 1st cube scoring area
+		new Pose2d(new Translation2d(1.90, 2.75), Rotation2d.fromDegrees(180)), // 2nd cube scoring area
+		new Pose2d(new Translation2d(1.90, 4.43), Rotation2d.fromDegrees(180)), // 3rd cube scoring area
 	};
 
 	private static final Pose2d[] CONE_ALIGNMENT_POSES = {
@@ -33,15 +32,10 @@ public class DriverAssist {
 		new Pose2d(new Translation2d(1.80, 2.18), Rotation2d.fromDegrees(180)), // 3rd cone scoring area
 		new Pose2d(new Translation2d(1.80, 3.3), Rotation2d.fromDegrees(180)), // 4th cone scoring area
 		new Pose2d(new Translation2d(1.80, 3.86), Rotation2d.fromDegrees(180)), // 5th cone scoring area
-		new Pose2d(new Translation2d(1.80, 4.98), Rotation2d.fromDegrees(180)), // 6th cone scoring area
+		new Pose2d(new Translation2d(1.80, 5), Rotation2d.fromDegrees(180)), // 6th cone scoring area
 	};
 
-	private static boolean isPoseTooFar(Pose2d robotPose, Pose2d alignmentPose) {
-		return robotPose.getTranslation().getDistance(alignmentPose.getTranslation())
-				> MAX_ALIGNMENT_DISTANCE_METERS;
-	}
-
-	public static boolean alignRobot(
+	public static Command alignRobot(
 			DrivebaseSubsystem drivebaseSubsystem, GamePieceType gamePieceType) {
 		Pose2d currentPose = drivebaseSubsystem.getPose();
 		Pose2d alignmentPose =
@@ -50,10 +44,6 @@ public class DriverAssist {
 								(gamePieceType == GamePieceType.CUBE)
 										? CUBE_ALIGNMENT_POSES
 										: CONE_ALIGNMENT_POSES));
-
-		if (isPoseTooFar(currentPose, alignmentPose)) {
-			return false;
-		}
 
 		PathPlannerTrajectory alignmentTraj =
 				PathPlanner.generatePath(
@@ -83,7 +73,6 @@ public class DriverAssist {
 						true,
 						drivebaseSubsystem);
 
-		followAlignmentCommand.schedule();
-		return true;
+		return followAlignmentCommand;
 	}
 }

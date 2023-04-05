@@ -11,6 +11,7 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionTy
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
@@ -128,12 +129,14 @@ public class Controls {
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 		driveController.leftStick().onTrue(new InstantCommand(s.drivebaseSubsystem::toggleXWheels));
 
+		// CommandBase driverAssistCube =
+		// 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CUBE));
 		triggerDriverAssistCube.onTrue(
-				new InstantCommand(
-						() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CUBE)));
+				new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CUBE)));
+		// CommandBase driverAssistCone =
+		// 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CONE));
 		triggerDriverAssistCone.onTrue(
-				new InstantCommand(
-						() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CONE)));
+				new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CONE)));
 
 		triggerDriverAssistCube.onFalse(
 				new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
