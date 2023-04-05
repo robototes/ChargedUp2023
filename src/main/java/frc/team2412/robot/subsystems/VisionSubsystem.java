@@ -193,7 +193,6 @@ public class VisionSubsystem extends SubsystemBase {
 		Vector<N3> stdDevs = VecBuilder.fill(0.0385, 0.0392, Math.toRadians(2.85));
 		double minTargetDistance = Double.POSITIVE_INFINITY;
 		double minTargetAmbiguity = Double.POSITIVE_INFINITY;
-		tooCloseToEdge = false;
 		for (PhotonTrackedTarget target : result.getTargets()) {
 			double xyDistance =
 					target.getBestCameraToTarget().getTranslation().toTranslation2d().getNorm();
@@ -204,12 +203,11 @@ public class VisionSubsystem extends SubsystemBase {
 				minTargetAmbiguity = target.getPoseAmbiguity();
 			}
 			for (TargetCorner corner : target.getDetectedCorners()) {
-				if (corner.x <= EDGE_THRESHOLD_PIXELS
-						|| corner.x >= RESOLUTION_WIDTH - EDGE_THRESHOLD_PIXELS
-						|| corner.y <= EDGE_THRESHOLD_PIXELS
-						|| corner.y >= RESOLUTION_HEIGHT - EDGE_THRESHOLD_PIXELS) {
-					tooCloseToEdge = true;
-				}
+				tooCloseToEdge |=
+						(corner.x <= EDGE_THRESHOLD_PIXELS
+								|| corner.x >= RESOLUTION_WIDTH - EDGE_THRESHOLD_PIXELS
+								|| corner.y <= EDGE_THRESHOLD_PIXELS
+								|| corner.y >= RESOLUTION_HEIGHT - EDGE_THRESHOLD_PIXELS);
 			}
 		}
 		targetTooFar = minTargetDistance >= MAX_TRUSTABLE_XY_DISTANCE;
