@@ -11,6 +11,7 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionTy
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
@@ -24,6 +25,8 @@ import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import frc.team2412.robot.commands.led.LEDPurpleCommand;
 import frc.team2412.robot.commands.led.LEDYellowCommand;
+import frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType;
+import frc.team2412.robot.util.DriverAssist;
 
 public class Controls {
 	public static class ControlConstants {
@@ -35,6 +38,11 @@ public class Controls {
 
 	private final CommandXboxController driveController;
 	private final CommandXboxController codriveController;
+
+	// Drivebase
+
+	public final Trigger triggerDriverAssistCube;
+	public final Trigger triggerDriverAssistCone;
 
 	// Arm
 
@@ -71,6 +79,8 @@ public class Controls {
 
 		armManualControlOn = codriveController.start();
 		armManualControlOff = codriveController.back();
+		triggerDriverAssistCube = driveController.leftBumper();
+		triggerDriverAssistCone = driveController.rightBumper();
 
 		armLowButton = codriveController.y();
 		armMiddleButton = codriveController.x();
@@ -118,6 +128,20 @@ public class Controls {
 		driveController.start().onTrue(new InstantCommand(s.drivebaseSubsystem::resetGyroAngle));
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 		driveController.leftStick().onTrue(new InstantCommand(s.drivebaseSubsystem::toggleXWheels));
+
+		// CommandBase driverAssistCube =
+		// 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CUBE));
+		triggerDriverAssistCube.onTrue(
+				new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CUBE)));
+		// CommandBase driverAssistCone =
+		// 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CONE));
+		triggerDriverAssistCone.onTrue(
+				new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CONE)));
+
+		triggerDriverAssistCube.onFalse(
+				new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
+		triggerDriverAssistCone.onFalse(
+				new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
 	}
 
 	public void bindArmControls() {
