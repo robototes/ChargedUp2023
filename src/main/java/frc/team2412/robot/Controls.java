@@ -24,6 +24,7 @@ import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import frc.team2412.robot.commands.led.LEDPurpleCommand;
 import frc.team2412.robot.commands.led.LEDYellowCommand;
+import frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType;
 import frc.team2412.robot.util.DriverAssist;
 
 public class Controls {
@@ -39,7 +40,8 @@ public class Controls {
 
 	// Drivebase
 
-	public final Trigger triggerDriverAssist;
+	public final Trigger triggerDriverAssistCube;
+	public final Trigger triggerDriverAssistCone;
 
 	// Arm
 
@@ -76,7 +78,8 @@ public class Controls {
 
 		armManualControlOn = codriveController.start();
 		armManualControlOff = codriveController.back();
-		triggerDriverAssist = driveController.x();
+		triggerDriverAssistCube = driveController.leftBumper();
+		triggerDriverAssistCone = driveController.rightBumper();
 
 		armLowButton = codriveController.y();
 		armMiddleButton = codriveController.x();
@@ -125,10 +128,16 @@ public class Controls {
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 		driveController.leftStick().onTrue(new InstantCommand(s.drivebaseSubsystem::toggleXWheels));
 
-		triggerDriverAssist.onTrue(
-				new InstantCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem)));
+		triggerDriverAssistCube.onTrue(
+				new InstantCommand(
+						() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CUBE)));
+		triggerDriverAssistCone.onTrue(
+				new InstantCommand(
+						() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CONE)));
 
-		triggerDriverAssist.onFalse(
+		triggerDriverAssistCube.onFalse(
+				new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
+		triggerDriverAssistCone.onFalse(
 				new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
 	}
 
