@@ -72,21 +72,31 @@ public class ArmLEDSubsystem extends SubsystemBase {
 
 	public ArmLEDSubsystem() {
 
-		//
-
+		// led values
 		enabled = 1;
 		effectIndex = 0;
 		color1 = ColorSelector.RED;
 		color2 = ColorSelector.BLACK;
 		color3 = ColorSelector.RED;
 
-		//
-		client =
+		// http request
+        try {
+		    client =
 				HttpClient.newBuilder()
 						.connectTimeout(Duration.ofSeconds(CONNECT_TIMEOUT_DURATION))
 						.build();
-		request =
-				HttpRequest.newBuilder().uri(URI.create(getURI())).build(); // TODO: set timeout duration
+        }
+        catch (Exception e) {
+            System.out.println("Failed to initialize http client");
+            System.out.println(e.getMessage());
+        }
+        try {
+            request = getRequest();
+        }
+        catch (Exception e) {
+            System.out.println("Failed to initialize http request");
+            System.out.println(e.getMessage());
+        }
 
 		// logging
 		color1Chooser.setDefaultOption("RED", ColorSelector.RED);
@@ -134,7 +144,8 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	/** Called during autonomous to be green (color might be changed later?) */
 	public void setLEDAutonomous() {
 		color1 = ColorSelector.GREEN;
-		request = HttpRequest.newBuilder().uri(URI.create(getURI())).build();
+		effectIndex = 0;
+
 		updateLED();
 	}
 
@@ -144,13 +155,13 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		if (DriverStation.getAlliance() == DriverStation.Alliance.Red) {
 			// red
 			color1 = ColorSelector.RED;
-			request = HttpRequest.newBuilder().uri(URI.create(getURI())).build();
 
 		} else {
 			// blue
 			color1 = ColorSelector.BLUE;
-			request = HttpRequest.newBuilder().uri(URI.create(getURI())).build();
 		}
+		effectIndex = 0;
+
 		updateLED();
 	}
 
@@ -161,7 +172,6 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		color1 = color1Chooser.getSelected();
 		color2 = color2Chooser.getSelected();
 
-		request = HttpRequest.newBuilder().uri(URI.create(getURI())).build();
 		updateLED();
 	}
 
@@ -170,9 +180,17 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	 */
 	public void updateLED() {
 		try {
+			request = getRequest();
+		} catch (Exception e) {
+			System.out.println("Failed to create Http Request");
+            System.out.println(e.getMessage());
+		}
+
+		try {
 			client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
 		} catch (Exception e) {
-			System.out.println("Failed to http request");
+			System.out.println("Failed to send http request");
+            System.out.println(e.getMessage());
 		}
 	}
 
@@ -190,9 +208,17 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		updateLED();
 	}
 
+	public HttpRequest getRequest() {
+		String uri = getURI();
+		return HttpRequest.newBuilder()
+				.timeout(Duration.ofSeconds(REQUEST_TIMEOUT_DURATION))
+				.uri(URI.create(getURI()))
+				.build();
+	}
+
 	// TODO: finish URI getter
 	public String getURI() {
-		return "https://"
+		return "http://"
 				+ IP
 				+ "/win&T="
 				+ enabled
