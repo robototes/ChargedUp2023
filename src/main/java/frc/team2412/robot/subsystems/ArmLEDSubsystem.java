@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -48,9 +49,11 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		}
 	}
 
-    public static enum LEDStateSelector {
-        OFF, ALLIANCE_COLOR, CUSTOM_COLOR;
-    }
+	public static enum LEDStateSelector {
+		OFF,
+		ALLIANCE_COLOR,
+		CUSTOM_COLOR;
+	}
 
 	// VARIABLES
 
@@ -60,7 +63,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	private ColorSelector color3;
 	private int enabled;
 	private int effectIndex; // https://kno.wled.ge/features/effects/
-    private LEDStateSelector state;
+	private LEDStateSelector state;
 
 	// http get request
 	private HttpClient client;
@@ -70,7 +73,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	private SendableChooser<ColorSelector> color1Chooser = new SendableChooser<>();
 	private SendableChooser<ColorSelector> color2Chooser = new SendableChooser<>();
 	private SendableChooser<ColorSelector> color3Chooser = new SendableChooser<>();
-    private SendableChooser<LEDStateSelector> stateChooser = new SendableChooser<>();
+	private SendableChooser<InstantCommand> stateChooser = new SendableChooser<>();
 
 	private ShuffleboardTab armLEDTab;
 
@@ -84,7 +87,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		color1 = ColorSelector.RED;
 		color2 = ColorSelector.BLACK;
 		color3 = ColorSelector.RED;
-        state = LEDStateSelector.ALLIANCE_COLOR;
+		state = LEDStateSelector.ALLIANCE_COLOR;
 
 		// http request
 		try {
@@ -131,21 +134,33 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		color3Chooser.addOption("WHITE", ColorSelector.WHITE);
 		color3Chooser.addOption("BLACK", ColorSelector.BLACK);
 
-        stateChooser.addOption("Disable Arm LEDs", new InstandCommand(() -> { 
-            enableLED(false);
-        }));
-        stateChooser.addOption("Use Alliance Color (RED/BLUE)", new InstandCommand(() -> { 
-            enableLED(true);
-            setLEDAlliance();
-        }));
-        stateChooser.addOption("Use Custom Colors", new InstandCommand(() -> { 
-            enableLED(true);
-            setLEDCustom();
-        }));
-        stateChooser.setDefaultOption("Use Alliance Color (RED/BLUE)", new InstantCommand(()-> {
-            enableLED(true);
-            setLEDAlliance();
-        }))
+		stateChooser.addOption(
+				"Disable Arm LEDs",
+				new InstantCommand(
+						() -> {
+							enableLED(false);
+						}));
+		stateChooser.addOption(
+				"Use Alliance Color (RED/BLUE)",
+				new InstantCommand(
+						() -> {
+							enableLED(true);
+							setLEDAlliance();
+						}));
+		stateChooser.addOption(
+				"Use Custom Colors",
+				new InstantCommand(
+						() -> {
+							enableLED(true);
+							setLEDCustom();
+						}));
+		stateChooser.setDefaultOption(
+				"Use Alliance Color (RED/BLUE)",
+				new InstantCommand(
+						() -> {
+							enableLED(true);
+							setLEDAlliance();
+						}));
 
 		armLEDTab = Shuffleboard.getTab("Arm LED");
 
@@ -157,7 +172,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		color2 = color2Chooser.getSelected();
 		color3 = color3Chooser.getSelected();
 
-		setLEDTeleop();
+		setLEDAlliance();
 	}
 
 	// METHODS
