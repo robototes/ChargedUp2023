@@ -564,6 +564,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		// Set value once to make it show up in UIs
 		useVisionMeasurementsSubscriber.getTopic().publish().set(false);
+		useVisionMeasurementsSubscriber.getTopic().setPersistent(true);
 		compTranslationalF.getTopic().publish().set(DEFAULT_COMP_TRANSLATIONAL_F);
 
 		frontLeftActualVelocityPublisher.set(0.0);
