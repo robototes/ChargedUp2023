@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -41,6 +42,7 @@ public class Robot extends TimedRobot {
 	public Subsystems subsystems;
 
 	private final RobotType robotType;
+	public final Field2d field = new Field2d();
 	public AutonomousChooser autonomousChooser;
 
 	protected Robot(RobotType type) {
@@ -90,6 +92,7 @@ public class Robot extends TimedRobot {
 		CommandScheduler.getInstance()
 				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
 
+		SmartDashboard.putData("Field", field);
 		SmartDashboard.putData(CommandScheduler.getInstance());
 		SmartDashboard.putData(subsystems.drivebaseSubsystem);
 		SmartDashboard.putData(subsystems.armSubsystem);

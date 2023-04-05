@@ -18,6 +18,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.FieldObject2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.Robot;
@@ -97,6 +99,7 @@ public class VisionSubsystem extends SubsystemBase {
 	private final PhotonCamera photonCamera;
 	private final PhotonPoseEstimator photonPoseEstimator;
 	private final SwerveDrivePoseEstimator poseEstimator;
+	private final FieldObject2d visionOnlyPoseObject;
 	private DriverStation.Alliance alliance;
 	// These are always set with every pipeline result
 	private PhotonPipelineResult latestResult = null;
@@ -131,8 +134,9 @@ public class VisionSubsystem extends SubsystemBase {
 		fieldLayout = temp;
 	}
 
-	public VisionSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
+	public VisionSubsystem(SwerveDrivePoseEstimator initialPoseEstimator, Field2d field) {
 		poseEstimator = initialPoseEstimator;
+		visionOnlyPoseObject = field.getObject("VisionPose");
 
 		var networkTables = NetworkTableInstance.getDefault();
 		if (Robot.isSimulation()) {
@@ -223,6 +227,7 @@ public class VisionSubsystem extends SubsystemBase {
 		if (latestPose.isPresent()) {
 			lastTimestampSeconds = latestPose.get().timestampSeconds;
 			lastFieldPose = convertToFieldPose(latestPose.get().estimatedPose, alliance);
+			visionOnlyPoseObject.setPose(lastFieldPose);
 			Vector<N3> stdDevs = getStdDevs(pipelineResult);
 			if (stdDevs != null) {
 				synchronized (poseEstimator) {
