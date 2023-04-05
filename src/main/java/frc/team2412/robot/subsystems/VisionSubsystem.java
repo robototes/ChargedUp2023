@@ -75,15 +75,16 @@ public class VisionSubsystem extends SubsystemBase {
 	private static final double EDGE_THRESHOLD_PIXELS = 10;
 	private static final double RESOLUTION_WIDTH = 960;
 	private static final double RESOLUTION_HEIGHT = 720;
-	// This is from the metric approximations from section 5.1 of the game manual
+	// These are from the metric approximations from section 5.1 of the game manual
 	private static final double FIELD_LENGTH_METERS = 16.54;
+	private static final double FIELD_WIDTH_METERS = 8.02;
 
 	private static Pose2d convertToFieldPose(Pose3d pose3d, DriverStation.Alliance alliance) {
 		switch (alliance) {
 			case Red:
 				return new Pose2d(
 						FIELD_LENGTH_METERS - pose3d.getX(),
-						pose3d.getY(),
+						FIELD_WIDTH_METERS - pose3d.getY(),
 						new Rotation2d(pose3d.getRotation().getZ()));
 			case Invalid:
 				DriverStation.reportWarning("Unknown alliance! Assuming blue", true);
