@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.team2412.robot.subsystems.ArmLEDSubsystem;
 import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
@@ -47,12 +48,13 @@ public class Subsystems {
 		poseEstimator =
 				new SwerveDrivePoseEstimator(
 						DrivebaseSubsystem.kinematics, new Rotation2d(), pseudoPositions, new Pose2d());
+		Field2d field = Robot.getInstance().field;
 
 		if (DRIVEBASE_ENABLED) {
-			drivebaseSubsystem = new DrivebaseSubsystem(poseEstimator);
+			drivebaseSubsystem = new DrivebaseSubsystem(poseEstimator, field);
 		}
 		if (VISION_ENABLED) {
-			visionSubsystem = new VisionSubsystem(poseEstimator);
+			visionSubsystem = new VisionSubsystem(poseEstimator, field);
 		}
 		if (DRIVER_VIS_ENABLED) {
 			if (Hardware.DRIVER_VISION_PATH == null) {

@@ -84,7 +84,6 @@ dependencies {
 	nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
 	simulationRelease wpi.sim.enableRelease()
 
-	implementation "com.github.Oblarg:Oblog:4.0.9"
 	testImplementation "junit:junit:4.12"
 
 	errorprone group: "com.google.errorprone", name: "error_prone_core", version: "2.10.0"

@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -41,6 +42,7 @@ public class Robot extends TimedRobot {
 	public Subsystems subsystems;
 
 	private final RobotType robotType;
+	public final Field2d field = new Field2d();
 	public AutonomousChooser autonomousChooser;
 
 	protected Robot(RobotType type) {
@@ -90,6 +92,7 @@ public class Robot extends TimedRobot {
 		CommandScheduler.getInstance()
 				.onCommandFinish(command -> System.out.println("Command finished: " + command.getName()));
 
+		SmartDashboard.putData("Field", field);
 		SmartDashboard.putData(CommandScheduler.getInstance());
 		SmartDashboard.putData(subsystems.drivebaseSubsystem);
 		SmartDashboard.putData(subsystems.armSubsystem);
@@ -149,12 +152,16 @@ public class Robot extends TimedRobot {
 			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
 		}
 		if (subsystems.drivebaseSubsystem != null) {
+			subsystems.drivebaseSubsystem.setUseVisionMeasurements(true);
 			// TODO: change this to not be hardcoded
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
 		}
 		if (subsystems.armLedSubsystem != null) {
 			subsystems.armLedSubsystem.setLEDAutonomous();
+    }
+		if (subsystems.visionSubsystem != null) {
+			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance());
 		}
 		// Checks if FMS is attatched and enables joystick warning if true
 		DriverStation.silenceJoystickConnectionWarning(!DriverStation.isFMSAttached());
@@ -166,6 +173,12 @@ public class Robot extends TimedRobot {
 
 		if (subsystems.armLedSubsystem != null) {
 			subsystems.armLedSubsystem.setLEDAlliance();
+    }
+		if (subsystems.visionSubsystem != null) {
+			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance());
+		}
+		if (subsystems.drivebaseSubsystem != null) {
+			subsystems.drivebaseSubsystem.setUseVisionMeasurements(true);
 		}
 	}
 

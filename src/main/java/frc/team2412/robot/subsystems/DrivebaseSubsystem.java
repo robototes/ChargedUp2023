@@ -13,7 +13,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.BooleanSubscriber;
+import edu.wpi.first.networktables.BooleanTopic;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
@@ -82,6 +84,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	// Balance controller is in degrees
 	private final PFFController<Double> balanceController;
+
+	private SwerveModuleState[] currentStates;
 
 	private final MotorController[] moduleDriveMotors =
 			IS_COMP
@@ -153,11 +157,12 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private final SwerveDriveOdometry drivebaseOnlyOdometry;
 	private Pose2d pose;
 
-	private Field2d field = new Field2d();
-	private FieldObject2d odometryOnlyFieldObject = field.getObject("OdometryPosition");
-	private FieldObject2d sharedPoseEstimatorFieldObject = field.getObject("SharedPoseEstimator");
+	private final Field2d field;
+	private final FieldObject2d odometryOnlyFieldObject;
+	private final FieldObject2d sharedPoseEstimatorFieldObject;
 
 	private BooleanSubscriber useVisionMeasurementsSubscriber;
+	private BooleanPublisher useVisionMeasurementsPublisher;
 
 	private DoublePublisher frontLeftActualVelocityPublisher;
 	private DoublePublisher frontRightActualVelocityPublisher;
@@ -202,7 +207,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private boolean xWheelToggle = false;
 
-	public DrivebaseSubsystem(SwerveDrivePoseEstimator initialPoseEstimator) {
+	public DrivebaseSubsystem(SwerveDrivePoseEstimator initialPoseEstimator, Field2d field) {
+		this.field = field;
+		odometryOnlyFieldObject = field.getObject("OdometryPosition");
+		sharedPoseEstimatorFieldObject = field.getObject("SharedPoseEstimator");
 		// configure network tables
 		configureNetworkTables();
 
@@ -341,6 +349,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			moduleAngleMotors[i].set(states[i].angle.getRotations() * STEER_REDUCTION);
 		}
 
+		currentStates = states;
+
 		frontLeftActualVelocityPublisher.set(
 				moduleDriveMotors[0].getVelocity() / DRIVE_VELOCITY_COEFFICIENT);
 		frontRightActualVelocityPublisher.set(
@@ -413,6 +423,19 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	/** Returns the kinematics */
 	public SwerveDriveKinematics getKinematics() {
 		return kinematics;
+	}
+
+	public SwerveModuleState[] getCurrentStates() {
+		return currentStates;
+	}
+
+	public double getVelocity() {
+		if (currentStates == null) {
+			return 0.0;
+		}
+		return Math.sqrt(
+				Math.pow(kinematics.toChassisSpeeds(getCurrentStates()).vxMetersPerSecond, 2)
+						+ Math.pow(kinematics.toChassisSpeeds(getCurrentStates()).vyMetersPerSecond, 2));
 	}
 
 	/**
@@ -495,13 +518,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	}
 
 	private void configureNetworkTables() {
-		SmartDashboard.putData("Field", field);
-
 		networkTableInstance = NetworkTableInstance.getDefault();
 		networkTableDrivebase = networkTableInstance.getTable("Drivebase");
 
-		useVisionMeasurementsSubscriber =
-				networkTableDrivebase.getBooleanTopic("Use vision measurements").subscribe(false);
+		BooleanTopic useVisionMeasurementsTopic =
+				networkTableDrivebase.getBooleanTopic("Use vision measurements");
+		useVisionMeasurementsTopic.setPersistent(true);
+		useVisionMeasurementsSubscriber = useVisionMeasurementsTopic.subscribe(false);
+		useVisionMeasurementsPublisher = useVisionMeasurementsTopic.publish();
 
 		frontLeftActualVelocityPublisher =
 				networkTableDrivebase.getDoubleTopic("Front left actual velocity").publish();
@@ -562,7 +586,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						.subscribe(DEFAULT_COMP_TRANSLATIONAL_F);
 
 		// Set value once to make it show up in UIs
-		useVisionMeasurementsSubscriber.getTopic().publish().set(false);
+		useVisionMeasurementsPublisher.set(false);
 		compTranslationalF.getTopic().publish().set(DEFAULT_COMP_TRANSLATIONAL_F);
 
 		frontLeftActualVelocityPublisher.set(0.0);
@@ -639,5 +663,9 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		frontRightActualAnglePublisher.set(moduleAngles[1].getDegrees());
 		backLeftActualAnglePublisher.set(moduleAngles[2].getDegrees());
 		backRightActualAnglePublisher.set(moduleAngles[3].getDegrees());
+	}
+
+	public void setUseVisionMeasurements(boolean useVisionMeasurements) {
+		useVisionMeasurementsPublisher.set(useVisionMeasurements);
 	}
 }
