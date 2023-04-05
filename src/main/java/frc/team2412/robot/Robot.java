@@ -166,6 +166,9 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopInit() {
 		Shuffleboard.startRecording();
+		if (subsystems.visionSubsystem != null) {
+			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance());
+		}
 	}
 
 	@Override

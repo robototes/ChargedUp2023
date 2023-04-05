@@ -87,7 +87,7 @@ public class VisionSubsystem extends SubsystemBase {
 				return new Pose2d(
 						FIELD_LENGTH_METERS - pose3d.getX(),
 						FIELD_WIDTH_METERS - pose3d.getY(),
-						new Rotation2d(pose3d.getRotation().getZ()));
+						new Rotation2d(2 * Math.PI + pose3d.getRotation().getZ()));
 			case Invalid:
 				DriverStation.reportWarning("Unknown alliance! Assuming blue", true);
 				// fall through
