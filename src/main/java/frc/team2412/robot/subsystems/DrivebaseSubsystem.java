@@ -219,6 +219,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		if (!IS_COMP) {
 			gyroscope.setInverted(true);
 		}
+		gyroscope.startLogging();
 
 		poseEstimator = initialPoseEstimator;
 		drivebaseOnlyOdometry =
