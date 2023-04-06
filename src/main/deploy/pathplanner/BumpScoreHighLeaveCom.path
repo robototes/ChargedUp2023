@@ -17,9 +17,8 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "ArmHigh",
-          "WristOut",
-          "IntakeOut"
+          "ScoreHigh",
+          "Stow"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -28,12 +27,37 @@
     },
     {
       "anchorPoint": {
-        "x": 6.2328708030337685,
-        "y": 0.9044469395352096
+        "x": 5.952165408604322,
+        "y": 0.9021142828610453
       },
       "prevControl": {
-        "x": 5.1951369460933705,
-        "y": 0.5712296460222375
+        "x": 4.862761111168394,
+        "y": 0.8685941506322471
+      },
+      "nextControl": {
+        "x": 6.6944113375406245,
+        "y": 0.9249526191360088
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 7.436657266476926,
+        "y": 0.9249526191360088
+      },
+      "prevControl": {
+        "x": 7.071243886077517,
+        "y": 0.9477909554109721
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -42,9 +66,7 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "IntakeIn"
-        ],
+        "names": [],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -53,15 +75,9 @@
   ],
   "markers": [
     {
-      "position": 0.10181818181817817,
+      "position": 0.7054545454545545,
       "names": [
-        "Stow"
-      ]
-    },
-    {
-      "position": 0.8945454545454434,
-      "names": [
-        "IntakeOut",
+        "WristOut",
         "IntakeIn"
       ]
     }
