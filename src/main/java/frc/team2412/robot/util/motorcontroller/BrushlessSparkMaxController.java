@@ -2,6 +2,7 @@ package frc.team2412.robot.util.motorcontroller;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import com.revrobotics.MotorFeedbackSensor;
 import com.revrobotics.SparkMaxPIDController;
 import frc.team2412.robot.sim.PhysicsSim;
@@ -150,6 +151,5 @@ public class BrushlessSparkMaxController extends MotorController {
 	@Override
 	public void simulationConfig(PhysicsSim sim) {
 		sim.addSparkMax(motor, SparkMaxSimProfile.SparkMaxConstants.STALL_TORQUE, FREE_SPEED_RPS * 60);
-		;
 	}
 }

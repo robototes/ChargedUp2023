@@ -53,6 +53,7 @@ public class AutonomousChooser {
 	}
 
 	public Command getAuto() {
+		System.out.println("Selected auto:" + autonomousModeChooser.getSelected());
 		return autonomousModeChooser.getSelected().getCommand();
 	}
 }

@@ -14,6 +14,8 @@ public abstract class Gyroscope {
 
 	public abstract Rotation2d getRawRoll();
 
+	public abstract void startLogging();
+
 	public void setInverted(boolean invert) {
 		this.inverted = invert;
 	}
