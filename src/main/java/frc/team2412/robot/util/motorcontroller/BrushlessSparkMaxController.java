@@ -2,7 +2,6 @@ package frc.team2412.robot.util.motorcontroller;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
 import com.revrobotics.MotorFeedbackSensor;
 import com.revrobotics.SparkMaxPIDController;
 import frc.team2412.robot.sim.PhysicsSim;

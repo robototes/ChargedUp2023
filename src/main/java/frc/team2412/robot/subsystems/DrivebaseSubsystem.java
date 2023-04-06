@@ -55,7 +55,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		Rotation2d.fromDegrees(249.521484),
 		Rotation2d.fromDegrees(298.388672),
 		Rotation2d.fromDegrees(314.912109),
-		Rotation2d.fromDegrees(27.685547)
+		Rotation2d.fromDegrees(21.685547 + 180)
 	};
 
 	// max drive speed is from SDS website and not calculated with robot weight

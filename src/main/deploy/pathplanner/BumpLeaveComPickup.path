@@ -2,43 +2,15 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.872484505064023,
-        "y": 4.42702975667234
+        "x": 1.882004999164394,
+        "y": 1.0662953392415107
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.834732507071852,
-        "y": 4.601924759405074
+        "x": 2.900697867904051,
+        "y": 0.8092419985315029
       },
       "holonomicAngle": 180.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [
-          "ScoreHigh",
-          "Stow"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 5.769458718404617,
-        "y": 4.830308122154706
-      },
-      "prevControl": {
-        "x": 3.4627867546333384,
-        "y": 5.1843023344166355
-      },
-      "nextControl": {
-        "x": 6.211417011788105,
-        "y": 4.762482839506745
-      },
-      "holonomicAngle": -7.783802563204985,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -52,15 +24,40 @@
     },
     {
       "anchorPoint": {
-        "x": 7.065417337518564,
-        "y": 4.578178753830297
+        "x": 5.952165408604322,
+        "y": 0.9021142828610453
       },
       "prevControl": {
-        "x": 6.614477160578253,
-        "y": 4.647601431955001
+        "x": 4.862761111168394,
+        "y": 0.8685941506322471
+      },
+      "nextControl": {
+        "x": 6.6944113375406245,
+        "y": 0.9249526191360088
+      },
+      "holonomicAngle": 0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 7.436657266476926,
+        "y": 0.9249526191360088
+      },
+      "prevControl": {
+        "x": 7.071243886077517,
+        "y": 0.9477909554109721
       },
       "nextControl": null,
-      "holonomicAngle": -11.012592415898508,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -75,7 +72,7 @@
   ],
   "markers": [
     {
-      "position": 0.9599999999999789,
+      "position": 0.9599999999999946,
       "names": [
         "WristOut",
         "IntakeIn"

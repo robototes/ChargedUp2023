@@ -57,6 +57,13 @@ public class AutonomousChooser {
 		autonomousModeChooser.addOption(
 				"ChargeShootChargeShoot",
 				() -> AutonomousTrajectories.getAutoPathByName("ChargeShootChargeShoot"));
+
+		autonomousModeChooser.addOption(
+				"ChargeCharge", () -> AutonomousTrajectories.getAutoPathByName("ChargeCharge"));
+
+		autonomousModeChooser.addOption(
+				"DONOTUSEBumpScoreHighLeaveComScoreHigh",
+				() -> AutonomousTrajectories.getAutoPathByName("UTBumpScoreHighLeaveComScoreHigh"));
 		// autonomousModeChooser.addOption(
 		// 		"ChargePickupBot", () -> AutonomousTrajectories.getAutoPathByName("ChargePickupBot"));
 		// autonomousModeChooser.addOption(
