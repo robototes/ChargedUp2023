@@ -12,7 +12,8 @@ public class AutonomousChooser {
 
 	private final SendableChooser<CommandSupplier> autonomousModeChooser = new SendableChooser<>();
 
-	// auto naming scheme (Kind of jank but would be weird to change it up now so let's keep it consistent)
+	// auto naming scheme (Kind of jank but would be weird to change it up now so let's keep it
+	// consistent)
 	// STARTING POSITION
 	//		Flat, Charge, Bump
 	// followed by ACTIONS (multiple possible)
@@ -26,17 +27,20 @@ public class AutonomousChooser {
 		autonomousModeChooser.addOption(
 				"ChargeLeaveComCharge",
 				() -> AutonomousTrajectories.getAutoPathByName("ChargeLeaveComCharge"));
-		
+
 		autonomousModeChooser.addOption(
-				"BumpScoreHighLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("BumpScoreHighLeaveCom"));
+				"BumpScoreHighLeaveCom",
+				() -> AutonomousTrajectories.getAutoPathByName("BumpScoreHighLeaveCom"));
 		autonomousModeChooser.addOption(
-			"FlatScoreHighLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("FlatScoreHighLeaveCom"));
+				"FlatScoreHighLeaveCom",
+				() -> AutonomousTrajectories.getAutoPathByName("FlatScoreHighLeaveCom"));
 		// autonomousModeChooser.addOption(
 		// 		"FlatScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("FlatPieceScore"));
 		// autonomousModeChooser.addOption(
 		// 		"BumpScoreLeaveCom", () -> AutonomousTrajectories.getAutoPathByName("BumpPieceScore"));
 		// autonomousModeChooser.addOption( // maybe
-		// 		"FlatScoreLeaveCom2", () -> AutonomousTrajectories.getAutoPathByName("FlatScoreLeaveCom2"));
+		// 		"FlatScoreLeaveCom2", () ->
+		// AutonomousTrajectories.getAutoPathByName("FlatScoreLeaveCom2"));
 		// autonomousModeChooser.addOption(
 		// 		"ChargePreloadSecPiece",
 		// 		() -> AutonomousTrajectories.getAutoPathByName("ChargePreloadSecPiece"));
@@ -45,11 +49,11 @@ public class AutonomousChooser {
 		autonomousModeChooser.addOption(
 				"ChargeScoreHighLeaveComCharge",
 				() -> AutonomousTrajectories.getAutoPathByName("ChargeScoreHighLeaveComCharge"));
-		
-		
+
 		autonomousModeChooser.addOption(
-				"FlatScoreHighLeaveComScoreHigh", () -> AutonomousTrajectories.getAutoPathByName("FlatScoreHighLeaveComScoreHigh"));
-		
+				"FlatScoreHighLeaveComScoreHigh",
+				() -> AutonomousTrajectories.getAutoPathByName("FlatScoreHighLeaveComScoreHigh"));
+
 		autonomousModeChooser.addOption(
 				"ChargeShootChargeShoot",
 				() -> AutonomousTrajectories.getAutoPathByName("ChargeShootChargeShoot"));
