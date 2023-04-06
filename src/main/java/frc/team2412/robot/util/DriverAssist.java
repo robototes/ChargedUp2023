@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType;
 import java.util.List;
@@ -35,7 +36,7 @@ public class DriverAssist {
 		new Pose2d(new Translation2d(1.80, 5), Rotation2d.fromDegrees(180)), // 6th cone scoring area
 	};
 
-	public static Command alignRobot(
+	private static Command alignRobot(
 			DrivebaseSubsystem drivebaseSubsystem, GamePieceType gamePieceType) {
 		Pose2d currentPose = drivebaseSubsystem.getPose();
 		Pose2d alignmentPose =
@@ -74,5 +75,46 @@ public class DriverAssist {
 						drivebaseSubsystem);
 
 		return followAlignmentCommand;
+	}
+
+	public static Command alignRobotCommand(
+			DrivebaseSubsystem drivebaseSubsystem, GamePieceType gamePieceType) {
+		return new AutoAlignCommand(drivebaseSubsystem, gamePieceType);
+	}
+
+	private static class AutoAlignCommand extends CommandBase {
+		private final DrivebaseSubsystem drivebaseSubsystem;
+		private final GamePieceType gamePieceType;
+		private Command alignCommand = null;
+
+		public AutoAlignCommand(DrivebaseSubsystem drivebaseSubsystem, GamePieceType gamePieceType) {
+			this.drivebaseSubsystem = drivebaseSubsystem;
+			this.gamePieceType = gamePieceType;
+		}
+
+		@Override
+		public void initialize() {
+			System.out.println("Starting new align robot command");
+			alignCommand = alignRobot(drivebaseSubsystem, gamePieceType);
+			alignCommand.initialize();
+		}
+
+		@Override
+		public void execute() {
+			alignCommand.execute();
+		}
+
+		@Override
+		public boolean isFinished() {
+			return alignCommand.isFinished();
+		}
+
+		@Override
+		public void end(boolean interrupted) {
+			if (interrupted && alignCommand != null) {
+				alignCommand.end(true);
+			}
+			alignCommand = null;
+		}
 	}
 }
