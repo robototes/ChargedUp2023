@@ -60,7 +60,7 @@ public class AutonomousTrajectories {
 			eventMap.put("IntakeFastOut", intakeFastOut);
 			eventMap.put("IntakeIn", intakeIn);
 			eventMap.put("ArmHigh", armHigh);
-			eventMap.put("WristOut", wristOut);
+			eventMap.put("WristScore", wristOut);
 			eventMap.put("ArmLow", armLow);
 			eventMap.put("ArmMid", armMid);
 			eventMap.put("Stow", stow);

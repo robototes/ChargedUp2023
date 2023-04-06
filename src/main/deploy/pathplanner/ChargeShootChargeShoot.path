@@ -42,7 +42,7 @@
       "isStopPoint": true,
       "stopEvent": {
         "names": [
-          "WristOut",
+          "WristScore",
           "IntakeFastOut",
           "Stow"
         ],
@@ -209,7 +209,7 @@
     {
       "position": 2.050909090909086,
       "names": [
-        "WristOut",
+        "WristPrescore",
         "IntakeIn"
       ]
     },
