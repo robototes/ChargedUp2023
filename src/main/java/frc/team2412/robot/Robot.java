@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
+import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
@@ -154,6 +155,9 @@ public class Robot extends TimedRobot {
 		if (subsystems.armSubsystem != null) {
 			// if manual arm control is enabled in auto, the arm will never move
 			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
+		}
+		if (subsystems.intakeSubsystem != null) {
+			new IntakeDefaultCommand(subsystems.intakeSubsystem).schedule();
 		}
 		if (subsystems.drivebaseSubsystem != null) {
 			subsystems.drivebaseSubsystem.setUseVisionMeasurements(false);

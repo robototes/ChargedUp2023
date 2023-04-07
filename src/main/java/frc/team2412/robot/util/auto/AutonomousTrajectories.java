@@ -43,13 +43,18 @@ public class AutonomousTrajectories {
 			Command armLow = new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WRIST_PRESCORE);
 			Command armMid = new SetFullArmCommand(s.armSubsystem, ARM_MIDDLE_POSITION, WRIST_PRESCORE);
 			Command armHigh = new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION, WRIST_PRESCORE);
+			Command armSubstation =
+					new SetFullArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE);
 			Command stow =
 					new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WristPosition.WRIST_RETRACT, 0.3);
 			Command scoreHigh =
 					new SequentialCommandGroup(
 							new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION, WristPosition.WRIST_SCORE),
-							new WaitCommand(0.5),
-							new IntakeSetOutCommand(s.intakeSubsystem).withTimeout(0.3));
+							new WaitCommand(0.2),
+							new SetFullArmCommand(
+									s.armSubsystem, ARM_SUBSTATION_POSITION, WristPosition.WRIST_PRESCORE),
+							new WaitCommand(0.3),
+							new IntakeSetOutCommand(s.intakeSubsystem).withTimeout(0.1));
 
 			eventMap.put("ScoreBottom", scoreBottom);
 			eventMap.put("ScoreHigh", scoreHigh);
@@ -63,6 +68,7 @@ public class AutonomousTrajectories {
 			eventMap.put("WristScore", wristOut);
 			eventMap.put("ArmLow", armLow);
 			eventMap.put("ArmMid", armMid);
+			eventMap.put("ArmSubstation", armSubstation);
 			eventMap.put("Stow", stow);
 			eventMap.put("Wait", new WaitCommand(0.5));
 		}
