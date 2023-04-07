@@ -30,4 +30,14 @@ public class NavXGyro extends Gyroscope {
 	public void startLogging() {
 		// nothing for navx
 	}
+
+	@Override
+	public void disableNoMotionCalibration() {
+		// nothing for navx
+	}
+
+	@Override
+	public void enableNoMotionCalibration() {
+		// nothing for navx
+	}
 }

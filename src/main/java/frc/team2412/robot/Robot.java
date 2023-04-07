@@ -76,6 +76,10 @@ public class Robot extends TimedRobot {
 		controls = new Controls(subsystems);
 		autonomousChooser = new AutonomousChooser();
 
+		if (subsystems.drivebaseSubsystem != null) {
+			subsystems.drivebaseSubsystem.enableNoMotionCalibration();
+		}
+
 		Shuffleboard.startRecording();
 
 		if (RobotBase.isReal()) {
@@ -156,6 +160,7 @@ public class Robot extends TimedRobot {
 			// TODO: change this to not be hardcoded
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
+			subsystems.drivebaseSubsystem.disableNoMotionCalibration();
 		}
 		if (subsystems.armLedSubsystem != null) {
 			subsystems.armLedSubsystem.setLEDAutonomous();

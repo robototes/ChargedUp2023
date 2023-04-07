@@ -460,6 +460,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		gyroscope.setAngleAdjustment(angle.unaryMinus());
 	}
 
+	public void disableNoMotionCalibration() {
+		gyroscope.disableNoMotionCalibration();
+	}
+
+	public void enableNoMotionCalibration() {
+		gyroscope.enableNoMotionCalibration();
+	}
+
 	/** Returns the robot's pose */
 	public Pose2d getPose() {
 		return pose;

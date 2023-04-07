@@ -16,6 +16,10 @@ public abstract class Gyroscope {
 
 	public abstract void startLogging();
 
+	public abstract void disableNoMotionCalibration();
+
+	public abstract void enableNoMotionCalibration();
+
 	public void setInverted(boolean invert) {
 		this.inverted = invert;
 	}

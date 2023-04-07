@@ -30,4 +30,14 @@ public class Pigeon2Gyro extends Gyroscope {
 	public void startLogging() {
 		SmartDashboard.putData("Gyro", this.pigeon);
 	}
+
+	@Override
+	public void enableNoMotionCalibration() {
+		pigeon.configDisableNoMotionCalibration(false);
+	}
+
+	@Override
+	public void disableNoMotionCalibration() {
+		pigeon.configDisableNoMotionCalibration(true);
+	}
 }
