@@ -64,6 +64,8 @@ public abstract class MotorController {
 	/** Units: rotations for position or velocity, voltage for voltage, percent for percent */
 	public abstract void set(double setpoint, MotorControlMode mode);
 
+	public abstract void stop();
+
 	/** Units: rotations */
 	public abstract void setIntegratedEncoderPosition(double position);
 

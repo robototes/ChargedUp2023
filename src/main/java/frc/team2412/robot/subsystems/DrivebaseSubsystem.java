@@ -514,6 +514,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		xWheelToggle = !xWheelToggle;
 	}
 
+	public void stopAllMotors() {
+		for (MotorController motor : moduleDriveMotors) {
+			motor.stop();
+		}
+		for (MotorController motor : moduleAngleMotors) {
+			motor.stop();
+		}
+	}
+
 	public void simInit(PhysicsSim sim) {
 		for (int i = 0; i < moduleDriveMotors.length; i++) {
 			moduleDriveMotors[i].simulationConfig(sim);

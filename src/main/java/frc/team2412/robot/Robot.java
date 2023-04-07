@@ -190,11 +190,13 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousExit() {
 		CommandScheduler.getInstance().cancelAll();
+		subsystems.drivebaseSubsystem.stopAllMotors();
 	}
 
 	@Override
 	public void teleopExit() {
 		CommandScheduler.getInstance().cancelAll();
+		subsystems.drivebaseSubsystem.stopAllMotors();
 	}
 
 	@Override
