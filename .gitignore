@@ -175,5 +175,8 @@ Session.vim
 .idea
 local.properties
 
+# WPILib datalog tool config files
+.DataLogTool/
+
 # Don't know what's creating this
 .project
