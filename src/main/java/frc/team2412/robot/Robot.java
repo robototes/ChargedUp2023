@@ -227,8 +227,32 @@ public class Robot extends TimedRobot {
 		return getRobotType() == RobotType.COMPETITION;
 	}
 
+	private boolean wasArmButtonPressed = false;
+	private boolean isArmCoast = false;
+
 	@Override
 	public void disabledInit() {
 		Shuffleboard.stopRecording();
+		wasArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
+	}
+
+	@Override
+	public void disabledPeriodic() {
+		boolean isArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
+		if (!wasArmButtonPressed && isArmButtonPressed) {
+			if (isArmCoast) {
+				subsystems.armSubsystem.setBrake();
+			} else {
+				subsystems.armSubsystem.setCoast();
+			}
+			isArmCoast = !isArmCoast;
+		}
+		wasArmButtonPressed = isArmButtonPressed;
+	}
+
+	@Override
+	public void disabledExit() {
+		subsystems.armSubsystem.setBrake();
+		isArmCoast = false;
 	}
 }

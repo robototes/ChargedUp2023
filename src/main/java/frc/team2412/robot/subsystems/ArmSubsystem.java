@@ -21,6 +21,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -155,6 +156,9 @@ public class ArmSubsystem extends SubsystemBase {
 	private DoubleSupplier armPosAdjustJoystick;
 	private DoubleSupplier wristPosAdjustJoystick;
 
+	// Button to toggle coast mode
+	private final DigitalInput toggleCoastButton;
+
 	// Hardware
 	private final CANSparkMax armMotor1;
 	private final CANSparkMax armMotor2;
@@ -171,6 +175,8 @@ public class ArmSubsystem extends SubsystemBase {
 	// Network Tables
 	NetworkTableInstance NTInstance;
 	NetworkTable NTDevices;
+
+	BooleanPublisher buttonPressedPublisher;
 
 	DoublePublisher shoulderPositionPublisher;
 	DoublePublisher elbowPositionPublisher;
@@ -211,6 +217,8 @@ public class ArmSubsystem extends SubsystemBase {
 	// CONSTRUCTOR
 
 	public ArmSubsystem() {
+		toggleCoastButton = new DigitalInput(ARM_COAST_TOGGLE_PORT);
+
 		armMotor1 = new CANSparkMax(ARM_MOTOR_1, MotorType.kBrushless);
 		armMotor2 = new CANSparkMax(ARM_MOTOR_2, MotorType.kBrushless);
 		wristMotor = new CANSparkMax(WRIST_MOTOR, MotorType.kBrushless);
@@ -236,6 +244,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 		NTDevices = NTInstance.getTable("Devices");
 
+		buttonPressedPublisher = NTDevices.getBooleanTopic("Button pressed").publish();
 		armPositionPublisher = NTDevices.getStringTopic("Position").publish();
 		shoulderPositionPublisher = NTDevices.getDoubleTopic("Shoulder Pos").publish();
 		elbowPositionPublisher = NTDevices.getDoubleTopic("Elbow Pos").publish();
@@ -250,6 +259,7 @@ public class ArmSubsystem extends SubsystemBase {
 		wristGoalPublisher = NTDevices.getDoubleTopic("Wrist Goal").publish();
 		armManualOverridePublisher = NTDevices.getBooleanTopic("Manual Override").publish();
 
+		buttonPressedPublisher.set(isIdleModeTogglePressed());
 		shoulderPositionPublisher.set(0.0);
 		elbowPositionPublisher.set(0.0);
 		wristPositionPublisher.set(0.0);
@@ -296,6 +306,22 @@ public class ArmSubsystem extends SubsystemBase {
 		armMotor1.burnFlash();
 		armMotor2.burnFlash();
 		wristMotor.burnFlash();
+	}
+
+	public void setCoast() {
+		armMotor1.setIdleMode(CANSparkMax.IdleMode.kCoast);
+		armMotor2.setIdleMode(CANSparkMax.IdleMode.kCoast);
+		wristMotor.setIdleMode(CANSparkMax.IdleMode.kCoast);
+	}
+
+	public void setBrake() {
+		armMotor1.setIdleMode(CANSparkMax.IdleMode.kBrake);
+		armMotor2.setIdleMode(CANSparkMax.IdleMode.kBrake);
+		wristMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
+	}
+
+	public boolean isIdleModeTogglePressed() {
+		return toggleCoastButton.get();
 	}
 
 	public void setPresetAdjustJoysticks(
@@ -515,6 +541,8 @@ public class ArmSubsystem extends SubsystemBase {
 		}
 
 		// Network Tables
+
+		buttonPressedPublisher.set(isIdleModeTogglePressed());
 
 		shoulderPositionPublisher.set(getShoulderPosition());
 		elbowPositionPublisher.set(getElbowPosition());
