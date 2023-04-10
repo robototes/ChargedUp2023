@@ -48,6 +48,7 @@ public class Hardware {
 	public static final int ELBOW_ENCODER_PORT = 0,
 			WRIST_ENCODER_PORT_A = 4,
 			WRIST_ENCODER_PORT_B = 5;
+	public static final int ARM_COAST_TOGGLE_PORT = 0;
 
 	// Intake devices are ports 50-59
 	public static final int INTAKE_MOTOR_1 = 55, INTAKE_MOTOR_2 = 56;
