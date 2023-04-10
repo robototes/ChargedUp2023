@@ -51,6 +51,10 @@ public class AutonomousChooser {
 				() -> AutonomousTrajectories.getAutoPathByName("ChargeScoreHighLeaveComCharge"));
 
 		autonomousModeChooser.addOption(
+				"ChargeScoreHighCharge",
+				() -> AutonomousTrajectories.getAutoPathByName("ChargeScoreHighCharge"));
+
+		autonomousModeChooser.addOption(
 				"FlatScoreHighLeaveComScoreHigh",
 				() -> AutonomousTrajectories.getAutoPathByName("FlatScoreHighLeaveComScoreHigh"));
 
