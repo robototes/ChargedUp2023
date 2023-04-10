@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
+import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
@@ -75,6 +76,10 @@ public class Robot extends TimedRobot {
 		subsystems = new Subsystems();
 		controls = new Controls(subsystems);
 		autonomousChooser = new AutonomousChooser();
+
+		if (subsystems.drivebaseSubsystem != null) {
+			subsystems.drivebaseSubsystem.enableNoMotionCalibration();
+		}
 
 		Shuffleboard.startRecording();
 
@@ -151,11 +156,15 @@ public class Robot extends TimedRobot {
 			// if manual arm control is enabled in auto, the arm will never move
 			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
 		}
+		if (subsystems.intakeSubsystem != null) {
+			new IntakeDefaultCommand(subsystems.intakeSubsystem).schedule();
+		}
 		if (subsystems.drivebaseSubsystem != null) {
 			subsystems.drivebaseSubsystem.setUseVisionMeasurements(false);
 			// TODO: change this to not be hardcoded
 			subsystems.drivebaseSubsystem.resetGyroAngleWithOrientation(Rotation2d.fromDegrees(180));
 			autonomousChooser.getAuto().schedule();
+			subsystems.drivebaseSubsystem.disableNoMotionCalibration();
 		}
 		if (subsystems.armLedSubsystem != null) {
 			subsystems.armLedSubsystem.setLEDAutonomous();
@@ -185,11 +194,13 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousExit() {
 		CommandScheduler.getInstance().cancelAll();
+		subsystems.drivebaseSubsystem.stopAllMotors();
 	}
 
 	@Override
 	public void teleopExit() {
 		CommandScheduler.getInstance().cancelAll();
+		subsystems.drivebaseSubsystem.stopAllMotors();
 	}
 
 	@Override

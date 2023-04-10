@@ -3,7 +3,9 @@ package frc.team2412.robot.util.motorcontroller;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.MotorFeedbackSensor;
+import com.revrobotics.REVLibError;
 import com.revrobotics.SparkMaxPIDController;
+import edu.wpi.first.wpilibj.DriverStation;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.sim.SparkMaxSimProfile;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
@@ -61,8 +63,16 @@ public class BrushlessSparkMaxController extends MotorController {
 		if (mode == MotorControlMode.VOLTAGE) {
 			this.motor.setVoltage(setpoint);
 		} else {
-			motorPID.setReference(setpoint, mode.getREV());
+			REVLibError error = motorPID.setReference(setpoint, mode.getREV());
+			if (error != REVLibError.kOk) {
+				DriverStation.reportWarning(error.toString(), false);
+			}
 		}
+	}
+
+	@Override
+	public void stop() {
+		motor.stopMotor();
 	}
 
 	@Override
@@ -150,6 +160,5 @@ public class BrushlessSparkMaxController extends MotorController {
 	@Override
 	public void simulationConfig(PhysicsSim sim) {
 		sim.addSparkMax(motor, SparkMaxSimProfile.SparkMaxConstants.STALL_TORQUE, FREE_SPEED_RPS * 60);
-		;
 	}
 }

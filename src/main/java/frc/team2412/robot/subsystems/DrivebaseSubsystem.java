@@ -55,7 +55,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		Rotation2d.fromDegrees(249.521484),
 		Rotation2d.fromDegrees(298.388672),
 		Rotation2d.fromDegrees(314.912109),
-		Rotation2d.fromDegrees(27.685547)
+		Rotation2d.fromDegrees(21.685547 + 180)
 	};
 
 	// max drive speed is from SDS website and not calculated with robot weight
@@ -219,6 +219,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		if (!IS_COMP) {
 			gyroscope.setInverted(true);
 		}
+		gyroscope.startLogging();
 
 		poseEstimator = initialPoseEstimator;
 		drivebaseOnlyOdometry =
@@ -459,6 +460,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		gyroscope.setAngleAdjustment(angle.unaryMinus());
 	}
 
+	public void disableNoMotionCalibration() {
+		gyroscope.disableNoMotionCalibration();
+	}
+
+	public void enableNoMotionCalibration() {
+		gyroscope.enableNoMotionCalibration();
+	}
+
 	/** Returns the robot's pose */
 	public Pose2d getPose() {
 		return pose;
@@ -503,6 +512,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void toggleXWheels() {
 		xWheelToggle = !xWheelToggle;
+	}
+
+	public void stopAllMotors() {
+		for (MotorController motor : moduleDriveMotors) {
+			motor.stop();
+		}
+		for (MotorController motor : moduleAngleMotors) {
+			motor.stop();
+		}
 	}
 
 	public void simInit(PhysicsSim sim) {

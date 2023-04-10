@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.9554565604857705,
-        "y": 0.7650842652112657
+        "x": 1.882004999164394,
+        "y": 1.0662953392415107
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9554565604857705,
-        "y": 0.7650842652112657
+        "x": 2.900697867904051,
+        "y": 0.8092419985315029
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -16,26 +16,23 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "WristPrescore",
-          "IntakeOut"
-        ],
+        "names": [],
         "executionBehavior": "sequential",
-        "waitBehavior": "deadline",
-        "waitTime": 1.0
+        "waitBehavior": "none",
+        "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 6.0,
-        "y": 0.7765034333487463
+        "x": 5.952165408604322,
+        "y": 0.9021142828610453
       },
       "prevControl": {
-        "x": 6.0,
-        "y": 0.7603542908977023
+        "x": 4.862761111168394,
+        "y": 0.8685941506322471
       },
       "nextControl": null,
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,

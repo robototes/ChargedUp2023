@@ -11,7 +11,6 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionTy
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
@@ -129,19 +128,25 @@ public class Controls {
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 		driveController.leftStick().onTrue(new InstantCommand(s.drivebaseSubsystem::toggleXWheels));
 
-		// CommandBase driverAssistCube =
-		// 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CUBE));
-		triggerDriverAssistCube.onTrue(
-				new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CUBE)));
-		// CommandBase driverAssistCone =
-		// 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CONE));
-		triggerDriverAssistCone.onTrue(
-				new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CONE)));
+		triggerDriverAssistCube.whileTrue(
+				DriverAssist.alignRobotCommand(s.drivebaseSubsystem, GamePieceType.CUBE).repeatedly());
+		triggerDriverAssistCone.whileTrue(
+				DriverAssist.alignRobotCommand(s.drivebaseSubsystem, GamePieceType.CONE).repeatedly());
+		// // CommandBase driverAssistCube =
+		// // 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem,
+		// GamePieceType.CUBE));
+		// triggerDriverAssistCube.onTrue(
+		// 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CUBE)));
+		// // CommandBase driverAssistCone =
+		// // 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem,
+		// GamePieceType.CONE));
+		// triggerDriverAssistCone.onTrue(
+		// 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CONE)));
 
-		triggerDriverAssistCube.onFalse(
-				new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
-		triggerDriverAssistCone.onFalse(
-				new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
+		// triggerDriverAssistCube.onFalse(
+		// 		new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
+		// triggerDriverAssistCone.onFalse(
+		// 		new InstantCommand(() -> s.drivebaseSubsystem.getCurrentCommand().cancel()));
 	}
 
 	public void bindArmControls() {

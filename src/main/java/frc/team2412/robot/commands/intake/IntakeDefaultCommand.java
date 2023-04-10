@@ -6,7 +6,7 @@ public class IntakeDefaultCommand extends IntakeSetCommand {
 
 	public IntakeDefaultCommand(IntakeSubsystem intakeSubsystem) {
 
-		super(intakeSubsystem, 0.1);
+		super(intakeSubsystem, 0.4);
 	}
 
 	@Override

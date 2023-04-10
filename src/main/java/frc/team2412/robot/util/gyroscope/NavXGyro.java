@@ -25,4 +25,19 @@ public class NavXGyro extends Gyroscope {
 	public Rotation2d getRawRoll() {
 		return Rotation2d.fromDegrees(this.navx.getRoll());
 	}
+
+	@Override
+	public void startLogging() {
+		// nothing for navx
+	}
+
+	@Override
+	public void disableNoMotionCalibration() {
+		// nothing for navx
+	}
+
+	@Override
+	public void enableNoMotionCalibration() {
+		// nothing for navx
+	}
 }

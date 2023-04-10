@@ -1,13 +1,14 @@
 package frc.team2412.robot.util.gyroscope;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Pigeon2Gyro extends Gyroscope {
-	private final Pigeon2 pigeon;
+	private final WPI_Pigeon2 pigeon;
 
 	public Pigeon2Gyro(int id) {
-		this.pigeon = new Pigeon2(id);
+		this.pigeon = new WPI_Pigeon2(id);
 	}
 
 	@Override
@@ -23,5 +24,20 @@ public class Pigeon2Gyro extends Gyroscope {
 	@Override
 	public Rotation2d getRawRoll() {
 		return Rotation2d.fromDegrees(this.pigeon.getRoll());
+	}
+
+	@Override
+	public void startLogging() {
+		SmartDashboard.putData("Gyro", this.pigeon);
+	}
+
+	@Override
+	public void enableNoMotionCalibration() {
+		pigeon.configDisableNoMotionCalibration(false);
+	}
+
+	@Override
+	public void disableNoMotionCalibration() {
+		pigeon.configDisableNoMotionCalibration(true);
 	}
 }
