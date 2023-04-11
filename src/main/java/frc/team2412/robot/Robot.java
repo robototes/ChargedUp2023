@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
 import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
@@ -154,7 +153,7 @@ public class Robot extends TimedRobot {
 		Shuffleboard.startRecording();
 		if (subsystems.armSubsystem != null) {
 			// if manual arm control is enabled in auto, the arm will never move
-			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
+			subsystems.armSubsystem.setManualOverride(false);
 		}
 		if (subsystems.intakeSubsystem != null) {
 			new IntakeDefaultCommand(subsystems.intakeSubsystem).schedule();
@@ -200,7 +199,12 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopExit() {
 		CommandScheduler.getInstance().cancelAll();
-		subsystems.drivebaseSubsystem.stopAllMotors();
+		if (subsystems.drivebaseSubsystem != null) {
+			subsystems.drivebaseSubsystem.stopAllMotors();
+		}
+		if (subsystems.armSubsystem != null) {
+			subsystems.armSubsystem.resetToLow();
+		}
 	}
 
 	@Override

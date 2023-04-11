@@ -19,5 +19,13 @@ public class SetFullArmCommand extends SequentialCommandGroup {
 		addCommands(
 				new SetArmCommand(armSubsystem, positionType, armTolerance),
 				new SetWristCommand(armSubsystem, wristPosition));
+		setName(
+				"SetFullArmCommand(arm, "
+						+ positionType
+						+ ", "
+						+ wristPosition
+						+ ", "
+						+ armTolerance
+						+ ")");
 	}
 }

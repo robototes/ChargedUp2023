@@ -119,7 +119,7 @@ public class ArmSubsystem extends SubsystemBase {
 		 * Scoring Wrist Angle
 		 */
 		public static enum PositionType {
-			UNKNOWN_POSITION(0.212, 0.08, 0.46, 0.46),
+			UNKNOWN_POSITION(0.212, 0.08, 0.46, 0.35),
 			ARM_LOW_POSITION(0.212, 0.08, 0.46, 0.35),
 			ARM_MIDDLE_POSITION(0.415, 0.08, 0.42, 0.5),
 			ARM_HIGH_POSITION(0.6546, 0.08, 0.465, 0.473),
@@ -374,6 +374,14 @@ public class ArmSubsystem extends SubsystemBase {
 				MathUtil.clamp(MAX_WRIST_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT);
 		wristPID.setReference(
 				percentOutput, CANSparkMax.ControlType.kDutyCycle, 0); // calculateWristFeedforward());
+	}
+
+	public void resetToLow() {
+		setPosition(PositionType.ARM_LOW_POSITION);
+		setArmGoal(PositionType.ARM_LOW_POSITION.armAngle);
+		setWristGoal(PositionType.ARM_LOW_POSITION.retractedWristAngle);
+		updateArmMotorOutput();
+		updateWristMotorOutput();
 	}
 
 	/** Sets current position of the arm. Used for condition checking, nothing really else. */

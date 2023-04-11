@@ -59,6 +59,20 @@ public class AutonomousChooser {
 				() -> AutonomousTrajectories.getAutoPathByName("FlatScoreHighLeaveComScoreHigh"));
 
 		autonomousModeChooser.addOption(
+				"FlatScoreHighLeaveComScoreLowScoreLow",
+				() -> AutonomousTrajectories.getAutoPathByName("FlatScoreHighLeaveComScoreLowScoreLow"));
+
+		autonomousModeChooser.addOption(
+				"FlatScoreMidLeaveComScoreLowScoreLow",
+				() -> AutonomousTrajectories.getAutoPathByName("FlatScoreMidLeaveComScoreLowScoreLow"));
+
+		autonomousModeChooser.addOption(
+				"FlatScoreMidLeaveComScoreLowScoreLowBackwards",
+				() ->
+						AutonomousTrajectories.getAutoPathByName(
+								"FlatScoreMidLeaveComScoreLowScoreLowBackwards"));
+
+		autonomousModeChooser.addOption(
 				"ChargeShootChargeShoot",
 				() -> AutonomousTrajectories.getAutoPathByName("ChargeShootChargeShoot"));
 
