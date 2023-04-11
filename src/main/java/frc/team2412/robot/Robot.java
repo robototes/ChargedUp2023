@@ -251,7 +251,7 @@ public class Robot extends TimedRobot {
 
 		if ((subsystems.visionSubsystem != null) && (subsystems.armLedSubsystem != null)) {
 			// spotless:off
-			// Check if there is a recent target, and if the angle is
+			// Check if there is a recent target, and if the angle is close to 0
 			boolean isAlignmentCorrect =
 					subsystems.visionSubsystem.hasTargets()
 					&& ((subsystems.visionSubsystem.getLastTimestampSeconds() - Timer.getFPGATimestamp())
