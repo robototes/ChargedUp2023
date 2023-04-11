@@ -202,6 +202,22 @@ public class ArmLEDSubsystem extends SubsystemBase {
 		updateLED();
 	}
 
+	/** Called when robot has correct alignment during autonomous setup */
+	public void setLEDCorrectAlignment() {
+		color1 = ColorSelector.GREEN;
+		effectIndex = 0;
+
+		updateLED();
+	}
+
+	/** Called when robot has incorrect alignment during autonomous setup */
+	public void setLEDIncorrectAlignment() {
+		color1 = ColorSelector.RED;
+		effectIndex = 0;
+
+		updateLED();
+	}
+
 	/** Potentially called during Teleop after alliance selection to represent overall team colors */
 	public void setLEDCustom() {
 		effectIndex = 2;
