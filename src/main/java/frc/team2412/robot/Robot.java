@@ -3,6 +3,7 @@ package frc.team2412.robot;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -236,22 +237,26 @@ public class Robot extends TimedRobot {
 	@Override
 	public void disabledInit() {
 		Shuffleboard.stopRecording();
-		wasArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
+		if (subsystems.armSubsystem != null) {
+			wasArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
+		}
 		wasAlignmentCorrect = Optional.empty();
 	}
 
 	@Override
 	public void disabledPeriodic() {
-		boolean isArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
-		if (!wasArmButtonPressed && isArmButtonPressed) {
-			if (isArmCoast) {
-				subsystems.armSubsystem.setBrake();
-			} else {
-				subsystems.armSubsystem.setCoast();
+		if (subsystems.armSubsystem != null) {
+			boolean isArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
+			if (!wasArmButtonPressed && isArmButtonPressed) {
+				if (isArmCoast) {
+					subsystems.armSubsystem.setBrake();
+				} else {
+					subsystems.armSubsystem.setCoast();
+				}
+				isArmCoast = !isArmCoast;
 			}
-			isArmCoast = !isArmCoast;
+			wasArmButtonPressed = isArmButtonPressed;
 		}
-		wasArmButtonPressed = isArmButtonPressed;
 
 		if ((subsystems.visionSubsystem != null) && (subsystems.armLedSubsystem != null)) {
 			// spotless:off
@@ -260,10 +265,10 @@ public class Robot extends TimedRobot {
 					subsystems.visionSubsystem.hasTargets()
 					&& ((subsystems.visionSubsystem.getLastTimestampSeconds() - Timer.getFPGATimestamp())
 						< 0.5)
-					&& (((int)(Math.toDegrees(subsystems.visionSubsystem.getRobotPose()
-																		.getRotation()
-																		.getAngle())
-						+ 361) % 360) < 2);
+					&& (Math.abs(MathUtil.inputModulus(
+							Math.toDegrees(subsystems.visionSubsystem.getRobotPose().getRotation().getZ()),
+							-90,
+							90)) < 1);
 			// spotless:on
 			if (wasAlignmentCorrect.isEmpty() || (wasAlignmentCorrect.get() != isAlignmentCorrect)) {
 				if (isAlignmentCorrect) {
@@ -278,7 +283,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledExit() {
-		subsystems.armSubsystem.setBrake();
+		if (subsystems.armSubsystem != null) {
+			subsystems.armSubsystem.setBrake();
+		}
 		isArmCoast = false;
 	}
 }
