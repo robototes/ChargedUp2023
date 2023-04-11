@@ -4,12 +4,8 @@ import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -21,6 +17,7 @@ import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
 import java.util.HashMap;
+import java.util.Optional;
 
 public class Robot extends TimedRobot {
 	/** Singleton Stuff */
@@ -234,10 +231,13 @@ public class Robot extends TimedRobot {
 	private boolean wasArmButtonPressed = false;
 	private boolean isArmCoast = false;
 
+	private Optional<Boolean> wasAlignmentCorrect = Optional.empty();
+
 	@Override
 	public void disabledInit() {
 		Shuffleboard.stopRecording();
 		wasArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
+		wasAlignmentCorrect = Optional.empty();
 	}
 
 	@Override
@@ -252,6 +252,28 @@ public class Robot extends TimedRobot {
 			isArmCoast = !isArmCoast;
 		}
 		wasArmButtonPressed = isArmButtonPressed;
+
+		if ((subsystems.visionSubsystem != null) && (subsystems.armLedSubsystem != null)) {
+			// spotless:off
+			// Check if there is a recent target, and if the angle is close to 0
+			boolean isAlignmentCorrect =
+					subsystems.visionSubsystem.hasTargets()
+					&& ((subsystems.visionSubsystem.getLastTimestampSeconds() - Timer.getFPGATimestamp())
+						< 0.5)
+					&& (((int)(Math.toDegrees(subsystems.visionSubsystem.getRobotPose()
+																		.getRotation()
+																		.getAngle())
+						+ 361) % 360) < 2);
+			// spotless:on
+			if (wasAlignmentCorrect.isEmpty() || (wasAlignmentCorrect.get() != isAlignmentCorrect)) {
+				if (isAlignmentCorrect) {
+					subsystems.armLedSubsystem.setLEDCorrectAlignment();
+				} else {
+					subsystems.armLedSubsystem.setLEDIncorrectAlignment();
+				}
+				wasAlignmentCorrect = Optional.of(isAlignmentCorrect);
+			}
+		}
 	}
 
 	@Override
