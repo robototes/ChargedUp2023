@@ -73,6 +73,12 @@ public class AutonomousChooser {
 								"FlatScoreMidLeaveComScoreLowScoreLowBackwards"));
 
 		autonomousModeChooser.addOption(
+				"FlatScoreMidLeaveComScoreLowScoreLowBackwards2",
+				() ->
+						AutonomousTrajectories.getAutoPathByName(
+								"FlatScoreMidLeaveComScoreLowScoreLowBackwards2"));
+
+		autonomousModeChooser.addOption(
 				"ChargeShootChargeShoot",
 				() -> AutonomousTrajectories.getAutoPathByName("ChargeShootChargeShoot"));
 
