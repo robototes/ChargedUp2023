@@ -263,8 +263,6 @@ public class Robot extends TimedRobot {
 			// Check if there is a recent target, and if the angle is close to 0
 			boolean isAlignmentCorrect =
 					subsystems.visionSubsystem.hasTargets()
-					&& ((subsystems.visionSubsystem.getLastTimestampSeconds() - Timer.getFPGATimestamp())
-						< 0.5)
 					&& (Math.abs(MathUtil.inputModulus(
 							Math.toDegrees(subsystems.visionSubsystem.getRobotPose().getRotation().getZ()),
 							-90,
