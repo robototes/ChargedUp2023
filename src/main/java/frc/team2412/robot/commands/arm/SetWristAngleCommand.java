@@ -10,6 +10,7 @@ public class SetWristAngleCommand extends CommandBase {
 	public SetWristAngleCommand(ArmSubsystem armSubsystem, double wristAngle) {
 		this.armSubsystem = armSubsystem;
 		this.wristAngle = wristAngle;
+		addRequirements(armSubsystem);
 	}
 
 	@Override
