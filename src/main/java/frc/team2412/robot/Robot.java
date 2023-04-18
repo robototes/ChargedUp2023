@@ -3,7 +3,6 @@ package frc.team2412.robot;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -259,15 +258,7 @@ public class Robot extends TimedRobot {
 		}
 
 		if ((subsystems.visionSubsystem != null) && (subsystems.armLedSubsystem != null)) {
-			// spotless:off
-			// Check if there is a recent target, and if the angle is close to 0
-			boolean isAlignmentCorrect =
-					subsystems.visionSubsystem.hasTargets()
-					&& (Math.abs(MathUtil.inputModulus(
-							Math.toDegrees(subsystems.visionSubsystem.getRobotPose().getRotation().getZ()),
-							-90,
-							90)) < 1);
-			// spotless:on
+			boolean isAlignmentCorrect = subsystems.visionSubsystem.isYawAlignedToGrid();
 			if (wasAlignmentCorrect.isEmpty() || (wasAlignmentCorrect.get() != isAlignmentCorrect)) {
 				if (isAlignmentCorrect) {
 					subsystems.armLedSubsystem.setLEDCorrectAlignment();
