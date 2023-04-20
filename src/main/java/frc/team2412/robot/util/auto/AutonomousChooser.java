@@ -59,13 +59,19 @@ public class AutonomousChooser {
 				() -> AutonomousTrajectories.getAutoPathByName("FlatScoreHighLeaveComScoreHigh"));
 
 		autonomousModeChooser.addOption(
-				"FlatScoreMidLeaveComScoreLowScoreLowBackwards",
+				"FlatScoreMidLeaveComScoreLowScoreLowBackwardsRed",
 				() ->
 						AutonomousTrajectories.getAutoPathByName(
-								"FlatScoreMidLeaveComScoreLowScoreLowBackwards"));
+								"FlatScoreMidLeaveComScoreLowScoreLowBackwardsRed"));
 
 		autonomousModeChooser.addOption(
-				"FlatScoreMidLeaveComScoreLowScoreLowBackwardsInside",
+				"FlatScoreMidLeaveComScoreLowScoreLowBackwardsBlue",
+				() ->
+						AutonomousTrajectories.getAutoPathByName(
+								"FlatScoreMidLeaveComScoreLowScoreLowBackwardsBlue"));
+
+		autonomousModeChooser.addOption(
+				"DONOTUSEFlatScoreMidLeaveComScoreLowScoreLowBackwardsInside",
 				() ->
 						AutonomousTrajectories.getAutoPathByName(
 								"FlatScoreMidLeaveComScoreLowScoreLowBackwardsInside"));

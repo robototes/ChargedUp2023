@@ -47,7 +47,7 @@ public class AutonomousTrajectories {
 			Command armSubstation =
 					new SetFullArmCommand(s.armSubsystem, ARM_SUBSTATION_POSITION, WRIST_PRESCORE);
 			Command stow =
-					new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WristPosition.WRIST_RETRACT, 0.3);
+					new SetFullArmCommand(s.armSubsystem, ARM_LOW_POSITION, WristPosition.WRIST_RETRACT, 0.5);
 			Command scoreHigh =
 					new SequentialCommandGroup(
 							new SetFullArmCommand(s.armSubsystem, ARM_HIGH_POSITION, WristPosition.WRIST_SCORE),
