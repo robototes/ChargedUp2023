@@ -7,8 +7,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.513967346643099,
-        "y": 5.092948989316782
+        "x": 3.491286619811728,
+        "y": 5.211911374565391
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
@@ -27,41 +27,16 @@
     },
     {
       "anchorPoint": {
-        "x": 5.209919479668018,
-        "y": 4.6
+        "x": 6.625896328715734,
+        "y": 4.327864724105517
       },
       "prevControl": {
-        "x": 4.775703453470522,
-        "y": 4.6
+        "x": 5.138711299024052,
+        "y": 4.333667605388172
       },
       "nextControl": {
-        "x": 6.022089652789166,
-        "y": 4.6
-      },
-      "holonomicAngle": 0.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 6.4660279747909915,
-        "y": 4.55
-      },
-      "prevControl": {
-        "x": 5.256992866536907,
-        "y": 4.529674777952385
-      },
-      "nextControl": {
-        "x": 5.256992866536907,
-        "y": 4.529674777952385
+        "x": 5.138711299024052,
+        "y": 4.333667605388172
       },
       "holonomicAngle": 0,
       "isReversal": true,
@@ -77,16 +52,16 @@
     },
     {
       "anchorPoint": {
-        "x": 1.8869415516608812,
+        "x": 1.3730789854742105,
         "y": 5.024433980491892
       },
       "prevControl": {
-        "x": 3.177307551196299,
-        "y": 5.024433980491892
+        "x": 1.9586829510803418,
+        "y": 5.041051663447387
       },
       "nextControl": {
-        "x": 3.177307551196299,
-        "y": 5.024433980491892
+        "x": 1.9586829510803418,
+        "y": 5.041051663447387
       },
       "holonomicAngle": 0.0,
       "isReversal": true,
@@ -130,44 +105,19 @@
     },
     {
       "anchorPoint": {
-        "x": 6.545962151753363,
-        "y": 3.5
+        "x": 6.591638824303289,
+        "y": 2.5807319990708355
       },
       "prevControl": {
-        "x": 5.990675879623549,
-        "y": 3.888815633609664
+        "x": 5.659695559900616,
+        "y": 3.3247069706622816
       },
       "nextControl": {
-        "x": 5.990675879623549,
-        "y": 3.888815633609664
+        "x": 5.659695559900616,
+        "y": 3.3247069706622816
       },
       "holonomicAngle": -35.0,
       "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [],
-        "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 4.661799409068904,
-        "y": 4.659020600092482
-      },
-      "prevControl": {
-        "x": 5.467720902852438,
-        "y": 4.659020600092482
-      },
-      "nextControl": {
-        "x": 3.9423011937968044,
-        "y": 4.659020600092482
-      },
-      "holonomicAngle": 0.0,
-      "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
@@ -184,11 +134,11 @@
         "y": 4.45
       },
       "prevControl": {
-        "x": 2.315084265211266,
-        "y": 4.507095840687408
+        "x": 4.947278612505944,
+        "y": 5.355589856478859
       },
       "nextControl": null,
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 19.502373594688603,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -202,7 +152,7 @@
     }
   ],
   "maxVelocity": 4.0,
-  "maxAcceleration": null,
+  "maxAcceleration": 2.0,
   "isReversed": null,
   "markers": [
     {
@@ -213,32 +163,32 @@
       ]
     },
     {
-      "position": 2.24,
+      "position": 1.2400000000000002,
       "names": [
         "Stow"
       ]
     },
     {
-      "position": 2.75,
+      "position": 1.9,
       "names": [
         "IntakeFastOut"
       ]
     },
     {
-      "position": 4.05,
+      "position": 3.05,
       "names": [
         "WristPrescore",
         "IntakeIn"
       ]
     },
     {
-      "position": 5.3,
+      "position": 4.3,
       "names": [
         "Stow"
       ]
     },
     {
-      "position": 6.6,
+      "position": 4.85,
       "names": [
         "IntakeFastOut"
       ]
