@@ -76,6 +76,7 @@ public class Robot extends TimedRobot {
 		subsystems = new Subsystems();
 		controls = new Controls(subsystems);
 		autonomousChooser = new AutonomousChooser();
+		addPeriodic(autonomousChooser::updateField, 0.05);
 
 		if (subsystems.drivebaseSubsystem != null) {
 			subsystems.drivebaseSubsystem.enableNoMotionCalibration();
