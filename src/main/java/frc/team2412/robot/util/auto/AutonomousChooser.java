@@ -1,11 +1,14 @@
 package frc.team2412.robot.util.auto;
 
 import com.pathplanner.lib.PathPlannerTrajectory;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class AutonomousChooser {
@@ -52,8 +55,10 @@ public class AutonomousChooser {
 		}
 	}
 
+	private static final double DEFAULT_PLAYBACK_SPEED = 2;
+
 	private final SendableChooser<AutoOption> autonomousModeChooser = new SendableChooser<>();
-	private final AutonomousField autonomousField = new AutonomousField(2);
+	private final AutonomousField autonomousField;
 
 	// auto naming scheme (Kind of jank but would be weird to change it up now so let's keep it
 	// consistent)
@@ -102,6 +107,16 @@ public class AutonomousChooser {
 		// There are more paths that have been created in the deploy/pathplanner path, they should work
 		// however they have not been tested and thus are not added here yet.
 		ShuffleboardTab autonomousTab = Shuffleboard.getTab("Autonomous");
+
+		SimpleWidget speedMultiplier =
+				autonomousTab
+						.add("Playback Speed", DEFAULT_PLAYBACK_SPEED)
+						.withWidget(BuiltInWidgets.kNumberSlider)
+						.withProperties(Map.of("Min", 0.5, "Max", 2.5))
+						.withPosition(5, 0)
+						.withSize(1, 1);
+		autonomousField =
+				new AutonomousField(() -> speedMultiplier.getEntry().getDouble(DEFAULT_PLAYBACK_SPEED));
 
 		autonomousTab.add("Choose Auto Mode", autonomousModeChooser).withPosition(0, 0).withSize(2, 1);
 		autonomousTab
