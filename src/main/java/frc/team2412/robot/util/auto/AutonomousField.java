@@ -1,5 +1,7 @@
 package frc.team2412.robot.util.auto;
 
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -8,6 +10,17 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class AutonomousField {
+	private static Pose2d getHolonomicPose(Trajectory.State state) {
+		if (state instanceof PathPlannerState) {
+			return getHolonomicPose((PathPlannerState) state);
+		}
+		return state.poseMeters;
+	}
+
+	private static Pose2d getHolonomicPose(PathPlannerState state) {
+		return new Pose2d(state.poseMeters.getTranslation(), state.holonomicRotation);
+	}
+
 	private final Field2d field = new Field2d();
 	private final double speedMultiplier;
 	/** Timer storing the time elapsed on the current trajectory. */
@@ -50,7 +63,7 @@ public class AutonomousField {
 			}
 		}
 		field.setRobotPose(
-				trajectories.get(trajectoryIndex).sample(timer.get() * speedMultiplier).poseMeters);
+				getHolonomicPose(trajectories.get(trajectoryIndex).sample(timer.get() * speedMultiplier)));
 	}
 
 	public Field2d getField() {
