@@ -4,24 +4,20 @@ import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.team2412.robot.commands.arm.ManualArmOverrideOffCommand;
 import frc.team2412.robot.commands.intake.IntakeDefaultCommand;
 import frc.team2412.robot.sim.PhysicsSim;
 import frc.team2412.robot.util.MACAddress;
 import frc.team2412.robot.util.auto.AutonomousChooser;
 import java.util.HashMap;
+import java.util.Optional;
 
 public class Robot extends TimedRobot {
 	/** Singleton Stuff */
@@ -154,7 +150,7 @@ public class Robot extends TimedRobot {
 		Shuffleboard.startRecording();
 		if (subsystems.armSubsystem != null) {
 			// if manual arm control is enabled in auto, the arm will never move
-			new ManualArmOverrideOffCommand(subsystems.armSubsystem).schedule();
+			subsystems.armSubsystem.setManualOverride(false);
 		}
 		if (subsystems.intakeSubsystem != null) {
 			new IntakeDefaultCommand(subsystems.intakeSubsystem).schedule();
@@ -200,7 +196,12 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopExit() {
 		CommandScheduler.getInstance().cancelAll();
-		subsystems.drivebaseSubsystem.stopAllMotors();
+		if (subsystems.drivebaseSubsystem != null) {
+			subsystems.drivebaseSubsystem.stopAllMotors();
+		}
+		if (subsystems.armSubsystem != null) {
+			subsystems.armSubsystem.resetToLow();
+		}
 	}
 
 	@Override
@@ -230,29 +231,50 @@ public class Robot extends TimedRobot {
 	private boolean wasArmButtonPressed = false;
 	private boolean isArmCoast = false;
 
+	private Optional<Boolean> wasAlignmentCorrect = Optional.empty();
+
 	@Override
 	public void disabledInit() {
 		Shuffleboard.stopRecording();
-		wasArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
+		if (subsystems.armSubsystem != null) {
+			wasArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
+		}
+		wasAlignmentCorrect = Optional.empty();
 	}
 
 	@Override
 	public void disabledPeriodic() {
-		boolean isArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
-		if (!wasArmButtonPressed && isArmButtonPressed) {
-			if (isArmCoast) {
-				subsystems.armSubsystem.setBrake();
-			} else {
-				subsystems.armSubsystem.setCoast();
+		if (subsystems.armSubsystem != null) {
+			boolean isArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
+			if (!wasArmButtonPressed && isArmButtonPressed) {
+				if (isArmCoast) {
+					subsystems.armSubsystem.setBrake();
+				} else {
+					subsystems.armSubsystem.setCoast();
+				}
+				isArmCoast = !isArmCoast;
 			}
-			isArmCoast = !isArmCoast;
+			wasArmButtonPressed = isArmButtonPressed;
 		}
-		wasArmButtonPressed = isArmButtonPressed;
+
+		if ((subsystems.visionSubsystem != null) && (subsystems.armLedSubsystem != null)) {
+			boolean isAlignmentCorrect = subsystems.visionSubsystem.isYawAlignedToGrid();
+			if (wasAlignmentCorrect.isEmpty() || (wasAlignmentCorrect.get() != isAlignmentCorrect)) {
+				if (isAlignmentCorrect) {
+					subsystems.armLedSubsystem.setLEDCorrectAlignment();
+				} else {
+					subsystems.armLedSubsystem.setLEDIncorrectAlignment();
+				}
+				wasAlignmentCorrect = Optional.of(isAlignmentCorrect);
+			}
+		}
 	}
 
 	@Override
 	public void disabledExit() {
-		subsystems.armSubsystem.setBrake();
+		if (subsystems.armSubsystem != null) {
+			subsystems.armSubsystem.setBrake();
+		}
 		isArmCoast = false;
 	}
 }

@@ -119,6 +119,7 @@ spotless {
 	format "misc", {
 		target "*"
 		targetExclude "simgui*.json", "**/build/**", "**/build-*/**", "**/bin/**", "/.*"
+		toggleOffOn()
 		indentWithTabs()
 		endWithNewline()
 		trimTrailingWhitespace()

@@ -2,6 +2,7 @@ package frc.team2412.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -179,6 +180,10 @@ public class VisionSubsystem extends SubsystemBase {
 				.addBoolean("Corner too close to edge", () -> tooCloseToEdge)
 				.withPosition(1, 3)
 				.withSize(1, 1);
+		visionTab
+				.addBoolean("Is aligned to grid", this::isYawAlignedToGrid)
+				.withPosition(4, 0)
+				.withSize(1, 1);
 		ShuffleboardUtil.addPose3dLayout(visionTab, "Robot pose", this::getRobotPose, 2, 0);
 	}
 
@@ -264,6 +269,16 @@ public class VisionSubsystem extends SubsystemBase {
 	 */
 	public double getLastTimestampSeconds() {
 		return lastTimestampSeconds;
+	}
+
+	public boolean isYawAlignedToGrid() {
+		if (!hasTargets()) {
+			return false;
+		}
+		double yaw = Math.toDegrees(getRobotPose().getRotation().getZ());
+		// Wrapping between -90 and 90 maps 180 to 0
+		yaw = MathUtil.inputModulus(yaw, -90, 90);
+		return Math.abs(yaw) < 1;
 	}
 
 	public void setAlliance(DriverStation.Alliance alliance) {
