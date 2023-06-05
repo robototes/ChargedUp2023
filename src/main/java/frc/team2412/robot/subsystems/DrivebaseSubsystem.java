@@ -81,6 +81,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private static final double DRIVE_VELOCITY_COEFFICIENT =
 			DRIVE_REDUCTION / (Math.PI * WHEEL_DIAMETER_METERS); // meters to motor rotations
+	
+	
+	private static final double OUTREACH_MAX_DRIVE_SPEED_METERS_PER_SEC = 1.1049;
+	private static final Rotation2d OUTREACH_MAX_ROTATIONS_PER_SEC = Rotation2d.fromRotations(0.2681);
 
 	// Balance controller is in degrees
 	private final PFFController<Double> balanceController;
@@ -207,12 +211,18 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private boolean xWheelToggle = false;
 
+	private double maxDriveVelocity;
+	private Rotation2d maxRotateSpeed;
+
 	public DrivebaseSubsystem(SwerveDrivePoseEstimator initialPoseEstimator, Field2d field) {
 		this.field = field;
 		odometryOnlyFieldObject = field.getObject("OdometryPosition");
 		sharedPoseEstimatorFieldObject = field.getObject("SharedPoseEstimator");
 		// configure network tables
 		configureNetworkTables();
+
+		maxDriveVelocity = MAX_DRIVE_SPEED_METERS_PER_SEC;
+		maxRotateSpeed = MAX_ROTATIONS_PER_SEC;
 
 		gyroscope = IS_COMP ? new Pigeon2Gyro(Hardware.GYRO_PORT) : new NavXGyro(SerialPort.Port.kMXP);
 		// Bonk's gyro has positive as counter-clockwise
@@ -528,6 +538,20 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			moduleDriveMotors[i].simulationConfig(sim);
 			moduleAngleMotors[i].simulationConfig(sim);
 		}
+	}
+
+	public void setOutreachMode(boolean enable) {
+
+		maxDriveVelocity = (enable ? OUTREACH_MAX_DRIVE_SPEED_METERS_PER_SEC : MAX_DRIVE_SPEED_METERS_PER_SEC);
+		maxRotateSpeed = (enable ? OUTREACH_MAX_ROTATIONS_PER_SEC : MAX_ROTATIONS_PER_SEC);
+	}
+
+	public double getMaxSpeed() {
+		return maxDriveVelocity;
+	}
+
+	public Rotation2d getMaxRotateSpeed() {
+		return maxRotateSpeed;
 	}
 
 	/** Update pose to reflect rotation */

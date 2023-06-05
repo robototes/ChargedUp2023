@@ -68,6 +68,10 @@ public class DriveCommand extends CommandBase {
 
 	@Override
 	public void execute() {
+
+		double maxSpeed = drivebaseSubsystem.getMaxSpeed();
+		Rotation2d rotateSpeed = drivebaseSubsystem.getMaxRotateSpeed();
+
 		double rotationSpeedModifier =
 				rotationSpeedEntry.getDouble(1.0)
 						* (1
@@ -87,14 +91,14 @@ public class DriveCommand extends CommandBase {
 		drivebaseSubsystem.drive(
 				(cubeSpeedEntry.getBoolean(false) ? cubed_x : x)
 						* driveSpeedEntry.getDouble(1.0)
-						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC, // convert from percent to m/s
+						* maxSpeed, // convert from percent to m/s
 				(cubeSpeedEntry.getBoolean(false) ? cubed_y : y)
 						* driveSpeedEntry.getDouble(1.0)
-						* DrivebaseSubsystem.MAX_DRIVE_SPEED_METERS_PER_SEC,
+						* maxSpeed,
 				Rotation2d.fromRotations(
 						rot
 								* rotationSpeedModifier
-								* DrivebaseSubsystem.MAX_ROTATIONS_PER_SEC
+								* rotateSpeed
 										.getRotations()), // convert from percent to rotations per second
 				fieldOrientedEntry.getBoolean(true),
 				false);
