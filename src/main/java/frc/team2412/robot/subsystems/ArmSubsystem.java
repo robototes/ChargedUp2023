@@ -105,6 +105,20 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double ARM_POS_ADJUST_SENSITIVITY_DEFAULT = 0.007;
 		public static final double WRIST_POS_ADJUST_SENSITIVITY_DEFAULT = 0.01;
 
+		// Outreach
+
+		public static final double OUTREACH_MAX_ARM_VELOCITY = 0.25;
+		public static final double OUTREACH_MAX_ARM_ACCELERATION = 0.25;
+
+		public static final Constraints OUTREACH_ARM_CONSTRAINTS =
+				new Constraints(MAX_ARM_VELOCITY, MAX_ARM_ACCELERATION);
+
+		public static final double OUTREACH_MAX_WRIST_VELOCITY = 0.125;
+		public static final double OUTREACH_MAX_WRIST_ACCELERATION = 0.125;
+
+		public static final Constraints OUTREACH_WRIST_CONSTRAINTS =
+				new Constraints(MAX_WRIST_VELOCITY, MAX_WRIST_ACCELERATION);
+
 		// ENUM
 
 		/*
@@ -145,6 +159,7 @@ public class ArmSubsystem extends SubsystemBase {
 
 	// VARIABLES
 
+	private double outreachModifier;
 	private PositionType currentPosition = PositionType.UNKNOWN_POSITION;
 	private boolean manualOverride = false;
 	private double armGoal = PositionType.UNKNOWN_POSITION.armAngle;
@@ -237,6 +252,8 @@ public class ArmSubsystem extends SubsystemBase {
 		configMotors();
 
 		armPID.reset(getShoulderPosition());
+
+		outreachModifier = 1;
 
 		// Network Tables
 
@@ -359,7 +376,10 @@ public class ArmSubsystem extends SubsystemBase {
 	 */
 	public void setArmMotor(double percentOutput) {
 		percentOutput =
-				MathUtil.clamp(MAX_ARM_VELOCITY * percentOutput, MIN_PERCENT_OUTPUT, MAX_PERCENT_OUTPUT);
+				MathUtil.clamp(
+						MAX_ARM_VELOCITY * percentOutput * outreachModifier,
+						MIN_PERCENT_OUTPUT,
+						MAX_PERCENT_OUTPUT);
 		armMotor1.set(percentOutput);
 		armLastSetValuePublisher.set(percentOutput);
 	}
@@ -518,6 +538,14 @@ public class ArmSubsystem extends SubsystemBase {
 	public void updateWristMotorOutput() {
 		wristPID.setReference(
 				wristGoal, CANSparkMax.ControlType.kPosition, 0, calculateWristFeedforward());
+	}
+
+	public void setOutreachMode(boolean enable) {
+		armPID.setConstraints(enable ? OUTREACH_ARM_CONSTRAINTS : ARM_CONSTRAINTS);
+		wristPID.setSmartMotionMaxAccel(OUTREACH_MAX_WRIST_ACCELERATION, 0);
+		wristPID.setSmartMotionMaxVelocity(OUTREACH_MAX_WRIST_VELOCITY, 0);
+
+		outreachModifier = (enable ? 0.25 : 1);
 	}
 
 	@Override
