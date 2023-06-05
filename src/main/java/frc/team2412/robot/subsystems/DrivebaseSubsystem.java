@@ -81,8 +81,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	private static final double DRIVE_VELOCITY_COEFFICIENT =
 			DRIVE_REDUCTION / (Math.PI * WHEEL_DIAMETER_METERS); // meters to motor rotations
-	
-	
+
 	private static final double OUTREACH_MAX_DRIVE_SPEED_METERS_PER_SEC = 1.1049;
 	private static final Rotation2d OUTREACH_MAX_ROTATIONS_PER_SEC = Rotation2d.fromRotations(0.2681);
 
@@ -542,7 +541,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	public void setOutreachMode(boolean enable) {
 
-		maxDriveVelocity = (enable ? OUTREACH_MAX_DRIVE_SPEED_METERS_PER_SEC : MAX_DRIVE_SPEED_METERS_PER_SEC);
+		maxDriveVelocity =
+				(enable ? OUTREACH_MAX_DRIVE_SPEED_METERS_PER_SEC : MAX_DRIVE_SPEED_METERS_PER_SEC);
 		maxRotateSpeed = (enable ? OUTREACH_MAX_ROTATIONS_PER_SEC : MAX_ROTATIONS_PER_SEC);
 	}
 
