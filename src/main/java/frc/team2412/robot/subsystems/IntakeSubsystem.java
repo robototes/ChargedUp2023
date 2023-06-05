@@ -30,6 +30,9 @@ public class IntakeSubsystem extends SubsystemBase {
 		public static final double INTAKE_OUT_SPEED = -0.1;
 		public static final double INTAKE_FAST_OUT_SPEED = -0.7;
 
+		public static final double OUTREACH_INTAKE_IN_SPEED = 0.15;
+		public static final double OUTREACH_INTAKE_OUT_SPEED = -0.1;
+
 		public static final int INTAKE_COLOR_THRESHOLD = 10;
 		public static final double LED_PURPLE = 0.91;
 		public static final double LED_YELLOW = 0.69;
@@ -60,6 +63,11 @@ public class IntakeSubsystem extends SubsystemBase {
 		}
 	}
 
+	// Intake Speed
+
+	private static double intakeSpeed;
+	private static double outtakeSpeed;
+
 	// Network Tables
 	NetworkTableInstance NTInstance;
 	NetworkTable NTDevices;
@@ -82,7 +90,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	private static GenericEntry intakeSpeedEntry =
 			Shuffleboard.getTab("Intake")
-					.addPersistent("Intake In Speed", INTAKE_IN_SPEED)
+					.addPersistent("Intake In Speed", intakeSpeed)
 					.withSize(4, 1)
 					.withWidget(BuiltInWidgets.kNumberSlider)
 					.withProperties(Map.of("Min", 0, "Max", 1))
@@ -95,6 +103,10 @@ public class IntakeSubsystem extends SubsystemBase {
 					.getEntry();
 	// CONSTRUCTOR
 	public IntakeSubsystem() {
+
+		intakeSpeed = INTAKE_IN_SPEED;
+		outtakeSpeed = INTAKE_OUT_SPEED;
+
 		motor1 = new CANSparkMax(INTAKE_MOTOR_1, MotorType.kBrushless);
 		motor2 = new CANSparkMax(INTAKE_MOTOR_2, MotorType.kBrushless);
 
@@ -140,6 +152,11 @@ public class IntakeSubsystem extends SubsystemBase {
 		motor2.burnFlash();
 	}
 
+	public void setOutreachMode(boolean enable) {
+		intakeSpeed = (enable ? OUTREACH_INTAKE_IN_SPEED : INTAKE_IN_SPEED);
+		outtakeSpeed = (enable ? OUTREACH_INTAKE_OUT_SPEED : INTAKE_OUT_SPEED);
+	}
+
 	/**
 	 * Sets the speed of the intake motors to a specified value.
 	 *
@@ -167,12 +184,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
 	/** Runs the motors inwards */
 	public void intakeIn() {
-		setSpeed(intakeSpeedEntry.getDouble(INTAKE_IN_SPEED));
+		setSpeed(intakeSpeedEntry.getDouble(intakeSpeed));
 	}
 
 	/** Runs the motors outwards */
 	public void intakeOut() {
-		setSpeed(INTAKE_OUT_SPEED);
+		setSpeed(outtakeSpeed);
 	}
 
 	/** Runs the motors outwards */
