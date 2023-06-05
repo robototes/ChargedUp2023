@@ -44,12 +44,16 @@ public class Robot extends TimedRobot {
 
 	private final RobotType robotType;
 	public final Field2d field = new Field2d();
+	public Boolean outreachModeEnabled;
+
 	public AutonomousChooser autonomousChooser;
 
 	protected Robot(RobotType type) {
 		instance = this;
 		PDP = new PowerDistribution(Hardware.PDP_ID, ModuleType.kRev);
 		robotType = type;
+		outreachModeEnabled = true;
+		SmartDashboard.putBoolean("Outreach Mode", false);
 	}
 
 	public double getVoltage() {
@@ -229,6 +233,7 @@ public class Robot extends TimedRobot {
 
 	private boolean wasArmButtonPressed = false;
 	private boolean isArmCoast = false;
+	private boolean lastOutreachMode = false;
 
 	@Override
 	public void disabledInit() {
@@ -238,7 +243,18 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledPeriodic() {
+		outreachModeEnabled = SmartDashboard.getBoolean("Outreach Mode", true);
+
+		if (outreachModeEnabled != lastOutreachMode) {
+			// bind controls
+
+			lastOutreachMode = outreachModeEnabled;
+			subsystems.intakeSubsystem.setOutreachMode(outreachModeEnabled);
+			subsystems.armSubsystem.setOutreachMode(outreachModeEnabled);
+		}
+
 		boolean isArmButtonPressed = subsystems.armSubsystem.isIdleModeTogglePressed();
+
 		if (!wasArmButtonPressed && isArmButtonPressed) {
 			if (isArmCoast) {
 				subsystems.armSubsystem.setBrake();
