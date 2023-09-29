@@ -54,7 +54,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		// ALIGNMENT WITH BEVELS FACING RIGHT
 		Rotation2d.fromDegrees(249.521484),
 		Rotation2d.fromDegrees(298.388672),
-		Rotation2d.fromDegrees(314.912109),
+		// TODO Bevels of back wheels are reversed
+		// Back left has bevel matching others but spins in wrong direction
+		Rotation2d.fromDegrees(314.912109180),
+		// Back right has bevel opposite others but spins in right direction
 		Rotation2d.fromDegrees(21.685547 + 180)
 	};
 
