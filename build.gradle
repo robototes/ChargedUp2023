@@ -177,7 +177,10 @@ task writeGitInfo {
 				println("${WARNINGFMT}WARNING: Could not find git! Git info will not be sent to the robot.${CLEAR}")
 				output.println("### <could not run git>")
 			} else {
-				addGitOutput(output, 'Latest commit', 'log', '-1', '--decorate=short', '--format=medium')
+				addGitOutput(output, 'Commit hash', 'log', '-1', '--format=%H')
+				addGitOutput(output, 'Refs to latest commit', 'log', '-1', '--format=%D')
+				addGitOutput(output, 'Commit date', 'log', '-1', '--format=%ad')
+				addGitOutput(output, 'Commit message', 'log', '-1', '--format=%B')
 				addGitOutput(output, 'Remotes', 'remote', '-v')
 				addGitOutput(output, 'Changed files', 'diff-index', '--name-only', 'HEAD', '--')
 				addGitOutput(output, 'Untracked files', 'ls-files', '--exclude-standard', '--others')
