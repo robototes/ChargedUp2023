@@ -164,12 +164,20 @@ task writeGitInfo {
 		output.print(execOutput)
 	}
 
+	def convertPath = { String path ->
+		String username = System.getenv("USERNAME")
+		if (username != null) {
+			return path.replace(username, "\$USERNAME")
+		}
+		return path
+	}
+
 	doLast {
 		try (PrintStream output = new PrintStream('src\\main\\deploy\\git-info.txt')) {
 			output.println("### Host name (InetAddress.localHost.hostName)")
 			output.println(InetAddress.localHost.hostName)
-			output.println("### Project path (projectDir)")
-			output.println(projectDir)
+			output.println("### Project path (convertPath(projectDir.path))")
+			output.println(convertPath(projectDir.path))
 			if (!hasGit()) {
 				// ANSI escape codes
 				def WARNINGFMT = "\033[43;30m"
