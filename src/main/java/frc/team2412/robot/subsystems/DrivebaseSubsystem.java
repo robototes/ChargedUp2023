@@ -54,10 +54,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		// ALIGNMENT WITH BEVELS FACING RIGHT
 		Rotation2d.fromDegrees(249.521484),
 		Rotation2d.fromDegrees(298.388672),
-		// TODO Bevels of back wheels are reversed
-		// Back left has bevel matching others but spins in wrong direction
-		Rotation2d.fromDegrees(314.912109180),
-		// Back right has bevel opposite others but spins in right direction
+		Rotation2d.fromDegrees(314.912109180 - 180),
 		Rotation2d.fromDegrees(21.685547 + 180)
 	};
 
@@ -255,6 +252,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						compTranslationalPID.getD(),
 						compTranslationalF.get());
 				driveMotor.setMeasurementPeriod(8);
+				if (i == 2 || i == 3) {
+					// This way, we can get the bevels to align
+					driveMotor.setInverted(true);
+				}
 			} else {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
 				driveMotor.setPIDF(0.1, 0.001, 1023.0 / 20660.0, 0);
@@ -300,6 +301,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			boolean autoBalance) {
 		// Auto balancing will only be used in autonomous
 		if (autoBalance) {
+			// TODO This seems to be the wrong way?
 			forward -= balanceController.update(gyroscope.getRawRoll().getDegrees());
 		}
 
