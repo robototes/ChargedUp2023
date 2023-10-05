@@ -173,7 +173,7 @@ task writeGitInfo {
 	}
 
 	doLast {
-		try (PrintStream output = new PrintStream('src\\main\\deploy\\git-info.txt')) {
+		try (PrintStream output = new PrintStream('src/main/deploy/git-info.txt')) {
 			output.println("### Host name (InetAddress.localHost.hostName)")
 			output.println(InetAddress.localHost.hostName)
 			output.println("### Project path (convertPath(projectDir.path))")
