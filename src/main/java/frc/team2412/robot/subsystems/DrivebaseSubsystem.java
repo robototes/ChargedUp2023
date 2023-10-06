@@ -45,10 +45,11 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	// ordered from front left, front right, back left, back right
 	private static final Rotation2d[] PRACTICE_DRIVEBASE_ENCODER_OFFSETS = {
-		Rotation2d.fromDegrees(165.674),
-		Rotation2d.fromDegrees(251.982),
-		Rotation2d.fromDegrees(205.839),
-		Rotation2d.fromDegrees(311.396)
+		// +180 because we measured the bevels the wrong way (bevels should face left)
+		Rotation2d.fromDegrees(344.971 + 180),
+		Rotation2d.fromDegrees(69.346 + 180),
+		Rotation2d.fromDegrees(26.191 + 180),
+		Rotation2d.fromDegrees(129.990 + 180)
 	};
 	private static final Rotation2d[] COMP_DRIVEBASE_ENCODER_OFFSETS = {
 		// ALIGNMENT WITH BEVELS FACING RIGHT
