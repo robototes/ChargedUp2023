@@ -51,7 +51,7 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double INTAKE_MASS = 5.57;
 
 		// PID
-		public static final double ARM_K_P = 4;
+		public static final double ARM_K_P = 6;
 		public static final double ARM_K_I = 0;
 		public static final double ARM_K_D = 0;
 
@@ -81,12 +81,12 @@ public class ArmSubsystem extends SubsystemBase {
 		public static final double MIN_WRIST_ANGLE = 307;
 
 		public static final float ARM_FORWARD_LIMIT = 93.8f; // motor rotations
-		public static final float ARM_REVERSE_LIMIT = 2;
+		public static final float ARM_REVERSE_LIMIT = 1f;
 		public static final float WRIST_FORWARD_LIMIT = 62;
 		public static final float WRIST_REVERSE_LIMIT = 2;
 		public static final float WRIST_ENCODER_OFFSET = -0.22f;
 
-		public static final double ARM_VELOCITY_TOLERANCE = 0.2;
+		public static final double ARM_VELOCITY_TOLERANCE = 0.1;
 		public static final double WRIST_VELOCITY_TOLERANCE = 0.2;
 
 		// Trapezoid Profile
