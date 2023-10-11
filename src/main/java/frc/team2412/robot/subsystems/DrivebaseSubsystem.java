@@ -165,6 +165,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private BooleanSubscriber useVisionMeasurementsSubscriber;
 	private BooleanPublisher useVisionMeasurementsPublisher;
 
+	private DoublePublisher forwardInputPublisher;
+	private DoublePublisher strafeInputPublisher;
+	private DoublePublisher rotInputPublisher;
+
 	private DoublePublisher frontLeftActualVelocityPublisher;
 	private DoublePublisher frontRightActualVelocityPublisher;
 	private DoublePublisher backLeftActualVelocityPublisher;
@@ -200,6 +204,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private final double DEFAULT_COMP_TRANSLATIONAL_F = 0.000175;
 	// old way of getting F
 	// 1 / moduleDriveMotors[0].getFreeSpeedRPS();
+	private PIDController bonkTranslationalPID = new PIDController(0.1, 0.001, 1023.0 / 20660.0);
 
 	private DoubleSubscriber compTranslationalF;
 
@@ -259,7 +264,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 				}
 			} else {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
-				driveMotor.setPIDF(0.1, 0.001, 1023.0 / 20660.0, 0);
+				// driveMotor.setPIDF(0.1, 0.001, 1023.0 / 20660.0, 0);
+				driveMotor.setPIDF(bonkTranslationalPID.getP(), bonkTranslationalPID.getI(), bonkTranslationalPID.getD(), 0);
 			}
 			driveMotor.configCurrentLimit(30);
 			driveMotor.flashMotor();
@@ -305,6 +311,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			// TODO This seems to be the wrong way?
 			forward -= balanceController.update(gyroscope.getRawRoll().getDegrees());
 		}
+
+		forwardInputPublisher.set(forward);
+		strafeInputPublisher.set(strafe);
+		rotInputPublisher.set(rotation.getDegrees());
 
 		ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
@@ -551,6 +561,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		useVisionMeasurementsSubscriber = useVisionMeasurementsTopic.subscribe(false);
 		useVisionMeasurementsPublisher = useVisionMeasurementsTopic.publish();
 
+		forwardInputPublisher = networkTableDrivebase.getDoubleTopic("X input").publish();
+		strafeInputPublisher = networkTableDrivebase.getDoubleTopic("Y input").publish();
+		rotInputPublisher = networkTableDrivebase.getDoubleTopic("Rot input").publish();
+
 		frontLeftActualVelocityPublisher =
 				networkTableDrivebase.getDoubleTopic("Front left actual velocity").publish();
 		frontRightActualVelocityPublisher =
@@ -650,6 +664,8 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private double oldTranslationalSetpoint = 0.0;
 	private double oldRotationalSetpoint = 0.0;
 
+	private int bonkTranslationalPIDCounter = 0;
+
 	@Override
 	public void periodic() {
 		Rotation2d gyroAngle = gyroscope.getAngle();
@@ -663,6 +679,20 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		sharedPoseEstimatorFieldObject.setPose(combinedPose);
 		odometryOnlyFieldObject.setPose(odometryPose);
 		field.setRobotPose(pose);
+
+		if (!IS_COMP) {
+			// Set approx once per second
+			if (bonkTranslationalPIDCounter == 0) {
+				for (MotorController motor : moduleDriveMotors) {
+					motor.setPIDF(
+							bonkTranslationalPID.getP(),
+							bonkTranslationalPID.getI(),
+							bonkTranslationalPID.getD(),
+							0);
+				}
+			}
+			bonkTranslationalPIDCounter = (bonkTranslationalPIDCounter + 1) % 50;
+		}
 
 		if (compTranslationalPID.getSetpoint() != oldTranslationalSetpoint) {
 			for (MotorController motor : moduleDriveMotors) {
