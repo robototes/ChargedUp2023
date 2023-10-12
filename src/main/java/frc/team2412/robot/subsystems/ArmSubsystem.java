@@ -123,7 +123,8 @@ public class ArmSubsystem extends SubsystemBase {
 			ARM_LOW_POSITION(0.212, 0.08, 0.46, 0.35),
 			ARM_MIDDLE_POSITION(0.415, 0.08, 0.42, 0.5),
 			ARM_HIGH_POSITION(0.6546, 0.08, 0.465, 0.473),
-			ARM_SUBSTATION_POSITION(0.6, 0.08, 0.58, 0.58); // ?
+			// Substation goal is a little above desired position because PID is slow
+			ARM_SUBSTATION_POSITION(0.596, 0.08, 0.562, 0.562);
 
 			public final double armAngle;
 			public final double retractedWristAngle;
