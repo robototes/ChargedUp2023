@@ -202,11 +202,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private PIDController compTranslationalPID = new PIDController(0.0007, 0, 0);
 	private PIDController compRotationalPID = new PIDController(0.1, 0, 0.5);
 	private final double DEFAULT_COMP_TRANSLATIONAL_F = 0.000175;
+	private static final double DEFAULT_BONK_TRANSLATIONAL_F = 0.07;
 	// old way of getting F
 	// 1 / moduleDriveMotors[0].getFreeSpeedRPS();
-	private PIDController bonkTranslationalPID = new PIDController(0.1, 0.001, 1023.0 / 20660.0);
+	// private PIDController bonkTranslationalPID = new PIDController(0.1, 0.0, 1023.0 / 20660.0);
+	private PIDController bonkTranslationalPID = new PIDController(0.28, 0, 0);
 
 	private DoubleSubscriber compTranslationalF;
+	private DoubleSubscriber bonkTranslationalF;
 
 	private NetworkTableInstance networkTableInstance;
 	private NetworkTable networkTableDrivebase;
@@ -262,12 +265,16 @@ public class DrivebaseSubsystem extends SubsystemBase {
 					// This way, we can get the bevels to align
 					driveMotor.setInverted(true);
 				}
+				driveMotor.configCurrentLimit(30);
 			} else {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
-				// driveMotor.setPIDF(0.1, 0.001, 1023.0 / 20660.0, 0);
-				driveMotor.setPIDF(bonkTranslationalPID.getP(), bonkTranslationalPID.getI(), bonkTranslationalPID.getD(), 0);
+				driveMotor.setPIDF(
+						bonkTranslationalPID.getP(),
+						bonkTranslationalPID.getI(),
+						bonkTranslationalPID.getD(),
+						bonkTranslationalF.get());
+				driveMotor.configCurrentLimit(40);
 			}
-			driveMotor.configCurrentLimit(30);
 			driveMotor.flashMotor();
 		}
 
@@ -622,10 +629,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 				networkTableDrivebase
 						.getDoubleTopic("Translational FF")
 						.subscribe(DEFAULT_COMP_TRANSLATIONAL_F);
+		bonkTranslationalF =
+				networkTableDrivebase
+						.getDoubleTopic("Bonk translational FF")
+						.subscribe(DEFAULT_BONK_TRANSLATIONAL_F);
 
 		// Set value once to make it show up in UIs
 		useVisionMeasurementsPublisher.set(false);
 		compTranslationalF.getTopic().publish().set(DEFAULT_COMP_TRANSLATIONAL_F);
+		bonkTranslationalF.getTopic().publish().set(DEFAULT_BONK_TRANSLATIONAL_F);
 
 		frontLeftActualVelocityPublisher.set(0.0);
 		frontRightActualVelocityPublisher.set(0.0);
@@ -659,6 +671,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		SmartDashboard.putData("Translational PID", compTranslationalPID);
 		SmartDashboard.putData("Rotational PID", compRotationalPID);
+		SmartDashboard.putData("Bonk translational PID", bonkTranslationalPID);
 	}
 
 	private double oldTranslationalSetpoint = 0.0;
@@ -688,7 +701,7 @@ public class DrivebaseSubsystem extends SubsystemBase {
 							bonkTranslationalPID.getP(),
 							bonkTranslationalPID.getI(),
 							bonkTranslationalPID.getD(),
-							0);
+							bonkTranslationalF.get());
 				}
 			}
 			bonkTranslationalPIDCounter = (bonkTranslationalPIDCounter + 1) % 50;
