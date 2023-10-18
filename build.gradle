@@ -165,9 +165,13 @@ task writeGitInfo {
 	}
 
 	def convertPath = { String path ->
-		String username = System.getProperty('user.name')
+		String username = System.getenv('USERNAME')
 		if (username != null) {
 			return path.replace(username, "\$USERNAME")
+		}
+		username = System.getProperty('user.name')
+		if (username != null) {
+			return path.replace(username, '<sys prop user.name>')
 		}
 		return path
 	}
