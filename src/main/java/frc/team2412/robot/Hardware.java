@@ -54,6 +54,11 @@ public class Hardware {
 	public static final int INTAKE_MOTOR_1 = 55, INTAKE_MOTOR_2 = 56;
 	public static final int INTAKE_DISTANCE_SENSOR = 0;
 
+	// Bonk intake and wrist are from range 30-39
+	public static final int BONK_INTAKE_WRIST_MOTOR = 30;
+	public static final int BONK_INTAKE_MOTOR_1 = 31;
+	public static final int BONK_INTAKE_MOTOR_2 = 32;
+
 	// LED strip is PWM port 8
 	public static final int BLINKIN_LED = 8;
 }
