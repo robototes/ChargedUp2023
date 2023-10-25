@@ -45,16 +45,17 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 	// ordered from front left, front right, back left, back right
 	private static final Rotation2d[] PRACTICE_DRIVEBASE_ENCODER_OFFSETS = {
-		Rotation2d.fromDegrees(165.674),
-		Rotation2d.fromDegrees(251.982),
-		Rotation2d.fromDegrees(205.839),
-		Rotation2d.fromDegrees(311.396)
+		// +180 because we measured the bevels the wrong way (bevels should face left)
+		Rotation2d.fromDegrees(344.971 + 180),
+		Rotation2d.fromDegrees(69.346 + 180),
+		Rotation2d.fromDegrees(26.191 + 180),
+		Rotation2d.fromDegrees(129.990 + 180)
 	};
 	private static final Rotation2d[] COMP_DRIVEBASE_ENCODER_OFFSETS = {
 		// ALIGNMENT WITH BEVELS FACING RIGHT
 		Rotation2d.fromDegrees(249.521484),
 		Rotation2d.fromDegrees(298.388672),
-		Rotation2d.fromDegrees(314.912109),
+		Rotation2d.fromDegrees(314.912109180 - 180),
 		Rotation2d.fromDegrees(21.685547 + 180)
 	};
 
@@ -164,6 +165,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private BooleanSubscriber useVisionMeasurementsSubscriber;
 	private BooleanPublisher useVisionMeasurementsPublisher;
 
+	private DoublePublisher forwardInputPublisher;
+	private DoublePublisher strafeInputPublisher;
+	private DoublePublisher rotInputPublisher;
+
 	private DoublePublisher frontLeftActualVelocityPublisher;
 	private DoublePublisher frontRightActualVelocityPublisher;
 	private DoublePublisher backLeftActualVelocityPublisher;
@@ -197,10 +202,14 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	private PIDController compTranslationalPID = new PIDController(0.0007, 0, 0);
 	private PIDController compRotationalPID = new PIDController(0.1, 0, 0.5);
 	private final double DEFAULT_COMP_TRANSLATIONAL_F = 0.000175;
+	private static final double DEFAULT_BONK_TRANSLATIONAL_F = 0.07;
 	// old way of getting F
 	// 1 / moduleDriveMotors[0].getFreeSpeedRPS();
+	// private PIDController bonkTranslationalPID = new PIDController(0.1, 0.0, 1023.0 / 20660.0);
+	private PIDController bonkTranslationalPID = new PIDController(0.28, 0, 0);
 
 	private DoubleSubscriber compTranslationalF;
+	private DoubleSubscriber bonkTranslationalF;
 
 	private NetworkTableInstance networkTableInstance;
 	private NetworkTable networkTableDrivebase;
@@ -252,11 +261,20 @@ public class DrivebaseSubsystem extends SubsystemBase {
 						compTranslationalPID.getD(),
 						compTranslationalF.get());
 				driveMotor.setMeasurementPeriod(8);
+				if (i == 2 || i == 3) {
+					// This way, we can get the bevels to align
+					driveMotor.setInverted(true);
+				}
+				driveMotor.configCurrentLimit(30);
 			} else {
 				driveMotor.setControlMode(MotorControlMode.VELOCITY);
-				driveMotor.setPIDF(0.1, 0.001, 1023.0 / 20660.0, 0);
+				driveMotor.setPIDF(
+						bonkTranslationalPID.getP(),
+						bonkTranslationalPID.getI(),
+						bonkTranslationalPID.getD(),
+						bonkTranslationalF.get());
+				driveMotor.configCurrentLimit(40);
 			}
-			driveMotor.configCurrentLimit(30);
 			driveMotor.flashMotor();
 		}
 
@@ -297,8 +315,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 			boolean autoBalance) {
 		// Auto balancing will only be used in autonomous
 		if (autoBalance) {
+			// TODO This seems to be the wrong way?
 			forward -= balanceController.update(gyroscope.getRawRoll().getDegrees());
 		}
+
+		forwardInputPublisher.set(forward);
+		strafeInputPublisher.set(strafe);
+		rotInputPublisher.set(rotation.getDegrees());
 
 		ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0, 0, 0);
 
@@ -545,6 +568,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		useVisionMeasurementsSubscriber = useVisionMeasurementsTopic.subscribe(false);
 		useVisionMeasurementsPublisher = useVisionMeasurementsTopic.publish();
 
+		forwardInputPublisher = networkTableDrivebase.getDoubleTopic("X input").publish();
+		strafeInputPublisher = networkTableDrivebase.getDoubleTopic("Y input").publish();
+		rotInputPublisher = networkTableDrivebase.getDoubleTopic("Rot input").publish();
+
 		frontLeftActualVelocityPublisher =
 				networkTableDrivebase.getDoubleTopic("Front left actual velocity").publish();
 		frontRightActualVelocityPublisher =
@@ -602,10 +629,15 @@ public class DrivebaseSubsystem extends SubsystemBase {
 				networkTableDrivebase
 						.getDoubleTopic("Translational FF")
 						.subscribe(DEFAULT_COMP_TRANSLATIONAL_F);
+		bonkTranslationalF =
+				networkTableDrivebase
+						.getDoubleTopic("Bonk translational FF")
+						.subscribe(DEFAULT_BONK_TRANSLATIONAL_F);
 
 		// Set value once to make it show up in UIs
 		useVisionMeasurementsPublisher.set(false);
 		compTranslationalF.getTopic().publish().set(DEFAULT_COMP_TRANSLATIONAL_F);
+		bonkTranslationalF.getTopic().publish().set(DEFAULT_BONK_TRANSLATIONAL_F);
 
 		frontLeftActualVelocityPublisher.set(0.0);
 		frontRightActualVelocityPublisher.set(0.0);
@@ -639,10 +671,13 @@ public class DrivebaseSubsystem extends SubsystemBase {
 
 		SmartDashboard.putData("Translational PID", compTranslationalPID);
 		SmartDashboard.putData("Rotational PID", compRotationalPID);
+		SmartDashboard.putData("Bonk translational PID", bonkTranslationalPID);
 	}
 
 	private double oldTranslationalSetpoint = 0.0;
 	private double oldRotationalSetpoint = 0.0;
+
+	private int bonkTranslationalPIDCounter = 0;
 
 	@Override
 	public void periodic() {
@@ -657,6 +692,20 @@ public class DrivebaseSubsystem extends SubsystemBase {
 		sharedPoseEstimatorFieldObject.setPose(combinedPose);
 		odometryOnlyFieldObject.setPose(odometryPose);
 		field.setRobotPose(pose);
+
+		if (!IS_COMP) {
+			// Set approx once per second
+			if (bonkTranslationalPIDCounter == 0) {
+				for (MotorController motor : moduleDriveMotors) {
+					motor.setPIDF(
+							bonkTranslationalPID.getP(),
+							bonkTranslationalPID.getI(),
+							bonkTranslationalPID.getD(),
+							bonkTranslationalF.get());
+				}
+			}
+			bonkTranslationalPIDCounter = (bonkTranslationalPIDCounter + 1) % 50;
+		}
 
 		if (compTranslationalPID.getSetpoint() != oldTranslationalSetpoint) {
 			for (MotorController motor : moduleDriveMotors) {
