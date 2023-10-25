@@ -69,8 +69,6 @@ public class Controls {
 	public final Trigger driveIntakeOutButton;
 	public final Trigger driveIntakeFastOutButton;
 
-	public final EventLoop bonkIntakeWristUpEvent;
-	public final EventLoop bonkIntakeWristDownEvent;
 	public final Trigger bonkIntakeWristUpTrigger;
 	public final Trigger bonkIntakeWristDownTrigger;
 	public final Trigger bonkIntakeInButton;
@@ -108,10 +106,8 @@ public class Controls {
 		driveIntakeOutButton = driveController.y();
 		driveIntakeFastOutButton = driveController.b();
 
-		bonkIntakeWristUpEvent = new EventLoop();
-		bonkIntakeWristDownEvent = new EventLoop();
-		bonkIntakeWristUpTrigger = driveController.rightTrigger(0.1, bonkIntakeWristUpEvent);
-		bonkIntakeWristDownTrigger = driveController.leftTrigger(bonkIntakeWristDownEvent, 0.1);
+		bonkIntakeWristUpTrigger = driveController.rightTrigger(0.1);
+		bonkIntakeWristDownTrigger = driveController.leftTrigger(0.1);
 		bonkIntakeInButton = driveController.x();
 		bonkIntakeOutButton = driveController.y();
 		bonkIntakeStopButton = driveController.a();
@@ -218,11 +214,11 @@ public class Controls {
 	}
 
 	public void bindBonkIntakeControls() {
-		bonkIntakeWristUpEvent.bind(() -> 
-					s.bonkIntakeSubsystem.adjustWristCommand(driveController.getRightTriggerAxis()).schedule());
+		bonkIntakeWristUpTrigger.whileTrue( 
+					s.bonkIntakeSubsystem.adjustWristCommand(driveController.getRightTriggerAxis()));
 		// negative bc its going down
-		bonkIntakeWristDownEvent.bind(() -> 
-					s.bonkIntakeSubsystem.adjustWristCommand(-driveController.getLeftTriggerAxis()).schedule());
+		bonkIntakeWristDownTrigger.whileTrue(
+					s.bonkIntakeSubsystem.adjustWristCommand(-driveController.getLeftTriggerAxis()));
 
 		bonkIntakeInButton.onTrue(s.bonkIntakeSubsystem.intakeInCommand());
 		bonkIntakeOutButton.onTrue(s.bonkIntakeSubsystem.intakeOutCommand());
