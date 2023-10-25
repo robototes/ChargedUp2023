@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.team2412.robot.subsystems.ArmLEDSubsystem;
 import frc.team2412.robot.subsystems.ArmSubsystem;
+import frc.team2412.robot.subsystems.BonkIntakeSubsystem;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
 import frc.team2412.robot.subsystems.LEDSubsystem;
@@ -23,6 +24,7 @@ public class Subsystems {
 		public static final boolean DRIVEBASE_ENABLED = true;
 		public static final boolean ARM_ENABLED = IS_COMP && true;
 		public static final boolean INTAKE_ENABLED = IS_COMP && true;
+		public static final boolean BONK_INTAKE_ENABLED = !IS_COMP && true;
 		public static final boolean VISION_ENABLED = true;
 		public static final boolean LED_ENABLED = IS_COMP && true;
 		public static final boolean ARM_LED_ENABLED = IS_COMP && true;
@@ -32,6 +34,7 @@ public class Subsystems {
 	public DrivebaseSubsystem drivebaseSubsystem;
 	public ArmSubsystem armSubsystem;
 	public IntakeSubsystem intakeSubsystem;
+	public BonkIntakeSubsystem bonkIntakeSubsystem;
 	public VisionSubsystem visionSubsystem;
 	public LEDSubsystem ledSubsystem;
 	public ArmLEDSubsystem armLedSubsystem;
@@ -85,6 +88,9 @@ public class Subsystems {
 		}
 		if (INTAKE_ENABLED) {
 			intakeSubsystem = new IntakeSubsystem();
+		}
+		if (BONK_INTAKE_ENABLED) {
+			bonkIntakeSubsystem = new BonkIntakeSubsystem();
 		}
 		if (LED_ENABLED) {
 			ledSubsystem = new LEDSubsystem();
