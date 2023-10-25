@@ -18,7 +18,8 @@ import static frc.team2412.robot.sim.SparkMaxSimProfile.SparkMaxConstants.*;
 public class BonkIntakeSubsystem extends SubsystemBase {
 
     // constants
-    public static final double INTAKE_SPEED = 1.0;
+    public static final double INTAKE_SPEED = 0.5;
+    public static final double INTAKE_FAST_SPEED = 1.0;
 
     public static final double WRIST_PID_P = 0.1;
     public static final double WRIST_PID_I = 0.0;
@@ -111,6 +112,10 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 
     public CommandBase intakeOutCommand() {
         return this.runOnce(() -> setIntakeSpeed(-INTAKE_SPEED));
+    }
+
+    public CommandBase intakeFastOutCommand() {
+        return this.runOnce(() -> setIntakeSpeed(-INTAKE_FAST_SPEED));
     }
 
     public CommandBase intakeStopCommand() {

@@ -11,7 +11,6 @@ import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionTy
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.ARM_MIDDLE_POSITION;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.ARM_SUBSTATION_POSITION;
 
-import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -73,7 +72,7 @@ public class Controls {
 	public final Trigger bonkIntakeWristDownTrigger;
 	public final Trigger bonkIntakeInButton;
 	public final Trigger bonkIntakeOutButton;
-	public final Trigger bonkIntakeStopButton;
+	public final Trigger bonkIntakeFastOutButton;
 
 	public final Trigger ledPurple;
 	public final Trigger ledYellow;
@@ -103,14 +102,14 @@ public class Controls {
 		codriveIntakeInButton = codriveController.rightTrigger();
 		codriveIntakeOutButton = codriveController.leftTrigger();
 		driveIntakeInButton = driveController.a();
-		driveIntakeOutButton = driveController.y();
-		driveIntakeFastOutButton = driveController.b();
+		driveIntakeOutButton = driveController.b();
+		driveIntakeFastOutButton = driveController.y();
 
 		bonkIntakeWristUpTrigger = driveController.rightTrigger(0.1);
 		bonkIntakeWristDownTrigger = driveController.leftTrigger(0.1);
 		bonkIntakeInButton = driveController.x();
 		bonkIntakeOutButton = driveController.y();
-		bonkIntakeStopButton = driveController.a();
+		bonkIntakeFastOutButton = driveController.a();
 
 		ledPurple = codriveController.rightBumper();
 		ledYellow = codriveController.leftBumper();
@@ -222,7 +221,7 @@ public class Controls {
 
 		bonkIntakeInButton.onTrue(s.bonkIntakeSubsystem.intakeInCommand());
 		bonkIntakeOutButton.onTrue(s.bonkIntakeSubsystem.intakeOutCommand());
-		bonkIntakeStopButton.onTrue(s.bonkIntakeSubsystem.intakeStopCommand());
+		bonkIntakeFastOutButton.onTrue(s.bonkIntakeSubsystem.intakeFastOutCommand());
 	}
 
 	public void bindLEDControls() {
