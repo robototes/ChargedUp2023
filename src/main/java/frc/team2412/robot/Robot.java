@@ -227,6 +227,9 @@ public class Robot extends TimedRobot {
 		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
 			subsystems.armSubsystem.simInit(sim);
 		}
+		if (Subsystems.SubsystemConstants.BONK_INTAKE_ENABLED) {
+			subsystems.bonkIntakeSubsystem.simInit(sim);
+		}
 	}
 
 	@Override
