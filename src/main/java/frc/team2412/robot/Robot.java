@@ -227,7 +227,7 @@ public class Robot extends TimedRobot {
 		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
 			subsystems.armSubsystem.simInit(sim);
 		}
-		if (Subsystems.SubsystemConstants.BONK_INTAKE_ENABLED) {
+		if (Subsystems.SubsystemConstants.BONK_INTAKE_ENABLED && robotType == RobotType.DRIVEBASE) {
 			subsystems.bonkIntakeSubsystem.simInit(sim);
 		}
 	}
