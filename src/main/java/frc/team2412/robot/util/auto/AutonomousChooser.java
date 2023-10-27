@@ -98,6 +98,15 @@ public class AutonomousChooser {
 		autonomousModeChooser.addOption(
 				"DONOTUSEBumpScoreHighLeaveComScoreHigh",
 				() -> AutonomousTrajectories.getAutoPathByName("UTBumpScoreHighLeaveComScoreHigh"));
+
+		autonomousModeChooser.addOption(
+				"BonkChargeLeaveComCharge",
+				() -> AutonomousTrajectories.getAutoPathByName("BonkChargeLeaveComCharge"));
+
+		autonomousModeChooser.addOption(
+				"BonkFlat2Score", () -> AutonomousTrajectories.getAutoPathByName("BonkFlat2Score"));
+		autonomousModeChooser.addOption(
+				"BonkBump2Score", () -> AutonomousTrajectories.getAutoPathByName("BonkBump2Score"));
 		// autonomousModeChooser.addOption(
 		// 		"ChargePickupBot", () -> AutonomousTrajectories.getAutoPathByName("ChargePickupBot"));
 		// autonomousModeChooser.addOption(
