@@ -134,11 +134,11 @@ public class TalonFXController extends MotorController {
 
 	@Override
 	public void configCurrentLimit(int limit) {
-		motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, limit, 0, 0));
+		motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, limit, 55, 0.5));
 	}
 
 	@Override
-	public double getFreeSpeedRPS() {
+	public double getFreeSpeedRPS() { 
 		return FREE_SPEED_RPS;
 	}
 
