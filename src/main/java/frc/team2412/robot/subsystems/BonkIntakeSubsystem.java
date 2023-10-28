@@ -71,9 +71,9 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 		intakeMotor1.setIdleMode(IdleMode.kBrake);
 		intakeMotor2.setIdleMode(IdleMode.kBrake);
 
-		wristMotor.setSmartCurrentLimit(20);
-		intakeMotor1.setSmartCurrentLimit(20);
-		intakeMotor2.setSmartCurrentLimit(20);
+		wristMotor.setSmartCurrentLimit(40);
+		intakeMotor1.setSmartCurrentLimit(40);
+		intakeMotor2.setSmartCurrentLimit(40);
 
 		wristEncoder.setPosition(0);
 		wristGoal = 0;
@@ -131,7 +131,7 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 	}
 
 	public CommandBase adjustWristCommand(DoubleSupplier adjustment) {
-		return this.runOnce(() -> {
+		return this.run(() -> {
             if (wristGoal + adjustment.getAsDouble() > WRIST_FORWARD_LIMIT)
                 setWristGoal(WRIST_FORWARD_LIMIT);
             else if (wristGoal + adjustment.getAsDouble() < WRIST_REVERSE_LIMIT)
