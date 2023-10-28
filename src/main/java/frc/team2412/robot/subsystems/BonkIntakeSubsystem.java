@@ -2,10 +2,7 @@ package frc.team2412.robot.subsystems;
 
 import static frc.team2412.robot.sim.SparkMaxSimProfile.SparkMaxConstants.*;
 
-import java.util.function.DoubleSupplier;
-
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -16,11 +13,12 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team2412.robot.Hardware;
 import frc.team2412.robot.sim.PhysicsSim;
+import java.util.function.DoubleSupplier;
 
 public class BonkIntakeSubsystem extends SubsystemBase {
 
 	// constants
-	public static final double INTAKE_SPEED = 0.5;
+	public static final double INTAKE_SPEED = 0.2;
 	public static final double INTAKE_FAST_SPEED = 1.0;
 
 	public static final double WRIST_PID_P = 0.1;
@@ -29,7 +27,7 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 	public static final double WRIST_PID_FF = 0.0;
 	public static final double WRIST_MIN_OUTPUT = -1.0;
 	public static final double WRIST_MAX_OUTPUT = 1.0;
-	public static final float WRIST_FORWARD_LIMIT = 100.0f;
+	public static final float WRIST_FORWARD_LIMIT = 38f;
 	public static final float WRIST_REVERSE_LIMIT = 0.0f;
 
 	// motors
@@ -47,17 +45,13 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 		intakeMotor1 = new CANSparkMax(Hardware.BONK_INTAKE_MOTOR_1, MotorType.kBrushless);
 		intakeMotor2 = new CANSparkMax(Hardware.BONK_INTAKE_MOTOR_2, MotorType.kBrushless);
 
-		// config pid for wrist motor
-		wristPIDController = wristMotor.getPIDController();
-		wristPIDController.setP(WRIST_PID_P);
-		wristPIDController.setI(WRIST_PID_I);
-		wristPIDController.setD(WRIST_PID_D);
-		wristPIDController.setFF(WRIST_PID_FF);
-		wristPIDController.setOutputRange(WRIST_MIN_OUTPUT, WRIST_MAX_OUTPUT);
-
 		wristEncoder = wristMotor.getEncoder();
+		wristPIDController = wristMotor.getPIDController();
 
-        resetMotors();
+		resetMotors();
+
+		// config pid for wrist motor
+
 		updateNetworkTables();
 	}
 
@@ -67,7 +61,7 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 		intakeMotor1.restoreFactoryDefaults();
 		intakeMotor2.restoreFactoryDefaults();
 
-		wristMotor.setIdleMode(IdleMode.kBrake);
+		wristMotor.setIdleMode(IdleMode.kCoast);
 		intakeMotor1.setIdleMode(IdleMode.kBrake);
 		intakeMotor2.setIdleMode(IdleMode.kBrake);
 
@@ -83,7 +77,17 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 		wristMotor.setSoftLimit(SoftLimitDirection.kForward, WRIST_FORWARD_LIMIT);
 		wristMotor.setSoftLimit(SoftLimitDirection.kReverse, WRIST_REVERSE_LIMIT);
 
-        intakeMotor2.follow(intakeMotor1);
+		// intakeMotor2.follow(intakeMotor1);
+
+		wristMotor.setInverted(true);
+		intakeMotor1.setInverted(false);
+		intakeMotor2.setInverted(true);
+
+		wristPIDController.setP(WRIST_PID_P, 0);
+		wristPIDController.setI(WRIST_PID_I, 0);
+		wristPIDController.setD(WRIST_PID_D, 0);
+		wristPIDController.setFF(WRIST_PID_FF, 0);
+		wristPIDController.setOutputRange(WRIST_MIN_OUTPUT, WRIST_MAX_OUTPUT, 0);
 
 		wristMotor.burnFlash();
 		intakeMotor1.burnFlash();
@@ -104,6 +108,7 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 	 */
 	private void setIntakeSpeed(double speed) {
 		intakeMotor1.set(speed);
+		intakeMotor2.set(speed);
 	}
 
 	public CommandBase intakeInCommand() {
@@ -127,18 +132,18 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 	public void setWristGoal(double goal) {
 		wristGoal = goal;
 
-		wristPIDController.setReference(wristGoal, ControlType.kPosition);
+		wristPIDController.setReference(wristGoal, CANSparkMax.ControlType.kPosition, 0);
 	}
 
 	public CommandBase adjustWristCommand(DoubleSupplier adjustment) {
-		return this.run(() -> {
-            if (wristGoal + adjustment.getAsDouble() > WRIST_FORWARD_LIMIT)
-                setWristGoal(WRIST_FORWARD_LIMIT);
-            else if (wristGoal + adjustment.getAsDouble() < WRIST_REVERSE_LIMIT)
-                setWristGoal(WRIST_REVERSE_LIMIT);
-            else
-                setWristGoal(wristGoal + adjustment.getAsDouble());
-        });
+		return this.run(
+				() -> {
+					if (wristGoal + adjustment.getAsDouble() > WRIST_FORWARD_LIMIT)
+						setWristGoal(WRIST_FORWARD_LIMIT);
+					else if (wristGoal + adjustment.getAsDouble() < WRIST_REVERSE_LIMIT)
+						setWristGoal(WRIST_REVERSE_LIMIT);
+					else setWristGoal(wristGoal + adjustment.getAsDouble());
+				});
 	}
 
 	public void simInit(PhysicsSim sim) {

@@ -138,7 +138,7 @@ public class TalonFXController extends MotorController {
 	}
 
 	@Override
-	public double getFreeSpeedRPS() { 
+	public double getFreeSpeedRPS() {
 		return FREE_SPEED_RPS;
 	}
 
