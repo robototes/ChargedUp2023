@@ -18,17 +18,23 @@ import java.util.function.DoubleSupplier;
 public class BonkIntakeSubsystem extends SubsystemBase {
 
 	// constants
-	public static final double INTAKE_SPEED = 0.2;
+	public static final double INTAKE_SPEED = 0.4;
 	public static final double INTAKE_FAST_SPEED = 1.0;
 
-	public static final double WRIST_PID_P = 0.1;
+	public static final double WRIST_PID_P = 0.2;
 	public static final double WRIST_PID_I = 0.0;
-	public static final double WRIST_PID_D = 0.5;
+	public static final double WRIST_PID_D = 0.7;
 	public static final double WRIST_PID_FF = 0.0;
 	public static final double WRIST_MIN_OUTPUT = -1.0;
 	public static final double WRIST_MAX_OUTPUT = 1.0;
-	public static final float WRIST_FORWARD_LIMIT = 38f;
-	public static final float WRIST_REVERSE_LIMIT = 0.0f;
+	public static final float WRIST_FORWARD_LIMIT = 35f;
+	public static final float WRIST_REVERSE_LIMIT = 2f;
+
+	public static final double WRIST_GOAL_TOLERANCE = 0.05;
+	public static final double WRIST_INTAKE_POSITION = 37;
+	public static final double WRIST_HYBRID_POSITION = 2;
+	public static final double WRIST_MID_POSITION = 10;
+	public static final double WRIST_STOW_POSITION = 2;
 
 	// motors
 	private final CANSparkMax wristMotor;
@@ -65,7 +71,7 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 		intakeMotor1.setIdleMode(IdleMode.kBrake);
 		intakeMotor2.setIdleMode(IdleMode.kBrake);
 
-		wristMotor.setSmartCurrentLimit(40);
+		wristMotor.setSmartCurrentLimit(20);
 		intakeMotor1.setSmartCurrentLimit(40);
 		intakeMotor2.setSmartCurrentLimit(40);
 
@@ -127,12 +133,36 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 		return this.runOnce(() -> setIntakeSpeed(0));
 	}
 
+	public CommandBase moveToIntakeCommand() {
+		return moveToGoalCommand(WRIST_INTAKE_POSITION).andThen(intakeInCommand());
+	}
+
+	public CommandBase moveToHybridCommand() {
+		return moveToGoalCommand(WRIST_HYBRID_POSITION).withTimeout(0.1).andThen(intakeOutCommand());
+	}
+
+	public CommandBase moveToMidCommand() {
+		return moveToGoalCommand(WRIST_MID_POSITION).andThen(intakeFastOutCommand());
+	}
+
+	public CommandBase moveToStowCommand() {
+		return moveToGoalCommand(WRIST_STOW_POSITION).andThen(intakeInCommand());
+	}
+
 	// wrist stuff:
 
 	public void setWristGoal(double goal) {
 		wristGoal = goal;
 
 		wristPIDController.setReference(wristGoal, CANSparkMax.ControlType.kPosition, 0);
+	}
+
+	public boolean isWristAtGoal() {
+		return Math.abs(wristGoal - wristEncoder.getPosition()) < WRIST_GOAL_TOLERANCE;
+	}
+
+	public CommandBase moveToGoalCommand(double goal) {
+		return this.run(() -> setWristGoal(goal)).until(this::isWristAtGoal);
 	}
 
 	public CommandBase adjustWristCommand(DoubleSupplier adjustment) {

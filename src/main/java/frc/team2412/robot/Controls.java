@@ -26,8 +26,6 @@ import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import frc.team2412.robot.commands.led.LEDPurpleCommand;
 import frc.team2412.robot.commands.led.LEDYellowCommand;
-import frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType;
-import frc.team2412.robot.util.DriverAssist;
 
 public class Controls {
 	public static class ControlConstants {
@@ -70,9 +68,12 @@ public class Controls {
 
 	public final Trigger bonkIntakeWristUpTrigger;
 	public final Trigger bonkIntakeWristDownTrigger;
-	public final Trigger bonkIntakeInButton;
 	public final Trigger bonkIntakeOutButton;
 	public final Trigger bonkIntakeFastOutButton;
+	public final Trigger bonkMoveIntakeInButton;
+	public final Trigger bonkMoveIntakeHybridButton;
+	public final Trigger bonkMoveIntakeMidButton;
+	public final Trigger bonkMoveIntakeStowButton;
 
 	public final Trigger ledPurple;
 	public final Trigger ledYellow;
@@ -107,9 +108,12 @@ public class Controls {
 
 		bonkIntakeWristUpTrigger = driveController.rightTrigger(0.1);
 		bonkIntakeWristDownTrigger = driveController.leftTrigger(0.1);
-		bonkIntakeInButton = driveController.x();
-		bonkIntakeOutButton = driveController.y();
-		bonkIntakeFastOutButton = driveController.a();
+		bonkIntakeOutButton = driveController.leftBumper();
+		bonkIntakeFastOutButton = driveController.rightBumper();
+		bonkMoveIntakeInButton = driveController.x();
+		bonkMoveIntakeHybridButton = driveController.y();
+		bonkMoveIntakeMidButton = driveController.a();
+		bonkMoveIntakeStowButton = driveController.b();
 
 		ledPurple = codriveController.rightBumper();
 		ledYellow = codriveController.leftBumper();
@@ -145,10 +149,10 @@ public class Controls {
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 		driveController.leftStick().onTrue(new InstantCommand(s.drivebaseSubsystem::toggleXWheels));
 
-		triggerDriverAssistCube.whileTrue(
-				DriverAssist.alignRobotCommand(s.drivebaseSubsystem, GamePieceType.CUBE).repeatedly());
-		triggerDriverAssistCone.whileTrue(
-				DriverAssist.alignRobotCommand(s.drivebaseSubsystem, GamePieceType.CONE).repeatedly());
+		// triggerDriverAssistCube.whileTrue(
+		// 		DriverAssist.alignRobotCommand(s.drivebaseSubsystem, GamePieceType.CUBE).repeatedly());
+		// triggerDriverAssistCone.whileTrue(
+		// 		DriverAssist.alignRobotCommand(s.drivebaseSubsystem, GamePieceType.CONE).repeatedly());
 		// // CommandBase driverAssistCube =
 		// // 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem,
 		// GamePieceType.CUBE));
@@ -213,15 +217,28 @@ public class Controls {
 	}
 
 	public void bindBonkIntakeControls() {
+		// Wrist move up
 		bonkIntakeWristUpTrigger.whileTrue(
 				s.bonkIntakeSubsystem.adjustWristCommand(driveController::getRightTriggerAxis));
 		// negative bc its going down
 		bonkIntakeWristDownTrigger.whileTrue(
 				s.bonkIntakeSubsystem.adjustWristCommand(() -> -driveController.getLeftTriggerAxis()));
 
-		bonkIntakeInButton.onTrue(s.bonkIntakeSubsystem.intakeInCommand());
-		bonkIntakeOutButton.onTrue(s.bonkIntakeSubsystem.intakeOutCommand());
-		bonkIntakeFastOutButton.onTrue(s.bonkIntakeSubsystem.intakeFastOutCommand());
+		// Stock Jonah Code
+		// bonkIntakeOutButton.onTrue(s.bonkIntakeSubsystem.intakeOutCommand());
+		// bonkIntakeFastOutButton.onTrue(s.bonkIntakeSubsystem.intakeFastOutCommand());
+
+		// Tristan's Intake Code
+		bonkIntakeOutButton.onTrue(s.bonkIntakeSubsystem.moveToIntakeCommand());
+		bonkIntakeOutButton.onFalse(s.bonkIntakeSubsystem.moveToStowCommand());
+		bonkIntakeFastOutButton.onTrue(s.bonkIntakeSubsystem.moveToHybridCommand());
+		bonkIntakeFastOutButton.onFalse(s.bonkIntakeSubsystem.moveToStowCommand());
+
+		// Stock Jonah Code
+		bonkMoveIntakeInButton.onTrue(s.bonkIntakeSubsystem.moveToIntakeCommand());
+		bonkMoveIntakeHybridButton.onTrue(s.bonkIntakeSubsystem.moveToHybridCommand());
+		bonkMoveIntakeMidButton.onTrue(s.bonkIntakeSubsystem.moveToMidCommand());
+		bonkMoveIntakeStowButton.onTrue(s.bonkIntakeSubsystem.moveToStowCommand());
 	}
 
 	public void bindLEDControls() {
