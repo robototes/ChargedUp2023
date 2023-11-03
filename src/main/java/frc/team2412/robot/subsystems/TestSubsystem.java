@@ -5,11 +5,12 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 public class TestSubsystem extends SubsystemBase {
 
     // CONSTANT VARIABLES
-        
+
     private final double MOTOR_SPEED = 0.5;
     private final double MAX_ANGLE = 60;
 
@@ -22,13 +23,13 @@ public class TestSubsystem extends SubsystemBase {
     //      Parameters: instance variables
     //      Sets the value instance variables
     public TestSubsystem() {
-        
+
 
         // hi guys
         // Initialize Nessescary Variables
 
         this.motor = new CANSparkMax(60, MotorType.kBrushless);
-        this.motorEncoder = motor.getAbsoluteEncoder();
+        this.motorEncoder = motor.getAbsoluteEncoder(Type.kDutyCycle);
 
         // Configure Hardware
         motor.setIdleMode(IdleMode.kBrake);
@@ -39,7 +40,7 @@ public class TestSubsystem extends SubsystemBase {
 
     // gives us the motor's current speed
     public double getSpeed() {
-        return motor.get(); 
+        return motor.get();
     }
 
     // gives us the motor's current angle

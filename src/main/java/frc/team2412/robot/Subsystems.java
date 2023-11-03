@@ -16,6 +16,7 @@ import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
 import frc.team2412.robot.subsystems.LEDSubsystem;
 import frc.team2412.robot.subsystems.VisionSubsystem;
+import frc.team2412.robot.subsystems.TestSubsystem;
 
 public class Subsystems {
 	public static class SubsystemConstants {
@@ -27,6 +28,8 @@ public class Subsystems {
 		public static final boolean LED_ENABLED = IS_COMP && true;
 		public static final boolean ARM_LED_ENABLED = IS_COMP && true;
 		public static final boolean DRIVER_VIS_ENABLED = true;
+
+		public static final boolean TEST_ENABLED = true;
 	}
 
 	public DrivebaseSubsystem drivebaseSubsystem;
@@ -35,6 +38,8 @@ public class Subsystems {
 	public VisionSubsystem visionSubsystem;
 	public LEDSubsystem ledSubsystem;
 	public ArmLEDSubsystem armLedSubsystem;
+
+	public TestSubsystem testSubsystem;
 
 	public SwerveDrivePoseEstimator poseEstimator;
 
@@ -91,6 +96,10 @@ public class Subsystems {
 		}
 		if (ARM_LED_ENABLED) {
 			armLedSubsystem = new ArmLEDSubsystem();
+		}
+
+		if (TEST_ENABLED) {
+			testSubsystem = new TestSubsystem();
 		}
 	}
 }

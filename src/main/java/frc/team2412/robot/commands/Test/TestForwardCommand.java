@@ -1,4 +1,5 @@
-package frc.team2412.robot.commands.test;
+package frc.team2412.robot.commands.Test;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team2412.robot.subsystems.TestSubsystem;
 
@@ -8,30 +9,30 @@ public class TestForwardCommand extends CommandBase{
 
     // consturcter
     public TestForwardCommand(TestSubsystem testSubsystem) {
-        this.testSubsystem = testSubsystem; 
+        this.testSubsystem = testSubsystem;
 
-        addRequirments(testSubsystem);
+        addRequirements(testSubsystem);
     }
 
-    // methods 
-    @Override 
+    // methods
+    @Override
     public void initialize() {
-        
+        testSubsystem.setMotorForward();
     }
 
-    @Override 
+    @Override
     public void execute() {
         //loops set of code on robot
     }
-    
-    @Override 
+
+    @Override
     public void end(boolean interrupted) {
         //runs when command stops
     }
 
-    @Override 
+    @Override
     public boolean isFinished() {
-        return true
+        return true;
     }
 
 
