@@ -236,8 +236,14 @@ public class Controls {
 
 		// Stock Jonah Code
 		bonkMoveIntakeInButton.onTrue(s.bonkIntakeSubsystem.moveToIntakeCommand());
-		bonkMoveIntakeHybridButton.onTrue(s.bonkIntakeSubsystem.moveToHybridCommand());
-		bonkMoveIntakeMidButton.onTrue(s.bonkIntakeSubsystem.moveToMidCommand());
+
+		// Tristans Mid Command
+		bonkMoveIntakeHybridButton.onTrue(s.bonkIntakeSubsystem.moveToMidCommand());
+		bonkMoveIntakeHybridButton.onFalse(s.bonkIntakeSubsystem.moveToStowCommand());
+
+		// Stock Jonah Code
+		bonkMoveIntakeMidButton.onTrue(s.bonkIntakeSubsystem.moveToHighCommand());
+		bonkMoveIntakeMidButton.onFalse(s.bonkIntakeSubsystem.moveToStowCommand());
 		bonkMoveIntakeStowButton.onTrue(s.bonkIntakeSubsystem.moveToStowCommand());
 	}
 

@@ -33,7 +33,10 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 	public static final double WRIST_GOAL_TOLERANCE = 0.05;
 	public static final double WRIST_INTAKE_POSITION = 37;
 	public static final double WRIST_HYBRID_POSITION = 2;
-	public static final double WRIST_MID_POSITION = 10;
+	public static final double WRIST_MID_POSITION = 7;
+	// Added by Tristan
+	public static final double WRIST_HIGH_POSITION = 22;
+
 	public static final double WRIST_STOW_POSITION = 2;
 
 	// motors
@@ -134,7 +137,7 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 	}
 
 	public CommandBase moveToIntakeCommand() {
-		return moveToGoalCommand(WRIST_INTAKE_POSITION).andThen(intakeInCommand());
+		return moveToGoalCommand(WRIST_INTAKE_POSITION).withTimeout(0.4).andThen(intakeInCommand());
 	}
 
 	public CommandBase moveToHybridCommand() {
@@ -142,11 +145,16 @@ public class BonkIntakeSubsystem extends SubsystemBase {
 	}
 
 	public CommandBase moveToMidCommand() {
-		return moveToGoalCommand(WRIST_MID_POSITION).andThen(intakeFastOutCommand());
+		return moveToGoalCommand(WRIST_MID_POSITION).withTimeout(0.3).andThen(intakeFastOutCommand());
 	}
 
 	public CommandBase moveToStowCommand() {
-		return moveToGoalCommand(WRIST_STOW_POSITION).andThen(intakeInCommand());
+		return moveToGoalCommand(WRIST_STOW_POSITION).withTimeout(0.1).andThen(intakeInCommand());
+	}
+
+	// Added by Tristan
+	public CommandBase moveToHighCommand() {
+		return moveToGoalCommand(WRIST_HIGH_POSITION).withTimeout(0.38).andThen(intakeFastOutCommand());
 	}
 
 	// wrist stuff:
