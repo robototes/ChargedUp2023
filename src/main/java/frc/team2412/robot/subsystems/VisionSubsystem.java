@@ -284,4 +284,6 @@ public class VisionSubsystem extends SubsystemBase {
 	public void setAlliance(DriverStation.Alliance alliance) {
 		this.alliance = alliance;
 	}
+
+	//
 }
