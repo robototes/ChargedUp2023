@@ -45,14 +45,14 @@ public class LimelightSubsystem extends SubsystemBase {
 		// logging
 		currentPoseString = "";
 		targetPoseString = "";
-
-		ShuffleboardTab limelightTab = Shuffleboard.getTab("Limelight");
+		
 		networkTable = NetworkTableInstance.getDefault().getTable("limelight");
+		ShuffleboardTab limelightTab = Shuffleboard.getTab("Limelight");
 
-		limelightTab.addBoolean("hasTarget", this::hasTargets).withPosition(1, 0).withSize(1, 1);
+		limelightTab.addBoolean("hasTarget", this::hasTargets).withPosition(0, 0).withSize(1, 1);
 		limelightTab
 				.addDouble("Horizontal Offset", this::getHorizontalOffset)
-				.withPosition(2, 0)
+				.withPosition(1, 0)
 				.withSize(1, 1);
 		limelightTab
 				.addDouble("Vertical Offset", this::getVerticalOffset)
@@ -61,18 +61,18 @@ public class LimelightSubsystem extends SubsystemBase {
 
 		limelightTab
 				.addDouble("Target Distance ", this::getDistanceFromTarget)
-				.withPosition(4, 0)
-				.withSize(1, 1);
-
-		limelightTab
-				.addString("Current Pose ", this::getCurrentPoseString)
 				.withPosition(3, 0)
 				.withSize(1, 1);
 
 		limelightTab
+				.addString("Current Pose ", this::getCurrentPoseString)
+				.withPosition(0, 1)
+				.withSize(3, 1);
+
+		limelightTab
 				.addString("Target Pose ", this::getTargetPoseString)
-				.withPosition(4, 0)
-				.withSize(1, 1);
+				.withPosition(0, 2)
+				.withSize(3, 1);
 	}
 
 	// METHODS
@@ -99,11 +99,14 @@ public class LimelightSubsystem extends SubsystemBase {
 
 		// math thing to get target pose using current pose
 
+		// FIXME: figure out why targetPose returns infinity
+
 		Rotation2d currentHeading = currentPose.getRotation();
 		Rotation2d targetHeading = new Rotation2d(currentHeading.getDegrees() + getHorizontalOffset());
+		double targetDistance = getDistanceFromTarget() - GOAL_DISTANCE_FROM_TARGET;
 
-		double targetX = Math.sin(targetHeading.getDegrees()) * getDistanceFromTarget();
-		double targetY = Math.cos(targetHeading.getDegrees()) * getDistanceFromTarget();
+		double targetX = Math.sin(targetHeading.getDegrees()) * targetDistance;
+		double targetY = Math.cos(targetHeading.getDegrees()) * targetDistance;
 
 		Pose2d targetPose = new Pose2d(targetX, targetY, targetHeading);
 
@@ -134,11 +137,7 @@ public class LimelightSubsystem extends SubsystemBase {
 			targetPose = currentPose;
 		}
 
-		System.out.println("current: " + drivebaseSubsystem.getPose());
-		System.out.println("target: " + getTargetPose(drivebaseSubsystem.getPose()));
-		System.out.println("distance: " + getDistanceFromTarget());
-		System.out.println("horizontal offset: " + getHorizontalOffset());
-		System.out.println("vertical offset; " + getVerticalOffset());
+		// create path
 
 		PathPlannerTrajectory alignmentTraj =
 				PathPlanner.generatePath(
@@ -156,6 +155,7 @@ public class LimelightSubsystem extends SubsystemBase {
 								Rotation2d.fromDegrees(180),
 								targetPose.getRotation()));
 
+		// make command out of path
 		Command moveCommand =
 				new PPSwerveControllerCommand(
 						alignmentTraj,
@@ -173,7 +173,5 @@ public class LimelightSubsystem extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		System.out.println("has target " + hasTargets());
-		System.out.println("distance " + getDistanceFromTarget());
 	}
 }
