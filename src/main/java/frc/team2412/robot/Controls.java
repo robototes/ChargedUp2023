@@ -24,6 +24,7 @@ import frc.team2412.robot.commands.intake.IntakeSetInCommand;
 import frc.team2412.robot.commands.intake.IntakeSetOutCommand;
 import frc.team2412.robot.commands.led.LEDPurpleCommand;
 import frc.team2412.robot.commands.led.LEDYellowCommand;
+import frc.team2412.robot.commands.limelight.GetWithinDistanceCommand;
 import frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.GamePieceType;
 import frc.team2412.robot.util.DriverAssist;
 
@@ -69,6 +70,8 @@ public class Controls {
 	public final Trigger ledPurple;
 	public final Trigger ledYellow;
 
+	public final Trigger getWithinDistanceTrigger;
+
 	private final Subsystems s;
 
 	public Controls(Subsystems s) {
@@ -100,6 +103,8 @@ public class Controls {
 		ledPurple = codriveController.rightBumper();
 		ledYellow = codriveController.leftBumper();
 
+		getWithinDistanceTrigger = driveController.start();
+
 		if (Subsystems.SubsystemConstants.DRIVEBASE_ENABLED) {
 			bindDrivebaseControls();
 		}
@@ -111,6 +116,10 @@ public class Controls {
 		}
 		if (Subsystems.SubsystemConstants.ARM_ENABLED) {
 			bindArmControls();
+		}
+
+		if (Subsystems.SubsystemConstants.LIMELIGHT_ENABLED) {
+			bindLimelightControls();
 		}
 	}
 
@@ -198,5 +207,10 @@ public class Controls {
 	public void bindLEDControls() {
 		ledPurple.onTrue(new LEDPurpleCommand(s.ledSubsystem));
 		ledYellow.onTrue(new LEDYellowCommand(s.ledSubsystem));
+	}
+
+	public void bindLimelightControls() {
+		getWithinDistanceTrigger.whileTrue(
+				new GetWithinDistanceCommand(s.limelightSubsystem, s.drivebaseSubsystem));
 	}
 }

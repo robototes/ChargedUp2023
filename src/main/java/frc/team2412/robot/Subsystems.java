@@ -15,18 +15,20 @@ import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
 import frc.team2412.robot.subsystems.LEDSubsystem;
+import frc.team2412.robot.subsystems.LimelightSubsystem;
 import frc.team2412.robot.subsystems.VisionSubsystem;
 
 public class Subsystems {
 	public static class SubsystemConstants {
 		public static final boolean IS_COMP = Robot.getInstance().isCompetition();
 		public static final boolean DRIVEBASE_ENABLED = true;
-		public static final boolean ARM_ENABLED = IS_COMP && true;
-		public static final boolean INTAKE_ENABLED = IS_COMP && true;
+		public static final boolean ARM_ENABLED = IS_COMP && false;
+		public static final boolean INTAKE_ENABLED = IS_COMP && false;
 		public static final boolean VISION_ENABLED = true;
 		public static final boolean LED_ENABLED = IS_COMP && true;
 		public static final boolean ARM_LED_ENABLED = IS_COMP && true;
-		public static final boolean DRIVER_VIS_ENABLED = true;
+		public static final boolean DRIVER_VIS_ENABLED = false;
+		public static final boolean LIMELIGHT_ENABLED = true;
 	}
 
 	public DrivebaseSubsystem drivebaseSubsystem;
@@ -35,6 +37,7 @@ public class Subsystems {
 	public VisionSubsystem visionSubsystem;
 	public LEDSubsystem ledSubsystem;
 	public ArmLEDSubsystem armLedSubsystem;
+	public LimelightSubsystem limelightSubsystem;
 
 	public SwerveDrivePoseEstimator poseEstimator;
 
@@ -91,6 +94,9 @@ public class Subsystems {
 		}
 		if (ARM_LED_ENABLED) {
 			armLedSubsystem = new ArmLEDSubsystem();
+		}
+		if (LIMELIGHT_ENABLED) {
+			limelightSubsystem = new LimelightSubsystem();
 		}
 	}
 }
