@@ -45,7 +45,7 @@ public class LimelightSubsystem extends SubsystemBase {
 		// logging
 		currentPoseString = "";
 		targetPoseString = "";
-		
+
 		networkTable = NetworkTableInstance.getDefault().getTable("limelight");
 		ShuffleboardTab limelightTab = Shuffleboard.getTab("Limelight");
 
@@ -172,6 +172,5 @@ public class LimelightSubsystem extends SubsystemBase {
 	}
 
 	@Override
-	public void periodic() {
-	}
+	public void periodic() {}
 }

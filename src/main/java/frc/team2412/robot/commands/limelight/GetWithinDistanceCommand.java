@@ -18,7 +18,8 @@ public class GetWithinDistanceCommand extends CommandBase {
 		this.limelightSubsystem = limelightSubsystem;
 		this.drivebaseSubsystem = drivebaseSubsystem;
 
-		// find target -> get current pose -> use current pose and target to calculate target pose -> move towards target pose
+		// find target -> get current pose -> use current pose and target to calculate target pose ->
+		// move towards target pose
 
 		Pose2d currentPose = drivebaseSubsystem.getPose();
 		getToPositionCommand = limelightSubsystem.getWithinDistance(currentPose, drivebaseSubsystem);
@@ -35,8 +36,7 @@ public class GetWithinDistanceCommand extends CommandBase {
 	}
 
 	@Override
-	public void end(boolean interrupted) {
-	}
+	public void end(boolean interrupted) {}
 
 	@Override
 	public boolean isFinished() {
