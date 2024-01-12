@@ -8,6 +8,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -24,8 +25,9 @@ public class LimelightSubsystem extends SubsystemBase {
 	PathConstraints PATH_CONSTRAINTS = new PathConstraints(4.0, 2.0);
 
 	// meters?
-	public static final double CAMERA_HEIGHT = 0.2;
+	public static final double CAMERA_MOUNT_HEIGHT = 0;
 	public static final double CAMERA_ANGLE_OFFSET = 0;
+	public static final double TARGET_HEIGHT = 0.31;
 
 	public static final double GOAL_DISTANCE_FROM_TARGET = 0.3;
 	public static final double GOAL_DISTANCE_FROM_CONE = 0.3;
@@ -34,6 +36,7 @@ public class LimelightSubsystem extends SubsystemBase {
 	// MEMBERS
 
 	NetworkTable networkTable;
+
 	String currentPoseString;
 	String targetPoseString;
 
@@ -41,6 +44,8 @@ public class LimelightSubsystem extends SubsystemBase {
 
 	// CONSTRUCTOR !
 	public LimelightSubsystem() {
+
+		// broadcast 10.24.12.227
 
 		// logging
 		currentPoseString = "";
@@ -90,10 +95,20 @@ public class LimelightSubsystem extends SubsystemBase {
 	}
 
 	public double getDistanceFromTarget() {
-		double targetHeight = 0;
-		double angleToTarget = 0;
-		return (targetHeight - CAMERA_HEIGHT) / Math.tan(CAMERA_ANGLE_OFFSET + angleToTarget);
+
+		// 1.3 at 1.9
+		// 1.0 at 1.3
+
+		double angleToTarget = getVerticalOffset();
+		// return (TARGET_HEIGHT - CAMERA_MOUNT_HEIGHT) / Math.tan(CAMERA_ANGLE_OFFSET + angleToTarget);
+
+		return (TARGET_HEIGHT - CAMERA_MOUNT_HEIGHT)
+				/ (CAMERA_ANGLE_OFFSET + Math.tan(Units.degreesToRadians(getVerticalOffset())));
 	}
+
+	// tan(degree) * distance = sideways distance
+
+	// target height / tan(vertical angle)
 
 	public Pose2d getTargetPose(Pose2d currentPose) {
 
@@ -102,13 +117,15 @@ public class LimelightSubsystem extends SubsystemBase {
 		// FIXME: figure out why targetPose returns infinity
 
 		Rotation2d currentHeading = currentPose.getRotation();
-		Rotation2d targetHeading = new Rotation2d(currentHeading.getDegrees() + getHorizontalOffset());
+		Rotation2d targetHeading = new Rotation2d(Units.degreesToRadians(getHorizontalOffset()));
 		double targetDistance = getDistanceFromTarget() - GOAL_DISTANCE_FROM_TARGET;
 
-		double targetX = Math.sin(targetHeading.getDegrees()) * targetDistance;
-		double targetY = Math.cos(targetHeading.getDegrees()) * targetDistance;
+		double targetX = Math.sin(targetHeading.getRadians()) * targetDistance;
+		double targetY = Math.cos(targetHeading.getRadians()) * targetDistance;
 
-		Pose2d targetPose = new Pose2d(targetX, targetY, targetHeading);
+		Pose2d targetPose = new Pose2d(currentPose.getX(), currentPose.getY(), targetHeading);
+
+		// target pose always ~7.61 degrees?
 
 		currentPoseString = currentPose.toString();
 		targetPoseString = targetPose.toString();
@@ -156,6 +173,7 @@ public class LimelightSubsystem extends SubsystemBase {
 								targetPose.getRotation()));
 
 		// make command out of path
+
 		Command moveCommand =
 				new PPSwerveControllerCommand(
 						alignmentTraj,
@@ -172,5 +190,7 @@ public class LimelightSubsystem extends SubsystemBase {
 	}
 
 	@Override
-	public void periodic() {}
+	public void periodic() {
+		System.out.println("target" + targetPoseString);
+	}
 }

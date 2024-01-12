@@ -210,7 +210,7 @@ public class Controls {
 	}
 
 	public void bindLimelightControls() {
-		getWithinDistanceTrigger.whileTrue(
+		getWithinDistanceTrigger.onTrue(
 				new GetWithinDistanceCommand(s.limelightSubsystem, s.drivebaseSubsystem));
 	}
 }

@@ -10,6 +10,7 @@ public class GetWithinDistanceCommand extends CommandBase {
 
 	private LimelightSubsystem limelightSubsystem;
 	private DrivebaseSubsystem drivebaseSubsystem;
+	private Pose2d currentPose;
 
 	private Command getToPositionCommand;
 
@@ -21,18 +22,19 @@ public class GetWithinDistanceCommand extends CommandBase {
 		// find target -> get current pose -> use current pose and target to calculate target pose ->
 		// move towards target pose
 
-		Pose2d currentPose = drivebaseSubsystem.getPose();
-		getToPositionCommand = limelightSubsystem.getWithinDistance(currentPose, drivebaseSubsystem);
 	}
 
 	@Override
 	public void initialize() {
+		currentPose = drivebaseSubsystem.getPose();
+		getToPositionCommand = limelightSubsystem.getWithinDistance(currentPose, drivebaseSubsystem);
 		getToPositionCommand.initialize();
 	}
 
 	@Override
 	public void execute() {
 		getToPositionCommand.execute();
+		limelightSubsystem.getTargetPose(currentPose);
 	}
 
 	@Override
