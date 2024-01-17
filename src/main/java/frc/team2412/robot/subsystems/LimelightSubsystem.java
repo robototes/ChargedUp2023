@@ -25,11 +25,11 @@ public class LimelightSubsystem extends SubsystemBase {
 	PathConstraints PATH_CONSTRAINTS = new PathConstraints(4.0, 2.0);
 
 	// meters?
-	public static final double CAMERA_MOUNT_HEIGHT = 0;
+	public static final double CAMERA_MOUNT_HEIGHT = 0.1143;
 	public static final double CAMERA_ANGLE_OFFSET = 0;
-	public static final double TARGET_HEIGHT = 0.31;
+	public static final double TARGET_HEIGHT = 0.36;
 
-	public static final double GOAL_DISTANCE_FROM_TARGET = 0.3;
+	public static final double GOAL_DISTANCE_FROM_TARGET = 0.7;
 	public static final double GOAL_DISTANCE_FROM_CONE = 0.3;
 	public static final double GOAL_DISTANCE_FROM_CUBE = 0.3;
 
@@ -68,16 +68,19 @@ public class LimelightSubsystem extends SubsystemBase {
 				.addDouble("Target Distance ", this::getDistanceFromTarget)
 				.withPosition(3, 0)
 				.withSize(1, 1);
-
+		limelightTab
+				.addDouble("Target Distance TWOEEEEE ", this::getDistanceFromTargetTheSecond)
+				.withPosition(4, 0)
+				.withSize(1, 1);
 		limelightTab
 				.addString("Current Pose ", this::getCurrentPoseString)
 				.withPosition(0, 1)
-				.withSize(3, 1);
+				.withSize(4, 1);
 
 		limelightTab
 				.addString("Target Pose ", this::getTargetPoseString)
 				.withPosition(0, 2)
-				.withSize(3, 1);
+				.withSize(4, 1);
 	}
 
 	// METHODS
@@ -106,6 +109,13 @@ public class LimelightSubsystem extends SubsystemBase {
 				/ (CAMERA_ANGLE_OFFSET + Math.tan(Units.degreesToRadians(getVerticalOffset())));
 	}
 
+	public double getDistanceFromTargetTheSecond() {
+
+		double focal_length = 831.529412;
+
+		return (8.5 * focal_length) / 121;
+	}
+
 	// tan(degree) * distance = sideways distance
 
 	// target height / tan(vertical angle)
@@ -117,13 +127,16 @@ public class LimelightSubsystem extends SubsystemBase {
 		// FIXME: figure out why targetPose returns infinity
 
 		Rotation2d currentHeading = currentPose.getRotation();
-		Rotation2d targetHeading = new Rotation2d(Units.degreesToRadians(getHorizontalOffset()));
+		Rotation2d targetHeading =
+				new Rotation2d(
+						currentPose.getRotation().getRadians() + Units.degreesToRadians(getHorizontalOffset()));
 		double targetDistance = getDistanceFromTarget() - GOAL_DISTANCE_FROM_TARGET;
 
 		double targetX = Math.sin(targetHeading.getRadians()) * targetDistance;
 		double targetY = Math.cos(targetHeading.getRadians()) * targetDistance;
 
-		Pose2d targetPose = new Pose2d(currentPose.getX(), currentPose.getY(), targetHeading);
+		Pose2d targetPose =
+				new Pose2d(currentPose.getX() + targetY, currentPose.getY() + targetX, targetHeading);
 
 		// target pose always ~7.61 degrees?
 
@@ -172,6 +185,7 @@ public class LimelightSubsystem extends SubsystemBase {
 								Rotation2d.fromDegrees(180),
 								targetPose.getRotation()));
 
+		System.out.println(alignmentTraj);
 		// make command out of path
 
 		Command moveCommand =
@@ -190,7 +204,5 @@ public class LimelightSubsystem extends SubsystemBase {
 	}
 
 	@Override
-	public void periodic() {
-		System.out.println("target" + targetPoseString);
-	}
+	public void periodic() {}
 }
