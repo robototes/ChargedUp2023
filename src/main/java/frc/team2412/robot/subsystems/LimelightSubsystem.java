@@ -27,7 +27,7 @@ public class LimelightSubsystem extends SubsystemBase {
 	// meters?
 	public static final double CAMERA_MOUNT_HEIGHT = 0.1143;
 	public static final double CAMERA_ANGLE_OFFSET = 0;
-	public static final double TARGET_HEIGHT = 0.36;
+	public static final double TARGET_HEIGHT = 0.33;
 
 	public static final double GOAL_DISTANCE_FROM_TARGET = 0.7;
 	public static final double GOAL_DISTANCE_FROM_CONE = 0.3;
@@ -116,11 +116,11 @@ public class LimelightSubsystem extends SubsystemBase {
 	public double getDistanceFromTargetTheSecond() {
 
 		// focal length = (P x D) / W
-		double focal_length = 405.705882353;
+		double focal_length = 346.1818;
 
 		// distance = (W x F) / P
 		// returns inches for testing purposes, will divide by 39.3700787 to return meters
-		return (8.5 * focal_length) / getBoxWidth();
+		return (8.25 * focal_length) / getBoxWidth();
 	}
 
 	// tan(degree) * distance = sideways distance
