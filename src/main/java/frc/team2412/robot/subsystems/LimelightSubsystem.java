@@ -69,7 +69,7 @@ public class LimelightSubsystem extends SubsystemBase {
 				.withPosition(3, 0)
 				.withSize(1, 1);
 		limelightTab
-				.addDouble("Target Distance TWOEEEEE ", this::getDistanceFromTargetTheSecond)
+				.addDouble("Target Distance 2 - TEST ", this::getDistanceFromTargetTheSecond)
 				.withPosition(4, 0)
 				.withSize(1, 1);
 		limelightTab
@@ -97,6 +97,10 @@ public class LimelightSubsystem extends SubsystemBase {
 		return networkTable.getEntry("ty").getDouble(0);
 	}
 
+	public double getBoxWidth() {
+		return networkTable.getEntry("tshort").getDouble(0);
+	}
+
 	public double getDistanceFromTarget() {
 
 		// 1.3 at 1.9
@@ -111,9 +115,12 @@ public class LimelightSubsystem extends SubsystemBase {
 
 	public double getDistanceFromTargetTheSecond() {
 
-		double focal_length = 831.529412;
+		// focal length = (P x D) / W
+		double focal_length = 405.705882353;
 
-		return (8.5 * focal_length) / 121;
+		// distance = (W x F) / P
+		// returns inches for testing purposes, will divide by 39.3700787 to return meters
+		return (8.5 * focal_length) / getBoxWidth();
 	}
 
 	// tan(degree) * distance = sideways distance
