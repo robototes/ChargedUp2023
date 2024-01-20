@@ -127,7 +127,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
 	// target height / tan(vertical angle)
 
-	//TODO fix this or something
+	// TODO fix this or something
 	public Pose2d getTargetPose(Pose2d currentPose) {
 
 		// math thing to get target pose using current pose
@@ -171,23 +171,21 @@ public class LimelightSubsystem extends SubsystemBase {
 		}
 
 		// create path
-
+		
 		PathPlannerTrajectory alignmentTraj =
 				PathPlanner.generatePath(
 						PATH_CONSTRAINTS,
 						new PathPoint(
 								currentPose.getTranslation(),
 								// possible thing that breaks
-								new Rotation2d(targetPose.getX() - currentPose.getX(), targetPose.getY() - currentPose.getY()),
+								new Rotation2d(currentPose.getX(),currentPose.getY()),
 								currentPose.getRotation(),
 								drivebaseSubsystem.getVelocity()),
 						new PathPoint(
-								currentPose.getTranslation(),
-								targetPose.getRotation(),
-								Rotation2d.fromDegrees(0)));
+								currentPose.getTranslation(), targetPose.getRotation(), Rotation2d.fromDegrees(0)));
 
 		System.out.println(alignmentTraj);
-		
+
 		// make command out of path
 
 		Command moveCommand =
