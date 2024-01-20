@@ -127,25 +127,21 @@ public class LimelightSubsystem extends SubsystemBase {
 
 	// target height / tan(vertical angle)
 
+	//TODO fix this or something
 	public Pose2d getTargetPose(Pose2d currentPose) {
 
 		// math thing to get target pose using current pose
 
-		// FIXME: figure out why targetPose returns infinity
-
-		Rotation2d currentHeading = currentPose.getRotation();
 		Rotation2d targetHeading =
 				new Rotation2d(
 						currentPose.getRotation().getRadians() + Units.degreesToRadians(getHorizontalOffset()));
-		double targetDistance = getDistanceFromTarget() - GOAL_DISTANCE_FROM_TARGET;
+		double targetDistance = getDistanceFromTargetTheSecond() / 39.3700787;
 
 		double targetX = Math.sin(targetHeading.getRadians()) * targetDistance;
 		double targetY = Math.cos(targetHeading.getRadians()) * targetDistance;
 
 		Pose2d targetPose =
 				new Pose2d(currentPose.getX() + targetY, currentPose.getY() + targetX, targetHeading);
-
-		// target pose always ~7.61 degrees?
 
 		currentPoseString = currentPose.toString();
 		targetPoseString = targetPose.toString();
@@ -181,18 +177,17 @@ public class LimelightSubsystem extends SubsystemBase {
 						PATH_CONSTRAINTS,
 						new PathPoint(
 								currentPose.getTranslation(),
-								Rotation2d.fromRadians(
-										Math.atan2(
-												targetPose.getY() - currentPose.getY(),
-												targetPose.getX() - currentPose.getX())),
+								// possible thing that breaks
+								new Rotation2d(targetPose.getX() - currentPose.getX(), targetPose.getY() - currentPose.getY()),
 								currentPose.getRotation(),
 								drivebaseSubsystem.getVelocity()),
 						new PathPoint(
-								targetPose.getTranslation(),
-								Rotation2d.fromDegrees(180),
-								targetPose.getRotation()));
+								currentPose.getTranslation(),
+								targetPose.getRotation(),
+								Rotation2d.fromDegrees(0)));
 
 		System.out.println(alignmentTraj);
+		
 		// make command out of path
 
 		Command moveCommand =
