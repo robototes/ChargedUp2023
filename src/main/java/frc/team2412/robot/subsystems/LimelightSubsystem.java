@@ -4,7 +4,7 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.team2412.robot.commands.drivebase.DriveCommand;
+import java.util.function.DoubleSupplier;
 
 public class LimelightSubsystem extends SubsystemBase {
 
@@ -73,6 +75,10 @@ public class LimelightSubsystem extends SubsystemBase {
 				.withPosition(4, 0)
 				.withSize(1, 1);
 		limelightTab
+				.addDouble("Limelight Based Turn Power - TEST ", this::turnPower)
+				.withPosition(5, 0)
+				.withSize(1, 1);
+		limelightTab
 				.addString("Current Pose ", this::getCurrentPoseString)
 				.withPosition(0, 1)
 				.withSize(4, 1);
@@ -123,6 +129,14 @@ public class LimelightSubsystem extends SubsystemBase {
 		return (8.25 * focal_length) / getBoxWidth();
 	}
 
+	public double turnPower() {
+		return MathUtil.clamp(
+				(Math.signum(getHorizontalOffset())
+						* (Math.pow(Math.abs(getHorizontalOffset()), 1.8) / 100)),
+				-1.5,
+				1.5);
+	}
+
 	// tan(degree) * distance = sideways distance
 
 	// target height / tan(vertical angle)
@@ -162,23 +176,31 @@ public class LimelightSubsystem extends SubsystemBase {
 	}
 
 	public Command getWithinDistance(Pose2d currentPose, DrivebaseSubsystem drivebaseSubsystem) {
+		final DoubleSupplier returnZero = () -> 0.0;
+		final DoubleSupplier returnTurn = () -> turnPower();
+		final DoubleSupplier returnDrive = () -> turnPower();
+		Command moveCommand;
 		Pose2d targetPose;
 		if (hasTargets()) {
 			targetPose = getTargetPose(currentPose);
+			moveCommand =
+					new DriveCommand(drivebaseSubsystem, returnZero, returnZero, returnTurn, returnZero);
 
 		} else {
 			targetPose = currentPose;
+			moveCommand =
+					new DriveCommand(drivebaseSubsystem, returnZero, returnZero, returnZero, returnZero);
 		}
 
 		// create path
-		
+
 		PathPlannerTrajectory alignmentTraj =
 				PathPlanner.generatePath(
 						PATH_CONSTRAINTS,
 						new PathPoint(
 								currentPose.getTranslation(),
 								// possible thing that breaks
-								new Rotation2d(currentPose.getX(),currentPose.getY()),
+								new Rotation2d(currentPose.getX(), currentPose.getY()),
 								currentPose.getRotation(),
 								drivebaseSubsystem.getVelocity()),
 						new PathPoint(
@@ -187,18 +209,6 @@ public class LimelightSubsystem extends SubsystemBase {
 		System.out.println(alignmentTraj);
 
 		// make command out of path
-
-		Command moveCommand =
-				new PPSwerveControllerCommand(
-						alignmentTraj,
-						drivebaseSubsystem::getPose,
-						DrivebaseSubsystem.kinematics,
-						TRANSLATION_PID,
-						TRANSLATION_PID,
-						ROTATION_PID,
-						drivebaseSubsystem::drive,
-						true,
-						drivebaseSubsystem);
 
 		return moveCommand;
 	}
