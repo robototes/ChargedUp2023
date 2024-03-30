@@ -1,10 +1,10 @@
 package frc.team2412.robot.commands.arm;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType;
 
-public class SetArmCommand extends CommandBase {
+public class SetArmCommand extends Command {
 
 	private ArmSubsystem armSubsystem;
 	private PositionType positionType;

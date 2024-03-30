@@ -1,11 +1,11 @@
 package frc.team2412.robot.commands.arm;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.team2412.robot.subsystems.ArmSubsystem;
 import java.util.function.DoubleSupplier;
 
-public class ManualArmOverrideOnCommand extends CommandBase {
+public class ManualArmOverrideOnCommand extends Command {
 
 	private ArmSubsystem armSubsystem;
 	private DoubleSupplier armJoystickInput;

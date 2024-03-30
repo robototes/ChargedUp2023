@@ -3,9 +3,9 @@ package frc.team2412.robot.util.auto;
 import static frc.team2412.robot.commands.arm.SetWristCommand.WristPosition.WRIST_PRESCORE;
 import static frc.team2412.robot.subsystems.ArmSubsystem.ArmConstants.PositionType.*;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
+// import com.pathplanner.lib.PathConstraints;
+// import com.pathplanner.lib.PathPlanner;
+// import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -26,8 +26,8 @@ public class AutonomousTrajectories {
 	private static final Subsystems s = Robot.getInstance().subsystems;
 
 	public static Command getAutoPathByName(String name) {
-		List<PathPlannerTrajectory> pathGroup =
-				PathPlanner.loadPathGroup(name, new PathConstraints(2.0, 2.0));
+		// List<PathPlannerTrajectory> pathGroup =
+		// 		PathPlanner.loadPathGroup(name, new PathConstraints(2.0, 2.0));
 		HashMap<String, Command> eventMap = new HashMap<String, Command>();
 		eventMap.put(
 				"AutoBalance", new AutoBalanceCommand(Robot.getInstance().subsystems.drivebaseSubsystem));
@@ -74,7 +74,8 @@ public class AutonomousTrajectories {
 			eventMap.put("Stow", stow);
 			eventMap.put("Wait", new WaitCommand(0.5));
 		}
-		Command fullAuto = Robot.getInstance().getAutoBuilder(eventMap).fullAuto(pathGroup);
-		return fullAuto;
+		// Command fullAuto = Robot.getInstance().getAutoBuilder(eventMap).fullAuto(pathGroup);
+		// return fullAuto;
+		return null;
 	}
 }

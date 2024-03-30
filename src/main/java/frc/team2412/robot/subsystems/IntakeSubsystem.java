@@ -6,7 +6,7 @@ import static frc.team2412.robot.Hardware.INTAKE_MOTOR_2;
 import static frc.team2412.robot.subsystems.IntakeSubsystem.IntakeConstants.*;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.GenericEntry;

@@ -1,8 +1,8 @@
 package frc.team2412.robot;
 
-import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
-import com.pathplanner.lib.server.PathPlannerServer;
+// import com.pathplanner.lib.auto.PIDConstants;
+// import com.pathplanner.lib.auto.SwerveAutoBuilder;
+// import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -59,7 +59,7 @@ public class Robot extends TimedRobot {
 		this(getTypeFromAddress());
 	}
 
-	public static final MACAddress COMPETITION_ADDRESS = MACAddress.of(0x33, 0x9d, 0xd1);
+	public static final MACAddress COMPETITION_ADDRESS = MACAddress.of(0x22, 0xB0, 0x92);
 	public static final MACAddress PRACTICE_ADDRESS = MACAddress.of(0x28, 0x40, 0x82);
 
 	private static RobotType getTypeFromAddress() {
@@ -105,7 +105,7 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putData(subsystems.visionSubsystem);
 		DriverStation.silenceJoystickConnectionWarning(true);
 
-		PathPlannerServer.startServer(5811);
+		// PathPlannerServer.startServer(5811);
 
 		logRobotInfo();
 	}
@@ -119,37 +119,37 @@ public class Robot extends TimedRobot {
 		}
 	}
 
-	public SwerveAutoBuilder getAutoBuilder(HashMap<String, Command> eventMap) {
-		if (subsystems.drivebaseSubsystem != null) {
-			return new SwerveAutoBuilder(
-					subsystems.drivebaseSubsystem::getPose, // Pose2d supplier
-					subsystems.drivebaseSubsystem
-							::resetPose, // Pose2d consumer, used to reset odometry at the beginning of
-					// auto
-					subsystems.drivebaseSubsystem.getKinematics(), // SwerveDriveKinematics
-					new PIDConstants(
-							5.0, 0.0,
-							0.0), // PID constants to correct for translation error (used to create the X and
-					// Y
-					// PID controllers)
-					new PIDConstants(
-							3.0, 0.0,
-							0.0), // PID constants to correct for rotation error (used to create the rotation
-					// controller)
-					subsystems.drivebaseSubsystem
-							::drive, // Module states consumer used to output to the drive subsystem
-					eventMap,
-					true, // Should the path be automatically mirrored depending on alliance color.
-					// Optional, defaults to true
-					subsystems
-							.drivebaseSubsystem // The drive subsystem. Used to properly set the requirements
-					// of
-					// path following commands
-					);
-		} else {
-			return null;
-		}
-	}
+	// public SwerveAutoBuilder getAutoBuilder(HashMap<String, Command> eventMap) {
+	// 	if (subsystems.drivebaseSubsystem != null) {
+	// 		return new SwerveAutoBuilder(
+	// 				subsystems.drivebaseSubsystem::getPose, // Pose2d supplier
+	// 				subsystems.drivebaseSubsystem
+	// 						::resetPose, // Pose2d consumer, used to reset odometry at the beginning of
+	// 				// auto
+	// 				subsystems.drivebaseSubsystem.getKinematics(), // SwerveDriveKinematics
+	// 				new PIDConstants(
+	// 						5.0, 0.0,
+	// 						0.0), // PID constants to correct for translation error (used to create the X and
+	// 				// Y
+	// 				// PID controllers)
+	// 				new PIDConstants(
+	// 						3.0, 0.0,
+	// 						0.0), // PID constants to correct for rotation error (used to create the rotation
+	// 				// controller)
+	// 				subsystems.drivebaseSubsystem
+	// 						::drive, // Module states consumer used to output to the drive subsystem
+	// 				eventMap,
+	// 				true, // Should the path be automatically mirrored depending on alliance color.
+	// 				// Optional, defaults to true
+	// 				subsystems
+	// 						.drivebaseSubsystem // The drive subsystem. Used to properly set the requirements
+	// 				// of
+	// 				// path following commands
+	// 				);
+	// 	} else {
+	// 		return null;
+	// 	}
+	// }
 
 	@Override
 	public void testInit() {}
@@ -180,7 +180,7 @@ public class Robot extends TimedRobot {
 			subsystems.armLedSubsystem.setLEDAutonomous();
 		}
 		if (subsystems.visionSubsystem != null) {
-			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance());
+			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance().get());
 		}
 		// Checks if FMS is attatched and enables joystick warning if true
 		DriverStation.silenceJoystickConnectionWarning(!DriverStation.isFMSAttached());
@@ -194,7 +194,7 @@ public class Robot extends TimedRobot {
 			subsystems.armLedSubsystem.setLEDAlliance();
 		}
 		if (subsystems.visionSubsystem != null) {
-			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance());
+			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance().get());
 		}
 		if (subsystems.drivebaseSubsystem != null) {
 			subsystems.drivebaseSubsystem.setUseVisionMeasurements(true);

@@ -128,16 +128,16 @@ public class Controls {
 		driveController.back().onTrue(new InstantCommand(s.drivebaseSubsystem::resetPose));
 		driveController.leftStick().onTrue(new InstantCommand(s.drivebaseSubsystem::toggleXWheels));
 
-		triggerDriverAssistCube.whileTrue(
-				DriverAssist.alignRobotCommand(s.drivebaseSubsystem, GamePieceType.CUBE).repeatedly());
-		triggerDriverAssistCone.whileTrue(
-				DriverAssist.alignRobotCommand(s.drivebaseSubsystem, GamePieceType.CONE).repeatedly());
-		// // CommandBase driverAssistCube =
+		// triggerDriverAssistCube.whileTrue(
+		// 		DriverAssist.alignRobotCommand(s.drivebaseSubsystem, GamePieceType.CUBE).repeatedly());
+		// triggerDriverAssistCone.whileTrue(
+		// 		DriverAssist.alignRobotCommand(s.drivebaseSubsystem, GamePieceType.CONE).repeatedly());
+		// // Command driverAssistCube =
 		// // 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem,
 		// GamePieceType.CUBE));
 		// triggerDriverAssistCube.onTrue(
 		// 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem, GamePieceType.CUBE)));
-		// // CommandBase driverAssistCone =
+		// // Command driverAssistCone =
 		// // 		new ProxyCommand(() -> DriverAssist.alignRobot(s.drivebaseSubsystem,
 		// GamePieceType.CONE));
 		// triggerDriverAssistCone.onTrue(

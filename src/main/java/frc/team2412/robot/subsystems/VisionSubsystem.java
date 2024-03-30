@@ -90,9 +90,9 @@ public class VisionSubsystem extends SubsystemBase {
 				// 		pose3d.getX(),
 				// 		FIELD_WIDTH_METERS - pose3d.getY(),
 				// 		new Rotation2d(2 * Math.PI + pose3d.getRotation().getZ()));
-			case Invalid:
-				DriverStation.reportWarning("Unknown alliance! Assuming blue", true);
-				// fall through
+			// case Invalid:
+			// 	DriverStation.reportWarning("Unknown alliance! Assuming blue", true);
+			// 	// fall through
 			default:
 				return pose3d.toPose2d();
 		}
@@ -149,9 +149,9 @@ public class VisionSubsystem extends SubsystemBase {
 		photonCamera = new PhotonCamera(Hardware.PHOTON_CAM);
 		this.photonPoseEstimator =
 				new PhotonPoseEstimator(
-						fieldLayout, PoseStrategy.MULTI_TAG_PNP, photonCamera, ROBOT_TO_CAM);
+						fieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_RIO, photonCamera, ROBOT_TO_CAM);
 
-		alliance = DriverStation.getAlliance();
+		alliance = DriverStation.getAlliance().get();
 
 		networkTables.addListener(
 				networkTables
