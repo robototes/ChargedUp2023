@@ -52,10 +52,10 @@ public class DrivebaseSubsystem extends SubsystemBase {
 	};
 	private static final Rotation2d[] COMP_DRIVEBASE_ENCODER_OFFSETS = {
 		// ALIGNMENT WITH BEVELS FACING RIGHT
-		Rotation2d.fromDegrees(-43+180),
-		Rotation2d.fromDegrees(-157),
-		Rotation2d.fromDegrees(41.2+180),
-		Rotation2d.fromDegrees(-64.4)
+		Rotation2d.fromDegrees(338.73+180),
+		Rotation2d.fromDegrees(28.74+180),
+		Rotation2d.fromDegrees(42.715),
+		Rotation2d.fromDegrees(115.225)
 	};
 
 	// max drive speed is from SDS website and not calculated with robot weight
