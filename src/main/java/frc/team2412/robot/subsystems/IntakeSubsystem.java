@@ -93,6 +93,7 @@ public class IntakeSubsystem extends SubsystemBase {
 					.addPersistent("Distance Sensor Value", 0)
 					.withSize(1, 1)
 					.getEntry();
+
 	// CONSTRUCTOR
 	public IntakeSubsystem() {
 		motor1 = new CANSparkMax(INTAKE_MOTOR_1, MotorType.kBrushless);
@@ -222,6 +223,7 @@ public class IntakeSubsystem extends SubsystemBase {
 		// 	}
 		return false;
 	}
+
 	/**
 	 * Checks whether or not the game piece is secured.
 	 *
@@ -245,6 +247,7 @@ public class IntakeSubsystem extends SubsystemBase {
 		return Math.pow(distanceSensor.getAverageVoltage(), -1.2045)
 				* 27.726; // gets approximately the correct values for both game pieces
 	}
+
 	/**
 	 * Checks whether or not the game piece is inside intake. Used for knowing when to stop outtaking.
 	 *

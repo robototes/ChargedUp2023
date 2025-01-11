@@ -15,7 +15,8 @@ import frc.team2412.robot.subsystems.ArmSubsystem;
 import frc.team2412.robot.subsystems.DrivebaseSubsystem;
 import frc.team2412.robot.subsystems.IntakeSubsystem;
 import frc.team2412.robot.subsystems.LEDSubsystem;
-import frc.team2412.robot.subsystems.VisionSubsystem;
+
+// import frc.team2412.robot.subsystems.VisionSubsystem;
 
 public class Subsystems {
 	public static class SubsystemConstants {
@@ -32,7 +33,7 @@ public class Subsystems {
 	public DrivebaseSubsystem drivebaseSubsystem;
 	public ArmSubsystem armSubsystem;
 	public IntakeSubsystem intakeSubsystem;
-	public VisionSubsystem visionSubsystem;
+	// public VisionSubsystem visionSubsystem;
 	public LEDSubsystem ledSubsystem;
 	public ArmLEDSubsystem armLedSubsystem;
 
@@ -54,7 +55,7 @@ public class Subsystems {
 			drivebaseSubsystem = new DrivebaseSubsystem(poseEstimator, field);
 		}
 		if (VISION_ENABLED) {
-			visionSubsystem = new VisionSubsystem(poseEstimator, field);
+			// visionSubsystem = new VisionSubsystem(poseEstimator, field);
 		}
 		if (DRIVER_VIS_ENABLED) {
 			if (Hardware.DRIVER_VISION_PATH == null) {
