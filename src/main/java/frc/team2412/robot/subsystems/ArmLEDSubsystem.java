@@ -189,7 +189,7 @@ public class ArmLEDSubsystem extends SubsystemBase {
 	/** Called during Teleop to set LED to red or blue based off alliance. */
 	public void setLEDAlliance() {
 
-		if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+		if (DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red) {
 			// red
 			color1 = ColorSelector.RED;
 
