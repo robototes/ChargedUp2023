@@ -102,7 +102,6 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putData(subsystems.armSubsystem);
 		SmartDashboard.putData(subsystems.ledSubsystem);
 		SmartDashboard.putData(subsystems.intakeSubsystem);
-		SmartDashboard.putData(subsystems.visionSubsystem);
 		DriverStation.silenceJoystickConnectionWarning(true);
 
 		PathPlannerServer.startServer(5811);
@@ -179,9 +178,7 @@ public class Robot extends TimedRobot {
 		if (subsystems.armLedSubsystem != null) {
 			subsystems.armLedSubsystem.setLEDAutonomous();
 		}
-		if (subsystems.visionSubsystem != null) {
-			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance());
-		}
+
 		// Checks if FMS is attatched and enables joystick warning if true
 		DriverStation.silenceJoystickConnectionWarning(!DriverStation.isFMSAttached());
 	}
@@ -192,9 +189,6 @@ public class Robot extends TimedRobot {
 
 		if (subsystems.armLedSubsystem != null) {
 			subsystems.armLedSubsystem.setLEDAlliance();
-		}
-		if (subsystems.visionSubsystem != null) {
-			subsystems.visionSubsystem.setAlliance(DriverStation.getAlliance());
 		}
 		if (subsystems.drivebaseSubsystem != null) {
 			subsystems.drivebaseSubsystem.setUseVisionMeasurements(true);
@@ -271,8 +265,8 @@ public class Robot extends TimedRobot {
 			wasArmButtonPressed = isArmButtonPressed;
 		}
 
-		if ((subsystems.visionSubsystem != null) && (subsystems.armLedSubsystem != null)) {
-			boolean isAlignmentCorrect = subsystems.visionSubsystem.isYawAlignedToGrid();
+		if ((subsystems.armLedSubsystem != null)) {
+			boolean isAlignmentCorrect = false;
 			if (wasAlignmentCorrect.isEmpty() || (wasAlignmentCorrect.get() != isAlignmentCorrect)) {
 				if (isAlignmentCorrect) {
 					subsystems.armLedSubsystem.setLEDCorrectAlignment();
