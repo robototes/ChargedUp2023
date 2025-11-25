@@ -3,7 +3,7 @@ import java.net.InetAddress;
 plugins {
 	id "java"
 	id "com.diffplug.spotless" version "6.15.0"
-	id "edu.wpi.first.GradleRIO" version "2023.4.3"
+	id "edu.wpi.first.GradleRIO" version "2024.2.2"
 	id "net.ltgt.errorprone"
 }
 
